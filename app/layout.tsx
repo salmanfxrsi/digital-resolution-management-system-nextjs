@@ -1,6 +1,5 @@
-/* eslint-disable @next/next/no-async-client-component */
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -18,24 +17,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <div className="flex h-screen overflow-hidden">
-          {/* Sidebar (sticky left) */}
-          <Sidebar />
-
-          {/* Main content area */}
+          <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
           <div className="flex flex-col flex-1 overflow-hidden">
-            {/* Navbar (sticky top) */}
-            <Navbar />
-
-            {/* Scrollable content below navbar */}
+            <Navbar
+              isSidebarOpen={isSidebarOpen}
+              setIsSidebarOpen={setIsSidebarOpen}
+            />
             <main className="flex-1 overflow-y-auto p-6">{children}</main>
           </div>
         </div>

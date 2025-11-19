@@ -17,37 +17,36 @@ import {
 } from "lucide-react";
 import { Logo } from "./Navbar/logo";
 
-export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
+export default function Sidebar({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+}) {
+  // const [isOpen, setIsOpen] = useState(true);
 
   return (
     <aside
-      className={`sticky h-full flex flex-col border-r bg-background transition-all duration-300 ${
-        isOpen ? "w-60" : "w-20"
+      className={`sticky h-full flex flex-col bg-background transition-all duration-300 ${
+        isOpen ? "w-48" : "w-20"
       }`}
     >
       {/* Toggle Button */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsOpen(!isOpen)}
-          className="text-muted-foreground"
-        >
-          {isOpen ? (
-            <PanelRightClose className="h-5 w-5" />
-          ) : (
-            <div className="flex flex-col justify-center items-center gap-1">
-              <Image
-                width={160}
-                height={90}
-                src="/favicon.ico"
-                alt="Company Logo"
-              />
-              <PanelRightOpen className="h-5 w-5" />
-            </div>
-          )}
-        </Button>
+      <div className="flex items-center justify-between p-4 ">
+        {isOpen ? (
+          // <PanelRightClose className="h-5 w-5" />
+          <></>
+        ) : (
+          <Image
+            width={160}
+            height={90}
+            src="/favicon.ico"
+            className="-mt-3.5 -mb-1.5"
+            alt="Company Logo"
+          />
+        )}
+
         {isOpen && (
           <Link href="/" className="shrink-0">
             <Logo />
@@ -56,7 +55,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-2 p-4 overflow-y-auto">
+      <nav className="flex-1  space-y-2 p-2  shadow-[2px_0_0px_rgba(0,0,0,0.04)]">
         <SidebarItem
           icon={<Home className="h-5 w-5" />}
           label="Playground"
@@ -96,7 +95,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="p-4 border-t">
+      <div className="p-4  shadow-[2px_0px_0px_rgba(0,0,0,0.04)]">
         <Button
           variant="destructive"
           className="w-full justify-start gap-2"
