@@ -2,21 +2,48 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Logo } from "./logo";
-import { Search, Bell, ChevronDown, LogOut, Settings } from "lucide-react";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import {
+  Search,
+  Bell,
+  ChevronDown,
+  LogOut,
+  Settings,
+  PanelRightClose,
+  PanelRightOpen,
+} from "lucide-react";
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+} from "@headlessui/react";
 
-const Navbar = () => {
+const Navbar = ({
+  isSidebarOpen,
+  setIsSidebarOpen,
+}: {
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (value: boolean) => void;
+}) => {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-sm border-b">
+    <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-[0px_0_4px_rgba(0,0,0,0.1)] ">
       <div className="flex h-full items-center justify-between px-6 md:px-8">
-        {/* Logo */}
-        <Link href="/" className="shrink-0">
-          <Logo />
-        </Link>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="text-muted-foreground font-bold"
+        >
+          {isSidebarOpen ? (
+            <PanelRightClose className="h-5 w-5 font-bold" />
+          ) : (
+            <PanelRightOpen className="h-5 w-5" />
+          )}
+        </Button>
 
         {/* Search Bar */}
         <div className="hidden md:flex items-center gap-2 transition-all duration-300">
