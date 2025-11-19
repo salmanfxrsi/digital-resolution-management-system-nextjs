@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ActiveThemeProvider } from "@/components/active-theme";
 import { cookies } from "next/headers";
 import { cn } from "@/lib/utils";
+import Navbar from "@/components/shared/Navbar/Navbar";
+import Sidebar from "@/components/shared/Sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,24 +34,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={cn(
-          "bg-background overscroll-none font-sans antialiased",
-          activeThemeValue ? `theme-${activeThemeValue}` : "",
-          isScaled ? "theme-scaled" : ""
-        )}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-          enableColorScheme
-        >
-          <ActiveThemeProvider initialTheme={activeThemeValue}>
-            {children}
-          </ActiveThemeProvider>
-        </ThemeProvider>
+      <body>
+        <Navbar />
+        <div className="flex">
+          <Sidebar />
+          <div className="flex justify-center items-center">{children}</div>
+        </div>
       </body>
     </html>
   );
