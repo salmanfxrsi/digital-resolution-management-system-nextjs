@@ -29,11 +29,11 @@ export default function Sidebar({
   return (
     <aside
       className={`sticky h-full flex flex-col bg-background transition-all duration-300 ${
-        isOpen ? "w-48" : "w-20"
+        isOpen ? "w-48" : "w-20 "
       }`}
     >
       {/* Toggle Button */}
-      <div className="flex items-center justify-between p-4 ">
+      <div className="flex items-center justify-center p-3 ">
         {isOpen ? (
           // <PanelRightClose className="h-5 w-5" />
           <></>
@@ -42,7 +42,7 @@ export default function Sidebar({
             width={160}
             height={90}
             src="/favicon.ico"
-            className="-mt-3.5 -mb-1.5"
+            className="-mt-3.5 -mb-1.5 -ms-5"
             alt="Company Logo"
           />
         )}
@@ -58,9 +58,9 @@ export default function Sidebar({
       <nav className="flex-1  space-y-2 p-2  shadow-[2px_0_0px_rgba(0,0,0,0.04)]">
         <SidebarItem
           icon={<Home className="h-5 w-5" />}
-          label="Playground"
+          label="Overview"
           isOpen={isOpen}
-          href="/playground"
+          href="/overview"
         />
         <SidebarItem
           icon={<PlusCircle className="h-5 w-5" />}
