@@ -42,9 +42,10 @@ export default function ClientPage() {
 
   const [search, setSearch] = useState("");
 
-  const filteredClients = clients.filter((client) =>
-    client.name.toLowerCase().includes(search.toLowerCase()) ||
-    client.location.toLowerCase().includes(search.toLowerCase())
+  const filteredClients = clients.filter(
+    (client) =>
+      client.name.toLowerCase().includes(search.toLowerCase()) ||
+      client.location.toLowerCase().includes(search.toLowerCase())
   );
 
   const totalCompanies = clients.length;
