@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-
+import AddClientModal from "./components/AddClientModal";
 interface Client {
   id: number;
   logo: string;
@@ -41,6 +41,7 @@ export default function ClientPage() {
   ];
 
   const [search, setSearch] = useState("");
+  const [openModal, setOpenModal] = useState(false);
 
   const filteredClients = clients.filter(
     (client) =>
@@ -54,6 +55,21 @@ export default function ClientPage() {
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-2xl font-semibold">Client Page</h1>
+
+      {/* ADD CLIENT CARD */}
+      <div className="w-full bg-white border shadow p-5 rounded-xl flex justify-between items-center">
+        <div>
+          <h2 className="text-xl font-bold">Add New Client</h2>
+          <p className="text-gray-600">Click the button to add a new client</p>
+        </div>
+
+        <button
+          onClick={() => setOpenModal(true)}
+          className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
+        >
+          Add Client
+        </button>
+      </div>
 
       {/* SUMMARY SECTION */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -110,6 +126,7 @@ export default function ClientPage() {
                 <td className="p-3 border">{client.name}</td>
                 <td className="p-3 border">{client.location}</td>
                 <td className="p-3 border">{client.number}</td>
+
                 <td className="p-3 border capitalize">
                   {client.status === "ongoing" ? (
                     <span className="text-green-600 font-medium">Ongoing</span>
@@ -136,6 +153,9 @@ export default function ClientPage() {
           </tbody>
         </table>
       </div>
+
+      {/* MODAL COMPONENT */}
+      <AddClientModal open={openModal} onClose={() => setOpenModal(false)} />
     </div>
   );
 }
