@@ -87,6 +87,12 @@ export default function Sidebar({
           href="/client"
         />
         <SidebarItem
+          icon={<Users className="h-5 w-5" />}
+          label="Employee"
+          isOpen={isOpen}
+          href="/employee"
+        />
+        <SidebarItem
           icon={<Settings className="h-5 w-5" />}
           label="Settings"
           isOpen={isOpen}
