@@ -34,12 +34,15 @@ const OverViewCard = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {metrics.map((metric) => (
-        <Card key={metric.label} className="flex  justify-between p-3">
+        <Card
+          key={metric.label}
+          className="flex  justify-between p-3 rounded-md shadow "
+        >
           <div className="flex justify-between items-center">
-            <CardDescription className="text-md text-black font-semibold">
+            <CardDescription className="text-md font-semibold text-black">
               {metric.label}
             </CardDescription>
-            <CardTitle className="text-xl font-semibold">
+            <CardTitle className="text-lg font-semibold  ">
               {metric.value}
             </CardTitle>
           </div>
