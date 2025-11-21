@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -8,14 +7,14 @@ import {
   Home,
   PlusCircle,
   LogOut,
-  PanelRightClose,
-  PanelRightOpen,
   Building2,
   Users,
   FileText,
   Settings,
+  LogIn,
 } from "lucide-react";
 import { Logo } from "./Navbar/logo";
+import { useRouter } from "next/navigation";
 
 export default function Sidebar({
   isOpen,
@@ -24,7 +23,10 @@ export default function Sidebar({
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
 }) {
-  // const [isOpen, setIsOpen] = useState(true);
+  const router = useRouter();
+  const handleLogout = () => {
+    router.push("/login");
+  };
 
   return (
     <aside
@@ -48,7 +50,7 @@ export default function Sidebar({
         )}
 
         {isOpen && (
-          <Link href="/" className="shrink-0">
+          <Link href="/overview" className="shrink-0">
             <Logo />
           </Link>
         )}
@@ -63,18 +65,6 @@ export default function Sidebar({
           href="/overview"
         />
         <SidebarItem
-          icon={<PlusCircle className="h-5 w-5" />}
-          label="Models"
-          isOpen={isOpen}
-          href="/models"
-        />
-        <SidebarItem
-          icon={<FileText className="h-5 w-5" />}
-          label="Documentation"
-          isOpen={isOpen}
-          href="/docs"
-        />
-        <SidebarItem
           icon={<Building2 className="h-5 w-5" />}
           label="Department"
           isOpen={isOpen}
@@ -85,6 +75,18 @@ export default function Sidebar({
           label="Client"
           isOpen={isOpen}
           href="/client"
+        />
+        <SidebarItem
+          icon={<PlusCircle className="h-5 w-5" />}
+          label="Models"
+          isOpen={isOpen}
+          href="/models"
+        />
+        <SidebarItem
+          icon={<FileText className="h-5 w-5" />}
+          label="Documentation"
+          isOpen={isOpen}
+          href="/docs"
         />
         <SidebarItem
           icon={<Users className="h-5 w-5" />}
@@ -103,9 +105,8 @@ export default function Sidebar({
       {/* Logout */}
       <div className="p-4  shadow-[2px_0px_0px_rgba(0,0,0,0.04)]">
         <Button
-          variant="destructive"
-          className="w-full justify-start gap-2"
-          onClick={() => console.log("Logout clicked")}
+          className="w-full justify-start gap-2 bg-red-600"
+          onClick={handleLogout}
         >
           <LogOut className="h-4 w-4" />
           {isOpen && "Logout"}

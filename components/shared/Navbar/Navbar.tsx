@@ -1,8 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
 import { useState } from "react";
-import { Logo } from "./logo";
 import {
   Search,
   Bell,
@@ -19,6 +19,7 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
+import { useRouter } from "next/navigation";
 
 const Navbar = ({
   isSidebarOpen,
@@ -28,6 +29,10 @@ const Navbar = ({
   setIsSidebarOpen: (value: boolean) => void;
 }) => {
   const [searchOpen, setSearchOpen] = useState(false);
+  const router = useRouter();
+  const handleLogout = () => {
+    router.push("/login");
+  };
 
   return (
     <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-[0px_0_4px_rgba(0,0,0,0.1)] ">
@@ -104,7 +109,7 @@ const Navbar = ({
               </MenuItem>
               <MenuItem>
                 <button
-                  onClick={() => console.log("Logout")}
+                  onClick={handleLogout}
                   className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   <LogOut className="h-4 w-4" />
