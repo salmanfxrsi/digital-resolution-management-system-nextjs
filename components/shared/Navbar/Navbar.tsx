@@ -28,7 +28,7 @@ const Navbar = ({
   isSidebarOpen: boolean;
   setIsSidebarOpen: (value: boolean) => void;
 }) => {
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(true);
   const router = useRouter();
   const handleLogout = () => {
     router.push("/login");

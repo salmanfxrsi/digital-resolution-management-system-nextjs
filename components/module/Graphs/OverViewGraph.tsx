@@ -32,7 +32,7 @@ const OverViewGraph = () => {
   return (
     <div className="">
       {/* Working Hours Chart */}
-      <Card>
+      <Card className="rounded-lg">
         <CardHeader>
           <CardTitle>Daily Working Hours</CardTitle>
           <CardDescription>Digital Resolution Team</CardDescription>
