@@ -2,93 +2,78 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import AddEmployeeModal from "./components/AddEmployeeModal";
 
-interface Client {
+interface Employee {
   id: number;
-  logo: string;
+  photo: string;
   name: string;
-  location: string;
   number: string;
-  status: "completed" | "ongoing";
+  email: string;
+  department: string;
+  joiningDate: string;
+  salary: string;
 }
 
-export default function ClientPage() {
-  const clients: Client[] = [
+export default function EmployeePage() {
+  const employees: Employee[] = [
     {
       id: 1,
-      logo: "/logo1.png",
-      name: "ABC Corporation",
-      location: "Dhaka, Bangladesh",
+      photo: "/logo1.png",
+      name: "John Doe",
       number: "+880 1234-567890",
-      status: "completed",
+      email: "john@example.com",
+      department: "HR",
+      joiningDate: "2023-01-15",
+      salary: "50000",
     },
     {
       id: 2,
-      logo: "/logo2.png",
-      name: "XYZ Pvt Ltd",
-      location: "Chittagong, Bangladesh",
+      photo: "/logo2.png",
+      name: "Jane Smith",
       number: "+880 1987-654321",
-      status: "ongoing",
-    },
-    {
-      id: 3,
-      logo: "/logo3.png",
-      name: "DEF Solutions",
-      location: "Sylhet, Bangladesh",
-      number: "+880 1777-888999",
-      status: "completed",
+      email: "jane@example.com",
+      department: "IT",
+      joiningDate: "2023-03-20",
+      salary: "60000",
     },
   ];
 
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
 
-  const filteredClients = clients.filter(
-    (client) =>
-      client.name.toLowerCase().includes(search.toLowerCase()) ||
-      client.location.toLowerCase().includes(search.toLowerCase())
+  const filteredEmployees = employees.filter(
+    (emp) =>
+      emp.name.toLowerCase().includes(search.toLowerCase()) ||
+      emp.department.toLowerCase().includes(search.toLowerCase())
   );
-
-  const totalCompanies = clients.length;
-  const ongoingCompanies = clients.filter((c) => c.status === "ongoing").length;
 
   return (
     <div className="p-6 space-y-8">
-      <h1 className="text-2xl font-semibold">Client Page</h1>
+      <h1 className="text-2xl font-semibold">Employee Page</h1>
 
-      {/* ADD CLIENT CARD */}
+      {/* ADD EMPLOYEE CARD */}
       <div className="w-full bg-white border shadow p-5 rounded-xl flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold">Add New Client</h2>
-          <p className="text-gray-600">Click the button to add a new client</p>
+          <h2 className="text-xl font-bold">Add New Employee</h2>
+          <p className="text-gray-600">
+            Click the button to add a new employee
+          </p>
         </div>
 
         <button
           onClick={() => setOpenModal(true)}
           className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
         >
-          Add Client
+          Add Employee
         </button>
-      </div>
-
-      {/* SUMMARY SECTION */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-blue-600 text-white p-5 rounded-xl shadow">
-          <p className="text-lg font-medium">Total Companies Worked</p>
-          <p className="text-3xl font-bold mt-1">{totalCompanies}</p>
-        </div>
-
-        <div className="bg-green-600 text-white p-5 rounded-xl shadow">
-          <p className="text-lg font-medium">Ongoing Companies</p>
-          <p className="text-3xl font-bold mt-1">{ongoingCompanies}</p>
-        </div>
       </div>
 
       {/* SEARCH BAR */}
       <div>
         <input
           type="text"
-          placeholder="Search by name or location..."
+          placeholder="Search by name or department..."
           className="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -100,40 +85,37 @@ export default function ClientPage() {
         <table className="min-w-full bg-white border rounded-lg shadow">
           <thead>
             <tr className="bg-gray-100 text-left">
-              <th className="p-3 border">Logo</th>
-              <th className="p-3 border">Company Name</th>
-              <th className="p-3 border">Location</th>
+              <th className="p-3 border">Photo</th>
+              <th className="p-3 border">Name</th>
               <th className="p-3 border">Number</th>
-              <th className="p-3 border">Status</th>
+              <th className="p-3 border">Email</th>
+              <th className="p-3 border">Department</th>
+              <th className="p-3 border">Joining Date</th>
+              <th className="p-3 border">Salary</th>
               <th className="p-3 border">Action</th>
             </tr>
           </thead>
 
           <tbody>
-            {filteredClients.map((client) => (
-              <tr key={client.id} className="border">
+            {filteredEmployees.map((emp) => (
+              <tr key={emp.id} className="border">
                 <td className="p-3 border">
                   <div className="w-12 h-12 relative">
                     <Image
-                      src={client.logo}
-                      alt={`${client.name} Logo`}
+                      src={emp.photo}
+                      alt={`${emp.name} Photo`}
                       fill
                       className="object-cover rounded"
                     />
                   </div>
                 </td>
 
-                <td className="p-3 border">{client.name}</td>
-                <td className="p-3 border">{client.location}</td>
-                <td className="p-3 border">{client.number}</td>
-
-                <td className="p-3 border capitalize">
-                  {client.status === "ongoing" ? (
-                    <span className="text-green-600 font-medium">Ongoing</span>
-                  ) : (
-                    <span className="text-blue-600 font-medium">Completed</span>
-                  )}
-                </td>
+                <td className="p-3 border">{emp.name}</td>
+                <td className="p-3 border">{emp.number}</td>
+                <td className="p-3 border">{emp.email}</td>
+                <td className="p-3 border">{emp.department}</td>
+                <td className="p-3 border">{emp.joiningDate}</td>
+                <td className="p-3 border">{emp.salary}</td>
 
                 <td className="p-3 border text-center">
                   <button className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">
@@ -143,10 +125,10 @@ export default function ClientPage() {
               </tr>
             ))}
 
-            {filteredClients.length === 0 && (
+            {filteredEmployees.length === 0 && (
               <tr>
-                <td className="p-4 text-center text-gray-500" colSpan={6}>
-                  No companies found.
+                <td className="p-4 text-center text-gray-500" colSpan={8}>
+                  No employees found.
                 </td>
               </tr>
             )}
@@ -155,7 +137,7 @@ export default function ClientPage() {
       </div>
 
       {/* MODAL COMPONENT */}
-      {/* <AddClientModal open={openModal} onClose={() => setOpenModal(false)} /> */}
+      <AddEmployeeModal open={openModal} onClose={() => setOpenModal(false)} />
     </div>
   );
 }
