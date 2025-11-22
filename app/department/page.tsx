@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Client {
   id: number;
@@ -119,9 +120,12 @@ export default function ClientPage() {
                 </td>
 
                 <td className="p-3 border text-center">
-                  <button className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">
+                  <Link
+                    href={`/department/${client?.id ?? ""}`}
+                    className="inline-block px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+                  >
                     Details
-                  </button>
+                  </Link>
                 </td>
               </tr>
             ))}
