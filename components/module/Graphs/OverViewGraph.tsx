@@ -39,7 +39,7 @@ const OverViewGraph = () => {
         </CardHeader>
         <CardContent>
           <ChartContainer
-            config={{ hours: { label: "Hours", color: "var(--destructive)" } }}
+            config={{ hours: { label: "Hours", color: "#eee36e" } }}
           >
             <BarChart accessibilityLayer data={workingHourData}>
               <CartesianGrid vertical={false} />

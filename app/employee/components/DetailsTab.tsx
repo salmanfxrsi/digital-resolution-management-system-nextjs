@@ -2,6 +2,14 @@
 
 import React from "react";
 import Image from "next/image";
+import {
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Briefcase,
+  DollarSign,
+} from "lucide-react";
 
 const employee = {
   photo: "/logo1.png",
@@ -17,39 +25,51 @@ const employee = {
 
 export default function DetailsTab() {
   return (
-    <div className="bg-white border rounded-lg shadow p-6 space-y-4">
-      <div className="flex items-center gap-6">
-        <div className="w-24 h-24 relative">
+    <div className="bg-white border rounded-lg shadow p-8 space-y-6">
+      {/* Profile Header */}
+      <div className="flex flex-col items-start  text-center space-y-3">
+        <div className="w-28 h-28 relative">
           <Image
             src={employee.photo}
             alt={employee.name}
             fill
-            className="object-cover rounded-full border"
+            className="object-cover rounded border-4 border-blue-100 shadow"
           />
         </div>
-        <div>
-          <h2 className="text-xl font-bold">{employee.name}</h2>
-          <p className="text-gray-600">{employee.designation}</p>
-          <p className="text-gray-600">{employee.department}</p>
+        <div className=" text-start">
+          <h2 className="text-2xl font-bold text-gray-800">{employee.name}</h2>
+          <p className="text-blue-600 font-medium">{employee.designation}</p>
+          <p className="text-gray-500">{employee.department}</p>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        <p>
+
+      {/* Details Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+        <div className="flex items-center gap-2">
+          <Phone className="h-4 w-4 text-gray-500" />
           <span className="font-medium">Phone:</span> {employee.number}
-        </p>
-        <p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Mail className="h-4 w-4 text-gray-500" />
           <span className="font-medium">Email:</span> {employee.email}
-        </p>
-        <p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-gray-500" />
           <span className="font-medium">Joining Date:</span>{" "}
           {employee.joiningDate}
-        </p>
-        <p>
+        </div>
+        <div className="flex items-center gap-2">
+          <DollarSign className="h-4 w-4 text-gray-500" />
           <span className="font-medium">Salary:</span> {employee.salary}
-        </p>
-        <p>
+        </div>
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-gray-500" />
           <span className="font-medium">Address:</span> {employee.address}
-        </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Briefcase className="h-4 w-4 text-gray-500" />
+          <span className="font-medium">Department:</span> {employee.department}
+        </div>
       </div>
     </div>
   );

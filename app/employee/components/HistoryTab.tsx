@@ -128,33 +128,41 @@ export default function HistoryTab() {
       {/* Modal Popup */}
       {openModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
             {/* Close Button */}
             <button
               onClick={() => setOpenModal(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <h2 className="text-xl font-bold mb-4">Assign New Task</h2>
+            <h2 className="text-xl font-bold mb-6 text-gray-800">
+              Assign New Task
+            </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Date */}
               <div>
-                <label className="block text-sm font-medium">Date</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Date
+                </label>
                 <input
                   type="date"
                   value={formData.date}
                   onChange={(e) =>
                     setFormData({ ...formData, date: e.target.value })
                   }
-                  className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-300"
+                  className="w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none py-2 text-sm"
                   required
                 />
               </div>
 
+              {/* Company */}
               <div>
-                <label className="block text-sm font-medium">Company</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Company
+                </label>
                 <input
                   type="text"
                   value={formData.company}
@@ -162,13 +170,14 @@ export default function HistoryTab() {
                     setFormData({ ...formData, company: e.target.value })
                   }
                   placeholder="Company name"
-                  className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-300"
+                  className="w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none py-2 text-sm"
                   required
                 />
               </div>
 
+              {/* Work Details */}
               <div>
-                <label className="block text-sm font-medium">
+                <label className="block text-sm font-medium text-gray-600 mb-1">
                   Work Details
                 </label>
                 <textarea
@@ -177,13 +186,16 @@ export default function HistoryTab() {
                     setFormData({ ...formData, work: e.target.value })
                   }
                   placeholder="Describe the task..."
-                  className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-300"
+                  className="w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none py-2 text-sm resize-none"
                   required
                 />
               </div>
 
+              {/* Hours */}
               <div>
-                <label className="block text-sm font-medium">Hours</label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Hours
+                </label>
                 <input
                   type="number"
                   value={formData.hours}
@@ -191,14 +203,15 @@ export default function HistoryTab() {
                     setFormData({ ...formData, hours: e.target.value })
                   }
                   placeholder="e.g. 5"
-                  className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-300"
+                  className="w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none py-2 text-sm"
                   required
                 />
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg shadow hover:bg-blue-700 transition"
+                className="w-full bg-blue-600 text-white py-2 rounded-lg shadow hover:bg-blue-700 transition font-medium"
               >
                 Submit Task
               </button>
