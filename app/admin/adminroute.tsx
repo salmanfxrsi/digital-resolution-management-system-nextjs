@@ -31,14 +31,14 @@ export const adminRoutes = [
     href: "/salary",
   },
   {
-    icon: <FileText className="h-5 w-5" />,
-    label: "Documentation",
-    href: "docs",
-  },
-  {
     icon: <Users className="h-5 w-5" />,
     label: "Employee",
     href: "/employee",
+  },
+  {
+    icon: <FileText className="h-5 w-5" />,
+    label: "Documentation",
+    href: "/about",
   },
   {
     icon: <Settings className="h-5 w-5" />,
