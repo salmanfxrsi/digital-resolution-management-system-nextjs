@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import AddClientModal from "./components/AddClientModal";
+import Link from "next/link";
 interface Client {
   id: number;
   logo: string;
@@ -136,9 +137,12 @@ export default function ClientPage() {
                 </td>
 
                 <td className="p-3 border text-center">
-                  <button className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">
+                  <Link
+                    href={`/client/${client.id}`}
+                    className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+                  >
                     Details
-                  </button>
+                  </Link>
                 </td>
               </tr>
             ))}

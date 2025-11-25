@@ -32,14 +32,14 @@ const OverViewGraph = () => {
   return (
     <div className="">
       {/* Working Hours Chart */}
-      <Card>
+      <Card className="rounded-lg">
         <CardHeader>
           <CardTitle>Daily Working Hours</CardTitle>
           <CardDescription>Digital Resolution Team</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer
-            config={{ hours: { label: "Hours", color: "var(--destructive)" } }}
+            config={{ hours: { label: "Hours", color: "#eee36e" } }}
           >
             <BarChart accessibilityLayer data={workingHourData}>
               <CartesianGrid vertical={false} />

@@ -1,8 +1,35 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
+import { Transition } from "@headlessui/react";
 
+const notifications = [
+  {
+    id: 1,
+    date: "01-11-24 Today",
+    message: "This is your first notification message!",
+    unread: true,
+  },
+  {
+    id: 2,
+    date: "01-11-24 Today",
+    message: "This is your first notification message!",
+    unread: true,
+  },
+  {
+    id: 3,
+    date: "01-11-24 Today",
+    message: "This is your first notification message!",
+    unread: true,
+  },
+  {
+    id: 4,
+    date: "01-11-24 Today",
+    message: "This is your first notification message!",
+    unread: true,
+  },
+];
 import Link from "next/link";
 import { useState } from "react";
-import { Logo } from "./logo";
 import {
   Search,
   Bell,
@@ -19,6 +46,7 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
+import { useRouter } from "next/navigation";
 
 const Navbar = ({
   isSidebarOpen,
@@ -27,7 +55,12 @@ const Navbar = ({
   isSidebarOpen: boolean;
   setIsSidebarOpen: (value: boolean) => void;
 }) => {
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const router = useRouter();
+  const handleLogout = () => {
+    router.push("/login");
+  };
 
   return (
     <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-[0px_0_4px_rgba(0,0,0,0.1)] ">
@@ -69,13 +102,63 @@ const Navbar = ({
         {/* Actions */}
         <div className="flex items-center gap-4 md:gap-6">
           {/* Notification Bell */}
-          <button
-            type="button"
-            className="relative rounded-full p-1 text-muted-foreground hover:text-foreground transition"
-          >
-            <span className="sr-only">View notifications</span>
-            <Bell className="h-5 w-5" />
-          </button>
+          {/* Notification Bell */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative rounded-full p-1 text-muted-foreground hover:text-foreground transition"
+            >
+              <span className="sr-only">View notifications</span>
+              <Bell className="h-5 w-5" />
+              {notifications.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">
+                  {notifications.length}
+                </span>
+              )}
+            </button>
+
+            {/* Dropdown Panel */}
+            <Transition
+              show={showNotifications}
+              enter="transition ease-out duration-200"
+              enterFrom="opacity-0 translate-y-1"
+              enterTo="opacity-100 translate-y-0"
+              leave="transition ease-in duration-150"
+              leaveFrom="opacity-100 translate-y-0"
+              leaveTo="opacity-0 translate-y-1"
+            >
+              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg ring-1 ring-black/5 z-50">
+                <div className="flex items-center justify-between px-4 py-3 border-b">
+                  <h3 className="text-sm font-semibold text-gray-700">
+                    Notification
+                  </h3>
+                  <Link
+                    href="/notifications"
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    View all
+                  </Link>
+                </div>
+                <ul className="max-h-64 overflow-y-auto divide-y divide-gray-100">
+                  {notifications.map((note) => (
+                    <li
+                      key={note.id}
+                      className="px-4 py-3 text-sm text-gray-700 flex justify-between items-start"
+                    >
+                      <div>
+                        <p className="font-medium">{note.date}</p>
+                        <p className="text-gray-600">{note.message}</p>
+                      </div>
+                      {note.unread && (
+                        <span className="mt-1 w-2 h-2 bg-red-500 rounded-full" />
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Transition>
+          </div>
 
           {/* Profile Dropdown */}
           <Menu as="div" className="relative">
@@ -104,7 +187,7 @@ const Navbar = ({
               </MenuItem>
               <MenuItem>
                 <button
-                  onClick={() => console.log("Logout")}
+                  onClick={handleLogout}
                   className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   <LogOut className="h-4 w-4" />
