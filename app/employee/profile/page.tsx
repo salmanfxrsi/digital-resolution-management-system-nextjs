@@ -26,7 +26,7 @@ const employee = {
 
 export default function Page() {
   return (
-    <div className="max-w-3xl mx-auto p-8 bg-white border rounded-2xl shadow-xl space-y-10">
+    <div className="max-w-3xl mx-auto p-8 bg-white border rounded-lg shadow space-y-10">
       {/* Header Section */}
       <div className="flex flex-col items-center text-center space-y-4">
         <div className="relative w-32 h-32">

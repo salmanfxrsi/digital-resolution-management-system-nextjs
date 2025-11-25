@@ -27,7 +27,7 @@ const handler = NextAuth({
           if (res.ok && user) {
             return {
               ...user,
-              token: data?.token, // if backend returns JWT
+              token: data?.token,
             };
           }
           return null;

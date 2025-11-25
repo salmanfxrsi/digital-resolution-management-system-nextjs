@@ -3,11 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Home, LogOut, Users, FileText, Settings } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Logo } from "./Navbar/logo";
 import { useRouter, usePathname } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
 import { adminRoutes } from "@/app/admin/adminroute";
+import { signOut, useSession } from "next-auth/react";
+import { employeeRoutes } from "@/app/employee/employeeRoute";
 
 export default function Sidebar({
   isOpen,
@@ -26,22 +27,7 @@ export default function Sidebar({
     router.push("/login");
   };
 
-  const userRoutes = [
-    {
-      icon: <Home className="h-5 w-5" />,
-      label: "Overview",
-      href: "/employee/overview",
-    },
-    { icon: <Users className="h-5 w-5" />, label: "Profile", href: "/profile" },
-    { icon: <FileText className="h-5 w-5" />, label: "Task", href: "/task" },
-    {
-      icon: <Settings className="h-5 w-5" />,
-      label: "Settings",
-      href: "/settings",
-    },
-  ];
-
-  const routes = userType === "admin" ? adminRoutes : userRoutes;
+  const routes = userType === "admin" ? adminRoutes : employeeRoutes;
 
   return (
     <aside

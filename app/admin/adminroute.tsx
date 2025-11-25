@@ -18,31 +18,31 @@ export const adminRoutes = [
   {
     icon: <Building2 className="h-5 w-5" />,
     label: "Department",
-    href: "/department",
+    href: "/admin/department",
   },
   {
     icon: <Users className="h-5 w-5" />,
     label: "Client",
-    href: "/client",
+    href: "/admin/client",
   },
   {
     icon: <DollarSign className="h-5 w-5" />,
     label: "Salary",
-    href: "/salary",
+    href: "/admin/salary",
   },
   {
     icon: <Users className="h-5 w-5" />,
     label: "Employee",
-    href: "/employee",
+    href: "/admin/employee",
   },
   {
     icon: <FileText className="h-5 w-5" />,
     label: "Documentation",
-    href: "/about",
+    href: "/admin/about",
   },
   {
     icon: <Settings className="h-5 w-5" />,
     label: "Settings",
-    href: "/settings",
+    href: "/setting",
   },
 ];
