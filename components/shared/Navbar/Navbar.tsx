@@ -1,6 +1,26 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { Transition } from "@headlessui/react";
+
+import {
+  Transition,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+} from "@headlessui/react";
+import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Search,
+  Bell,
+  ChevronDown,
+  LogOut,
+  Settings,
+  PanelRightClose,
+  PanelRightOpen,
+} from "lucide-react";
+import { Button } from "@/components/ui/button"; // ✅ ShadCN Button
 
 const notifications = [
   {
@@ -28,25 +48,6 @@ const notifications = [
     unread: true,
   },
 ];
-import Link from "next/link";
-import { useState } from "react";
-import {
-  Search,
-  Bell,
-  ChevronDown,
-  LogOut,
-  Settings,
-  PanelRightClose,
-  PanelRightOpen,
-} from "lucide-react";
-import {
-  Button,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-} from "@headlessui/react";
-import { useRouter } from "next/navigation";
 
 const Navbar = ({
   isSidebarOpen,
@@ -58,13 +59,15 @@ const Navbar = ({
   const [searchOpen, setSearchOpen] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
   const router = useRouter();
+
   const handleLogout = () => {
     router.push("/login");
   };
 
   return (
-    <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-[0px_0_4px_rgba(0,0,0,0.1)] ">
+    <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-[0px_0_4px_rgba(0,0,0,0.1)]">
       <div className="flex h-full items-center justify-between px-6 md:px-8">
+        {/* Sidebar Toggle */}
         <Button
           variant="ghost"
           size="icon"
@@ -101,7 +104,6 @@ const Navbar = ({
 
         {/* Actions */}
         <div className="flex items-center gap-4 md:gap-6">
-          {/* Notification Bell */}
           {/* Notification Bell */}
           <div className="relative">
             <button

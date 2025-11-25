@@ -3,7 +3,14 @@
 import React, { useState } from "react";
 import { CalendarDays, PlusCircle, X, Search } from "lucide-react";
 
-const initialHistory = [
+interface Task {
+  date: string;
+  company: string;
+  work: string;
+  hours: number;
+}
+
+const initialHistory: Task[] = [
   {
     date: "2025-11-18",
     company: "Digital Resolution",
@@ -26,19 +33,27 @@ const initialHistory = [
 
 export default function HistoryTab() {
   const [openModal, setOpenModal] = useState(false);
-  const [tasks, setTasks] = useState(initialHistory);
+  const [tasks, setTasks] = useState<Task[]>(initialHistory);
   const [search, setSearch] = useState("");
 
   const [formData, setFormData] = useState({
     date: "",
     company: "",
     work: "",
-    hours: "",
+    hours: "", // keep as string while typing
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setTasks([...tasks, formData]);
+
+    const newTask: Task = {
+      date: formData.date,
+      company: formData.company,
+      work: formData.work,
+      hours: Number(formData.hours),
+    };
+
+    setTasks([...tasks, newTask]);
     setFormData({ date: "", company: "", work: "", hours: "" });
     setOpenModal(false);
   };
