@@ -47,6 +47,7 @@ import {
   MenuItems,
 } from "@headlessui/react";
 import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 
 const Navbar = ({
   isSidebarOpen,
@@ -57,8 +58,11 @@ const Navbar = ({
 }) => {
   const [searchOpen, setSearchOpen] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
+  const { data: session } = useSession();
+
   const router = useRouter();
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
     router.push("/login");
   };
 
@@ -170,10 +174,10 @@ const Navbar = ({
               />
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </MenuButton>
-            <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-50">
+            <MenuItems className="absolute right-0 mt-2 py-4 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-50">
               <MenuItem>
-                <div className="px-4 py-2 text-sm text-gray-700">
-                  Talimul Islam
+                <div className="px-4 py-2 text-sm text-gray-700 font-semibold">
+                  {session?.user?.user?.name}
                 </div>
               </MenuItem>
               <MenuItem>
