@@ -12,7 +12,10 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         try {
-          const res = await fetch("http://localhost:5000/api/v1/auth/login", {
+          // Use env variable instead of hard-coded localhost
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
+          const res = await fetch(`${baseUrl}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -53,7 +56,6 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       session.user = token as any;
-
       return session;
     },
   },
