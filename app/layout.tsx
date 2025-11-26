@@ -7,6 +7,11 @@ import Navbar from "@/components/shared/Navbar/Navbar";
 import Sidebar from "@/components/shared/Sidebar";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { SessionProvider } from "next-auth/react";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
+
+// 👉 Import your ReduxProvider
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,22 +36,26 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {isAuthPage ? (
-          <main className="flex min-h-screen items-center justify-center p-6">
-            {children}
-          </main>
-        ) : (
-          <div className="flex h-screen overflow-hidden">
-            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-            <div className="flex flex-col flex-1 overflow-hidden">
-              <Navbar
-                isSidebarOpen={isSidebarOpen}
-                setIsSidebarOpen={setIsSidebarOpen}
-              />
-              <main className="flex-1 overflow-y-auto p-6">{children}</main>
-            </div>
-          </div>
-        )}
+        <SessionProvider>
+          <Provider store={store}>
+            {isAuthPage ? (
+              <main className="flex min-h-screen items-center justify-center p-6">
+                {children}
+              </main>
+            ) : (
+              <div className="flex h-screen overflow-hidden">
+                <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+                <div className="flex flex-col flex-1 overflow-hidden">
+                  <Navbar
+                    isSidebarOpen={isSidebarOpen}
+                    setIsSidebarOpen={setIsSidebarOpen}
+                  />
+                  <main className="flex-1 overflow-y-auto p-6">{children}</main>
+                </div>
+              </div>
+            )}
+          </Provider>
+        </SessionProvider>
       </body>
     </html>
   );

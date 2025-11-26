@@ -1,6 +1,26 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { Transition } from "@headlessui/react";
+import Link from "next/link";
+import { useState } from "react";
+import {
+  Search,
+  Bell,
+  ChevronDown,
+  LogOut,
+  Settings,
+  PanelRightClose,
+  PanelRightOpen,
+} from "lucide-react";
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+} from "@headlessui/react";
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 
 const notifications = [
   {
@@ -28,25 +48,6 @@ const notifications = [
     unread: true,
   },
 ];
-import Link from "next/link";
-import { useState } from "react";
-import {
-  Search,
-  Bell,
-  ChevronDown,
-  LogOut,
-  Settings,
-  PanelRightClose,
-  PanelRightOpen,
-} from "lucide-react";
-import {
-  Button,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-} from "@headlessui/react";
-import { useRouter } from "next/navigation";
 
 const Navbar = ({
   isSidebarOpen,
@@ -57,14 +58,21 @@ const Navbar = ({
 }) => {
   const [searchOpen, setSearchOpen] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
+  const { data: session } = useSession();
   const router = useRouter();
-  const handleLogout = () => {
+
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
     router.push("/login");
   };
 
+  // 🔹 Check user type
+  const userType = session?.user?.user?.userType;
+
   return (
-    <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-[0px_0_4px_rgba(0,0,0,0.1)] ">
+    <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-[0px_0_4px_rgba(0,0,0,0.1)]">
       <div className="flex h-full items-center justify-between px-6 md:px-8">
+        {/* Sidebar Toggle */}
         <Button
           variant="ghost"
           size="icon"
@@ -77,9 +85,17 @@ const Navbar = ({
             <PanelRightOpen className="h-5 w-5" />
           )}
         </Button>
-
-        {/* Search Bar */}
-        <div className="hidden md:flex items-center gap-2 transition-all duration-300">
+        {/* Search Bar + Admin Status */}
+        <div className="hidden md:flex items-center gap-6 transition-all duration-300">
+          {userType === "admin" && (
+            <div className="flex items-center gap-4">
+              <div className="bg-green-50 border flex border-green-200 rounded gap-2 px-4 py-1 shadow">
+                <p className="text-xs text-gray-500">Active Users</p>
+                <p className="text-sm font-semibold text-green-700">245</p>
+              </div>
+            </div>
+          )}
+          {/* Search */}
           <div
             className={`flex items-center border rounded-full px-3 py-1 transition-all duration-300 ${
               searchOpen ? "w-64 bg-muted" : "w-10 bg-transparent"
@@ -97,11 +113,23 @@ const Navbar = ({
               />
             )}
           </div>
+
+          {/* 🔹 Admin Status Cards */}
+          {userType === "admin" && (
+            <div className="flex items-center gap-4">
+              <div
+                className="bg-blue-50 border flex
+               border-blue-200 rounded gap-2 px-4 py-1 shadow"
+              >
+                <p className="text-xs text-gray-500">Revenue</p>
+                <p className="text-sm font-semibold text-blue-700">$12,340</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-4 md:gap-6">
-          {/* Notification Bell */}
           {/* Notification Bell */}
           <div className="relative">
             <button
@@ -170,10 +198,10 @@ const Navbar = ({
               />
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </MenuButton>
-            <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-50">
+            <MenuItems className="absolute right-0 mt-2 py-4 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-50">
               <MenuItem>
-                <div className="px-4 py-2 text-sm text-gray-700">
-                  Talimul Islam
+                <div className="px-4 py-2 text-sm text-gray-700 font-semibold">
+                  {session?.user?.user?.name}
                 </div>
               </MenuItem>
               <MenuItem>

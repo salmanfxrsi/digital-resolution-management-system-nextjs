@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import AddEmployeeModal from "./components/AddEmployeeModal";
 import Link from "next/link";
+import AddEmployeeModal from "./components/AddEmployeeModal";
 
 interface Employee {
   id: number;
@@ -120,7 +120,7 @@ export default function EmployeePage() {
 
                 <td className="p-3 border text-center">
                   <Link
-                    href={`/employee/${emp.id}`}
+                    href={`/admin/employee/${emp.id}`}
                     className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
                   >
                     Details
