@@ -46,6 +46,7 @@ export default function HistoryTab() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+<<<<<<< HEAD:app/employee/components/HistoryTab.tsx
     const newTask: Task = {
       date: formData.date,
       company: formData.company,
@@ -54,6 +55,16 @@ export default function HistoryTab() {
     };
 
     setTasks([...tasks, newTask]);
+=======
+    setTasks([
+      ...tasks,
+      {
+        ...formData,
+        hours: Number(formData.hours), 
+      },
+    ]);
+
+>>>>>>> 552fb6fab12f0914df79a14b1a1c4aa238012053:app/admin/employee/components/HistoryTab.tsx
     setFormData({ date: "", company: "", work: "", hours: "" });
     setOpenModal(false);
   };
