@@ -18,7 +18,6 @@ export default function Loginpage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Perform login
     const result = await signIn("credentials", {
       email,
       password,
@@ -32,7 +31,7 @@ export default function Loginpage() {
 
   useEffect(() => {
     if (session?.user?.user?.userType) {
-      const userType = session.user.user.userType;
+      const userType = session?.user?.user?.userType;
       router.push(
         userType === "admin" ? "/admin/overview" : "/employee/overview"
       );
@@ -40,7 +39,7 @@ export default function Loginpage() {
   }, [session, router]);
 
   return (
-    <div className="flex items-center justify-center max-w-xl ">
+    <div className="flex items-center justify-center max-w-xl">
       <Card className="w-full shadow-lg border border-muted">
         <CardHeader className="text-center">
           <Link

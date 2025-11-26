@@ -6,7 +6,7 @@ interface Employee {
   id: number;
   name: string;
   salary: number;
-  status: "given" | "not-given";
+  status: "given" | "not-given"; // strict union type
 }
 
 interface SalaryTableProps {
@@ -17,7 +17,8 @@ export default function SalaryTable({ employees }: SalaryTableProps) {
   const [employeeList, setEmployeeList] = useState<Employee[]>(employees);
 
   const toggleStatus = (id: number) => {
-    const updated = employeeList.map((emp) =>
+    // explicitly type updated as Employee[]
+    const updated: Employee[] = employeeList.map((emp) =>
       emp.id === id
         ? { ...emp, status: emp.status === "given" ? "not-given" : "given" }
         : emp
