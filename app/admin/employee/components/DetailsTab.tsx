@@ -9,11 +9,11 @@ import {
   MapPin,
   Briefcase,
   DollarSign,
-  IdCard, // 🔹 use lucide-react IdCard icon for NID
+  IdCard,
 } from "lucide-react";
 
 const employee = {
-  photo: "/public/Digital-Resolution-Logo.png.webp",
+  photo: "/Digital-Resolution-Logo.png.webp",
   name: "John Doe",
   number: "+880 1234-567890",
   email: "john@example.com",
@@ -22,62 +22,112 @@ const employee = {
   joiningDate: "2023-01-15",
   salary: "50,000",
   address: "Bandarban, Bangladesh",
-  nid: "1234-5678-9012", // 🔹 Added NID field
+  nid: "1234-5678-9012",
 };
 
 export default function DetailsTab() {
   return (
-    <div className="bg-white border rounded-lg shadow p-8 space-y-6">
-      {/* Profile Header */}
-      <div className="flex flex-col items-start text-center space-y-3">
-        <div className="w-28 h-28 relative">
+    <div className="max-w-5xl mx-auto space-y-10">
+      {/* Profile Card */}
+      <div className="bg-white border rounded-xl shadow-md p-8 flex gap-8 items-center">
+        {/* Image */}
+        <div className="w-32 h-32 relative">
           <Image
             src={employee.photo}
             alt={employee.name}
             fill
-            className="object-cover rounded border-4 border-blue-100 shadow"
+            className="object-cover rounded-xl border shadow-sm"
           />
         </div>
-        <div className="text-start">
-          <h2 className="text-2xl font-bold text-gray-800">{employee.name}</h2>
-          <p className="text-blue-600 font-medium">{employee.designation}</p>
+
+        {/* Basic Info */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-gray-900">{employee.name}</h1>
+          <p className="text-blue-600 font-semibold">{employee.designation}</p>
           <p className="text-gray-500">{employee.department}</p>
         </div>
       </div>
 
-      {/* Details Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-        <div className="flex items-center gap-2">
-          <Phone className="h-4 w-4 text-gray-500" />
-          <span className="font-medium">Phone:</span> {employee.number}
-        </div>
-        <div className="flex items-center gap-2">
-          <Mail className="h-4 w-4 text-gray-500" />
-          <span className="font-medium">Email:</span> {employee.email}
-        </div>
-        <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-gray-500" />
-          <span className="font-medium">Joining Date:</span>{" "}
-          {employee.joiningDate}
-        </div>
-        <div className="flex items-center gap-2">
-          <DollarSign className="h-4 w-4 text-gray-500" />
-          <span className="font-medium">Salary:</span> {employee.salary}
-        </div>
-        <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-gray-500" />
-          <span className="font-medium">Address:</span> {employee.address}
-        </div>
-        <div className="flex items-center gap-2">
-          <Briefcase className="h-4 w-4 text-gray-500" />
-          <span className="font-medium">Department:</span> {employee.department}
-        </div>
-        {/* 🔹 New NID Field */}
-        <div className="flex items-center gap-2">
-          <IdCard className="h-4 w-4 text-gray-500" />
-          <span className="font-medium">NID:</span> {employee.nid}
+      {/* Details Card */}
+      <div className="bg-white border rounded-xl shadow-md p-8">
+        <h2 className="text-lg font-semibold text-gray-800 mb-6">
+          Personal Details
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+          <Detail
+            label="Phone"
+            value={employee.number}
+            icon={<Phone className="h-4 w-4 text-gray-600" />}
+          />
+          <Detail
+            label="Email"
+            value={employee.email}
+            icon={<Mail className="h-4 w-4 text-gray-600" />}
+          />
+          <Detail
+            label="Joining Date"
+            value={employee.joiningDate}
+            icon={<Calendar className="h-4 w-4 text-gray-600" />}
+          />
+          <Detail
+            label="Salary"
+            value={`${employee.salary} BDT`}
+            icon={<DollarSign className="h-4 w-4 text-gray-600" />}
+          />
+          <Detail
+            label="Address"
+            value={employee.address}
+            icon={<MapPin className="h-4 w-4 text-gray-600" />}
+          />
+          <Detail
+            label="Department"
+            value={employee.department}
+            icon={<Briefcase className="h-4 w-4 text-gray-600" />}
+          />
+          <Detail
+            label="NID"
+            value={employee.nid}
+            icon={<IdCard className="h-4 w-4 text-gray-600" />}
+          />
         </div>
       </div>
+
+      {/* Employee Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <SummaryCard title="Total Hours Worked" value="152 hrs" />
+        <SummaryCard title="Total Projects" value="12" />
+        <SummaryCard title="Last Month Hours" value="38 hrs" />
+      </div>
+    </div>
+  );
+}
+
+function Detail({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 bg-gray-50 border rounded-lg p-4">
+      {icon}
+      <div>
+        <p className="text-xs text-gray-500">{label}</p>
+        <p className="text-gray-800 font-medium">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function SummaryCard({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="bg-white border rounded-xl shadow p-6">
+      <p className="text-gray-500 text-sm">{title}</p>
+      <h3 className="text-2xl font-bold text-gray-900 mt-1">{value}</h3>
     </div>
   );
 }
