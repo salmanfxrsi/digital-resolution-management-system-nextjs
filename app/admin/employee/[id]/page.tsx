@@ -10,6 +10,7 @@ import { DateRange } from "react-date-range";
 import { format } from "date-fns";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
+import { CalendarRange, ChevronDown } from "lucide-react";
 
 export default function EmployeeDetails() {
   const params = useParams();
@@ -25,8 +26,10 @@ export default function EmployeeDetails() {
       startDate: new Date(),
       endDate: new Date(),
       key: "selection",
+      color: "#2563eb",
     },
   ]);
+  const specialDates = ["2025-10-10", "2025-10-27", "2025-11-21"];
 
   return (
     <div className="px-6 space-y-4">
@@ -55,21 +58,22 @@ export default function EmployeeDetails() {
         <div className="relative">
           <button
             onClick={() => setShowDatePicker(!showDatePicker)}
-            className="px-4 py-2 border rounded text-sm text-gray-700 hover:text-red-600"
+            className="px-4 py-2 border flex justify-between items-center shadow font-semibold rounded text-sm text-gray-700 hover:text-red-600"
           >
+            <CalendarRange className="inline h-4 w-4 mr-2" />
             {format(dateRange[0].startDate, "MMM dd, yyyy")} –{" "}
             {format(dateRange[0].endDate, "MMM dd, yyyy")}
+            <ChevronDown className="inline h-4 w-4 ml-2" />
           </button>
 
           {showDatePicker && (
-            <div className="absolute right-0 z-10 mt-2 bg-white shadow-lg p-4 rounded-md w-[820px]">
-              <div className=" flex  ">
+            <div className="absolute right-0 z-10 mt-2 bg-white shadow-2xl p-4 rounded-md w-[820px] h-[530px] overflow-y-auto overflow-x-hidden">
+              <div className="flex">
                 {/* Preset Ranges */}
                 <div className="mb-4 space-y-2 w-[120px] text-sm text-gray-700 border-r">
                   <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Recently used
                   </div>
-
                   <div className="flex flex-col gap-1">
                     {[
                       "Today",
@@ -84,7 +88,7 @@ export default function EmployeeDetails() {
                     ].map((label) => (
                       <button
                         key={label}
-                        className="w-full text-left px-3 py-1 rounded hover:bg-red-50 hover:text-red-600 transition"
+                        className="w-full text-left text-[16px] font-medium px-3 py-1 rounded hover:bg-red-50 hover:text-red-600 transition"
                         onClick={() => {
                           const now = new Date();
                           let start = new Date();
@@ -141,6 +145,7 @@ export default function EmployeeDetails() {
                               startDate: start,
                               endDate: end,
                               key: "selection",
+                              color: "#2563eb",
                             },
                           ]);
                           setShowDatePicker(false);
@@ -152,75 +157,60 @@ export default function EmployeeDetails() {
                   </div>
                 </div>
 
-                {/* Calendar */}
-                {/* Calendar Section with Two Panels */}
-                <div className="w-[580px] ">
-                  {/* Start Date Picker */}
-                  <div className="w-[580px] flex gap-4">
-                    <div className="flex-1">
-                      <label className="block mb-1 text-sm font-semibold text-gray-600">
-                        From
-                      </label>
-                      <DateRange
-                        editableDateInputs={true}
-                        onChange={(item) =>
-                          setDateRange([
-                            {
-                              ...dateRange[0],
-                              startDate: item.selection.startDate,
-                              key: "selection",
-                            },
-                          ])
-                        }
-                        moveRangeOnFirstSelection={false}
-                        ranges={[
-                          {
-                            startDate: dateRange[0].startDate,
-                            endDate: dateRange[0].startDate,
-                            key: "selection",
-                          },
-                        ]}
-                      />
-                    </div>
+                {/* Calendar Section */}
+                <div className="w-[580px] px-4">
+                  <DateRange
+                    editableDateInputs={false}
+                    onChange={(item) =>
+                      setDateRange([
+                        {
+                          ...dateRange[0],
+                          startDate: item.selection.startDate,
+                          endDate: item.selection.endDate,
+                          key: "selection",
+                          color: "#2563eb",
+                        },
+                      ])
+                    }
+                    moveRangeOnFirstSelection={false}
+                    ranges={dateRange}
+                    rangeColors={["#2563eb"]}
+                    months={2}
+                    direction="horizontal"
+                    dayContentRenderer={(date) => {
+                      const iso = date.toISOString().split("T")[0];
+                      const isSpecial = specialDates.includes(iso);
+                      return (
+                        <div className="relative">
+                          <span>{date.getDate()}</span>
+                          {isSpecial && (
+                            <div className="absolute inset-0 border border-blue-500 rounded-full"></div>
+                          )}
+                        </div>
+                      );
+                    }}
+                  />
 
-                    {/* End Date Picker */}
-                    <div className="flex-1">
-                      <label className="block mb-1 text-sm font-semibold text-gray-600">
-                        To
-                      </label>
-                      <DateRange
-                        editableDateInputs={true}
-                        onChange={(item) =>
-                          setDateRange([
-                            {
-                              ...dateRange[0],
-                              endDate: item.selection.endDate,
-                              key: "selection",
-                            },
-                          ])
-                        }
-                        moveRangeOnFirstSelection={false}
-                        ranges={[
-                          {
-                            startDate: dateRange[0].endDate,
-                            endDate: dateRange[0].endDate,
-                            key: "selection",
-                          },
-                        ]}
-                      />
-                    </div>
-                  </div>
-                  <div className="mt-4 text-sm">
+                  {/* Compare Dropdown */}
+                  <div className="-mt-2 ms-2 text-sm ">
                     <label className="block mb-1 font-semibold">Compare</label>
-                    <select className="w-full border rounded px-2 py-1">
-                      <option>Select an item</option>
-                      <option>Previous period</option>
-                      <option>Same period last year</option>
-                    </select>
+                    <div className="flex gap-3">
+                      <select className=" border rounded px-2 py-1">
+                        <option>Select an item</option>
+                        <option>Previous period</option>
+                        <option>Same period last year</option>
+                      </select>
+                      <div className="px-4 py-2 border flex justify-between items-center shadow font-semibold rounded text-sm text-gray-700 ">
+                        {format(dateRange[0].startDate, "MMM dd, yyyy")}
+                      </div>
+                      <div className="px-4 py-2 border flex justify-between items-center shadow font-semibold rounded text-sm text-gray-700 ">
+                        {format(dateRange[0].endDate, "MMM dd, yyyy")}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="mt-4 flex justify-end gap-2">
+                  <div className="mt-4 ms-2 flex justify-start gap-2">
                     <button
                       onClick={() => setShowDatePicker(false)}
                       className="px-4 py-1 border rounded text-gray-600 hover:text-red-600"
@@ -235,13 +225,6 @@ export default function EmployeeDetails() {
                     </button>
                   </div>
                 </div>
-              </div>
-              <div>
-                {/* Compare Dropdown */}
-
-                <p className="mt-2 text-xs text-gray-500">
-                  Dates are shown in Singapore Time.
-                </p>
               </div>
             </div>
           )}
