@@ -212,7 +212,7 @@ export default function DepartmentDetails() {
                   <td className="p-3">{emp.salary}</td>
                   <td className="p-3 text-center">
                     <Link
-                      href={`/employee/${emp.id}`}
+                      href={`/admin/employee/${emp.id}`}
                       className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
                     >
                       Details
