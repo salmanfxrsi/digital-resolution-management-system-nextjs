@@ -1,144 +1,122 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
+import React from "react";
 import Link from "next/link";
+import {
+  Megaphone,
+  Code,
+  PenTool,
+  Video,
+  Users,
+  FolderKanban,
+  ClipboardList,
+  Building2,
+} from "lucide-react";
 
-interface Client {
-  id: number;
-  logo: string;
-  name: string;
-  location: string;
-  number: string;
-  status: "completed" | "ongoing";
-}
-
-export default function ClientPage() {
-  const clients: Client[] = [
+export default function DepartmentPage() {
+  const departments = [
     {
-      id: 1,
-      logo: "/logo1.png",
-      name: "ABC Corporation",
-      location: "Dhaka, Bangladesh",
-      number: "+880 1234-567890",
-      status: "completed",
+      id: "marketer",
+      name: "Marketing Team",
+      icon: <Megaphone className="w-12 h-12 text-blue-600" />,
+      description: "Promotion, ads & lead generation.",
     },
     {
-      id: 2,
-      logo: "/logo2.png",
-      name: "XYZ Pvt Ltd",
-      location: "Chittagong, Bangladesh",
-      number: "+880 1987-654321",
-      status: "ongoing",
+      id: "web_developer",
+      name: "Web Developers",
+      icon: <Code className="w-12 h-12 text-green-600" />,
+      description: "Website & web app development.",
     },
     {
-      id: 3,
-      logo: "/logo3.png",
-      name: "DEF Solutions",
-      location: "Sylhet, Bangladesh",
-      number: "+880 1777-888999",
-      status: "completed",
+      id: "graphic_designer",
+      name: "Graphic Designers",
+      icon: <PenTool className="w-12 h-12 text-purple-600" />,
+      description: "Brand visuals & creative design.",
+    },
+    {
+      id: "video_editor",
+      name: "Video Editors",
+      icon: <Video className="w-12 h-12 text-red-600" />,
+      description: "Video editing & motion graphics.",
     },
   ];
 
-  const [search, setSearch] = useState("");
-
-  const filteredClients = clients.filter(
-    (client) =>
-      client.name.toLowerCase().includes(search.toLowerCase()) ||
-      client.location.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const totalCompanies = clients.length;
-  const ongoingCompanies = clients.filter((c) => c.status === "ongoing").length;
-
   return (
-    <div className="p-6 space-y-8">
-      <h1 className="text-2xl font-semibold">Department Page</h1>
-
-      {/* SUMMARY SECTION */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-blue-600 text-white p-5 rounded-xl shadow">
-          <p className="text-lg font-medium">Total Companies Worked</p>
-          <p className="text-3xl font-bold mt-1">{totalCompanies}</p>
+    <div className="p-6 space-y-10 min-h-screen">
+      <div className="bg-white p-8 rounded-2xl shadow flex justify-between items-center border">
+        <div>
+          <h1 className="text-3xl font-bold">Departments</h1>
+          <p className="text-gray-600 mt-1">
+            Manage all teams of your organization
+          </p>
         </div>
 
-        <div className="bg-green-600 text-white p-5 rounded-xl shadow">
-          <p className="text-lg font-medium">Ongoing Companies</p>
-          <p className="text-3xl font-bold mt-1">{ongoingCompanies}</p>
+        <Building2 className="w-16 h-16 text-blue-500 opacity-80" />
+      </div>
+
+      {/* STATS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white p-6 rounded-xl shadow border">
+          <div className="flex items-center gap-4">
+            <Users className="w-10 h-10 text-blue-600" />
+            <div>
+              <p className="text-gray-500 text-sm">Total Departments</p>
+              <p className="text-2xl font-bold">4</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow border">
+          <div className="flex items-center gap-4">
+            <FolderKanban className="w-10 h-10 text-green-600" />
+            <div>
+              <p className="text-gray-500 text-sm">Active Projects</p>
+              <p className="text-2xl font-bold">9</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow border">
+          <div className="flex items-center gap-4">
+            <ClipboardList className="w-10 h-10 text-orange-500" />
+            <div>
+              <p className="text-gray-500 text-sm">Pending Tasks</p>
+              <p className="text-2xl font-bold">14</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow border">
+          <div className="flex items-center gap-4">
+            <Users className="w-10 h-10 text-purple-600" />
+            <div>
+              <p className="text-gray-500 text-sm">Total Employees</p>
+              <p className="text-2xl font-bold">28</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* SEARCH BAR */}
+      {/* DEPARTMENT CARDS */}
       <div>
-        <input
-          type="text"
-          placeholder="Search by name or location..."
-          className="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+        <h2 className="text-xl font-semibold mb-4">All Departments</h2>
 
-      {/* TABLE */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border rounded-lg shadow">
-          <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="p-3 border">Logo</th>
-              <th className="p-3 border">Company Name</th>
-              <th className="p-3 border">Location</th>
-              <th className="p-3 border">Number</th>
-              <th className="p-3 border">Status</th>
-              <th className="p-3 border">Action</th>
-            </tr>
-          </thead>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {departments.map((dept) => (
+            <Link
+              key={dept.id}
+              href={`/admin/department/${dept.id}`}
+              className="block"
+            >
+              <div className="bg-white p-7 rounded-2xl shadow-lg hover:shadow-xl border hover:scale-105 transition transform cursor-pointer text-center">
+                <div className="flex justify-center mb-4">{dept.icon}</div>
 
-          <tbody>
-            {filteredClients.map((client) => (
-              <tr key={client.id} className="border">
-                <td className="p-3 border">
-                  <div className="w-12 h-12 relative">
-                    <Image
-                      src={client.logo}
-                      alt={`${client.name} Logo`}
-                      fill
-                      className="object-cover rounded"
-                    />
-                  </div>
-                </td>
-
-                <td className="p-3 border">{client.name}</td>
-                <td className="p-3 border">{client.location}</td>
-                <td className="p-3 border">{client.number}</td>
-                <td className="p-3 border capitalize">
-                  {client.status === "ongoing" ? (
-                    <span className="text-green-600 font-medium">Ongoing</span>
-                  ) : (
-                    <span className="text-blue-600 font-medium">Completed</span>
-                  )}
-                </td>
-
-                <td className="p-3 border text-center">
-                  <Link
-                    href={`/admin/department/${client?.id ?? ""}`}
-                    className="inline-block px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
-                  >
-                    Details
-                  </Link>
-                </td>
-              </tr>
-            ))}
-
-            {filteredClients.length === 0 && (
-              <tr>
-                <td className="p-4 text-center text-gray-500" colSpan={6}>
-                  No companies found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                <p className="text-lg font-semibold">{dept.name}</p>
+                <p className="text-gray-500 text-sm mt-1">{dept.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
