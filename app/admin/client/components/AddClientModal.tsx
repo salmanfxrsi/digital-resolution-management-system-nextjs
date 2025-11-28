@@ -13,6 +13,8 @@ export default function AddClientModal({ open, onClose }: Props) {
     name: "",
     location: "",
     number: "",
+    gmail: "",
+    projectDetails: "",
     status: "ongoing",
     logo: null as File | null,
   });
@@ -53,9 +55,16 @@ export default function AddClientModal({ open, onClose }: Props) {
     handleFile(file);
   };
 
-  //  SUBMIT
+  // SUBMIT
   const handleSubmit = () => {
-    if (!form.name || !form.location || !form.number || !form.logo) {
+    if (
+      !form.name ||
+      !form.location ||
+      !form.number ||
+      !form.gmail ||
+      !form.projectDetails ||
+      !form.logo
+    ) {
       alert("All fields are required!");
       return;
     }
@@ -97,6 +106,27 @@ export default function AddClientModal({ open, onClose }: Props) {
             onChange={(e) => setForm({ ...form, number: e.target.value })}
           />
 
+          {/* GMAIL */}
+          <input
+            type="email"
+            placeholder="Gmail"
+            className="w-full p-3 border rounded-lg"
+            required
+            value={form.gmail}
+            onChange={(e) => setForm({ ...form, gmail: e.target.value })}
+          />
+
+          {/* PROJECT DETAILS */}
+          <textarea
+            placeholder="Project Details"
+            className="w-full p-3 border rounded-lg h-24"
+            required
+            value={form.projectDetails}
+            onChange={(e) =>
+              setForm({ ...form, projectDetails: e.target.value })
+            }
+          />
+
           <select
             className="w-full p-3 border rounded-lg"
             required
@@ -116,11 +146,9 @@ export default function AddClientModal({ open, onClose }: Props) {
               onDragLeave={onDragLeave}
               onDrop={onDrop}
               onClick={() => document.getElementById("logoInput")?.click()}
-              className={`
-                mt-2 p-5 border-2 border-dashed rounded-xl text-center cursor-pointer
-                transition
-                ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"}
-              `}
+              className={`mt-2 p-5 border-2 border-dashed rounded-xl text-center cursor-pointer transition ${
+                isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
+              }`}
             >
               {logoPreview ? (
                 <div className="flex justify-center">
