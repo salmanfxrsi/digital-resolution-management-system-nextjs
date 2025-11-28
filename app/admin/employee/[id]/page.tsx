@@ -165,8 +165,11 @@ export default function EmployeeDetails() {
                         setDateRange([
                           {
                             ...dateRange[0],
-                            startDate: item.selection.startDate,
-                            endDate: item.selection.endDate,
+                            startDate:
+                              item.selection.startDate ??
+                              dateRange[0].startDate,
+                            endDate:
+                              item.selection.endDate ?? dateRange[0].endDate,
                             key: "selection",
                             color: "#2563eb",
                           },
