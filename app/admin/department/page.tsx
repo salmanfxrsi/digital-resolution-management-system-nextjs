@@ -11,6 +11,7 @@ import {
   FolderKanban,
   ClipboardList,
   Building2,
+  ShieldCheck, // new icon for Admin Service
 } from "lucide-react";
 
 export default function DepartmentPage() {
@@ -39,11 +40,17 @@ export default function DepartmentPage() {
       icon: <Video className="w-12 h-12 text-red-600" />,
       description: "Video editing & motion graphics.",
     },
+    {
+      id: "admin_service",
+      name: "Admin Service",
+      icon: <ShieldCheck className="w-12 h-12 text-indigo-600" />,
+      description: "Administration, HR & organizational support.",
+    },
   ];
 
   return (
     <div className="p-6 space-y-10 min-h-screen">
-      <div className="bg-white p-8 rounded-2xl shadow flex justify-between items-center border">
+      <div className="bg-white p-5 rounded-lg shadow flex justify-between items-center border">
         <div>
           <h1 className="text-3xl font-bold">Departments</h1>
           <p className="text-gray-600 mt-1">
@@ -56,17 +63,17 @@ export default function DepartmentPage() {
 
       {/* STATS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow border">
+        <div className="bg-white p-6 rounded-lg shadow border">
           <div className="flex items-center gap-4">
             <Users className="w-10 h-10 text-blue-600" />
             <div>
               <p className="text-gray-500 text-sm">Total Departments</p>
-              <p className="text-2xl font-bold">4</p>
+              <p className="text-2xl font-bold">{departments.length}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow border">
+        <div className="bg-white p-6 rounded-lg shadow border">
           <div className="flex items-center gap-4">
             <FolderKanban className="w-10 h-10 text-green-600" />
             <div>
@@ -76,7 +83,7 @@ export default function DepartmentPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow border">
+        <div className="bg-white p-6 rounded-lg shadow border">
           <div className="flex items-center gap-4">
             <ClipboardList className="w-10 h-10 text-orange-500" />
             <div>
@@ -86,7 +93,7 @@ export default function DepartmentPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow border">
+        <div className="bg-white p-6 rounded-lg shadow border">
           <div className="flex items-center gap-4">
             <Users className="w-10 h-10 text-purple-600" />
             <div>
@@ -108,7 +115,7 @@ export default function DepartmentPage() {
               href={`/admin/department/${dept.id}`}
               className="block"
             >
-              <div className="bg-white p-7 rounded-2xl shadow-lg hover:shadow-xl border hover:scale-105 transition transform cursor-pointer text-center">
+              <div className="bg-white p-7 rounded-lg shadow hover:shadow-lg border hover:scale-105 transition transform cursor-pointer text-center">
                 <div className="flex justify-center mb-4">{dept.icon}</div>
 
                 <p className="text-lg font-semibold">{dept.name}</p>
