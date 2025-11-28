@@ -29,14 +29,14 @@ export default function DetailsTab() {
   return (
     <div className="max-w-5xl mx-auto space-y-10">
       {/* Profile Card */}
-      <div className="bg-white border rounded-xl shadow-md p-8 flex gap-8 items-center">
+      <div className="bg-white border rounded-lg  p-8 flex gap-8 items-center">
         {/* Image */}
         <div className="w-32 h-32 relative">
           <Image
             src={employee.photo}
             alt={employee.name}
             fill
-            className="object-cover rounded-xl border shadow-sm"
+            className="object-cover rounded-lg border shadow"
           />
         </div>
 
@@ -49,7 +49,7 @@ export default function DetailsTab() {
       </div>
 
       {/* Details Card */}
-      <div className="bg-white border rounded-xl shadow-md p-8">
+      <div className="bg-white border rounded-lg  p-8">
         <h2 className="text-lg font-semibold text-gray-800 mb-6">
           Personal Details
         </h2>
@@ -91,13 +91,6 @@ export default function DetailsTab() {
             icon={<IdCard className="h-4 w-4 text-gray-600" />}
           />
         </div>
-      </div>
-
-      {/* Employee Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <SummaryCard title="Total Hours Worked" value="152 hrs" />
-        <SummaryCard title="Total Projects" value="12" />
-        <SummaryCard title="Last Month Hours" value="38 hrs" />
       </div>
     </div>
   );

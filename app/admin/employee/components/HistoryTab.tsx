@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CalendarDays, PlusCircle, X, Search } from "lucide-react";
+import { CalendarDays, X, Search } from "lucide-react";
 
 type Role = "marketer" | "web_developer" | "graphic_designer" | "video_editor";
 
@@ -20,7 +20,7 @@ interface Employee {
 
 const employee: Employee = {
   name: "John Doe",
-  role: "web_developer", 
+  role: "web_developer",
 };
 
 const initialHistory: Task[] = [
@@ -48,52 +48,26 @@ const initialHistory: Task[] = [
 ];
 
 export default function EmployeeHistory() {
-  const [openModal, setOpenModal] = useState(false);
-  const [tasks, setTasks] = useState<Task[]>(initialHistory);
+  const [tasks] = useState<Task[]>(initialHistory);
   const [search, setSearch] = useState("");
-
-  const [formData, setFormData] = useState({
-    date: "",
-    company: "",
-    work: "",
-    hours: "",
-    role: employee.role,
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const newTask: Task = {
-      date: formData.date,
-      company: formData.company,
-      work: formData.work,
-      hours: Number(formData.hours),
-      role: employee.role,
-    };
-
-    setTasks([...tasks, newTask]);
-
-    setFormData({
-      date: "",
-      company: "",
-      work: "",
-      hours: "",
-      role: employee.role,
-    });
-
-    setOpenModal(false);
-  };
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const filteredTasks = tasks
     .filter((t) => t.role === employee.role)
-    .filter(
-      (t) =>
-        t.company.toLowerCase().includes(search.toLowerCase()) ||
-        t.work.toLowerCase().includes(search.toLowerCase())
-    );
+    .filter((t) => {
+      const query = search.toLowerCase();
+      return (
+        t.company.toLowerCase().includes(query) ||
+        t.work.toLowerCase().includes(query) ||
+        t.date.toLowerCase().includes(query) // ✅ allow date filtering like "2025-11-19"
+      );
+    });
 
-  const totalHours = filteredTasks.reduce((sum, t) => sum + t.hours, 0);
-  const totalProjects = new Set(filteredTasks.map((t) => t.company)).size;
+  // Helper to get day name from date string
+  const getDayName = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", { weekday: "long" });
+  };
 
   return (
     <div className="space-y-8">
@@ -108,33 +82,15 @@ export default function EmployeeHistory() {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div className="p-5 bg-white rounded-xl border shadow-sm">
-          <p className="text-sm text-gray-600">Total Hours</p>
-          <h3 className="text-2xl font-bold">{totalHours}</h3>
-        </div>
-
-        <div className="p-5 bg-white rounded-xl border shadow-sm">
-          <p className="text-sm text-gray-600">Total Projects</p>
-          <h3 className="text-2xl font-bold">{totalProjects}</h3>
-        </div>
-
-        <div className="p-5 bg-white rounded-xl border shadow-sm">
-          <p className="text-sm text-gray-600">Total Tasks</p>
-          <h3 className="text-2xl font-bold">{filteredTasks.length}</h3>
-        </div>
-      </div>
-
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
         <input
           type="text"
-          placeholder="Search work or company..."
+          placeholder="Search by date (YYYY-MM-DD), work, or company..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border rounded-lg shadow-sm"
+          className="w-full pl-10 pr-4 py-2 border rounded shadow"
         />
       </div>
 
@@ -144,24 +100,33 @@ export default function EmployeeHistory() {
           <thead>
             <tr className="bg-gray-100 text-gray-700">
               <th className="p-3 text-left">Date</th>
-              <th className="p-3 text-left">Company</th>
+              <th className="p-3 text-left">Day</th>
               <th className="p-3 text-left">Work Details</th>
               <th className="p-3 text-left">Hours</th>
+              <th className="p-3 text-left">Action</th>
             </tr>
           </thead>
           <tbody>
             {filteredTasks.map((t, i) => (
               <tr key={i} className="border-t hover:bg-gray-50">
                 <td className="p-3">{t.date}</td>
-                <td className="p-3">{t.company}</td>
+                <td className="p-3">{getDayName(t.date)}</td>
                 <td className="p-3">{t.work}</td>
                 <td className="p-3">{t.hours}</td>
+                <td className="p-3">
+                  <button
+                    onClick={() => setSelectedTask(t)}
+                    className="bg-blue-100 text-blue-600 px-3 py-1 rounded font-semibold hover:underline text-sm"
+                  >
+                    Details
+                  </button>
+                </td>
               </tr>
             ))}
 
             {filteredTasks.length === 0 && (
               <tr>
-                <td colSpan={4} className="p-4 text-center text-gray-500">
+                <td colSpan={5} className="p-4 text-center text-gray-500">
                   No work records found.
                 </td>
               </tr>
@@ -170,92 +135,65 @@ export default function EmployeeHistory() {
         </table>
       </div>
 
-      {/* Add Task Button */}
-      <button
-        onClick={() => setOpenModal(true)}
-        className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg"
-      >
-        <PlusCircle className="h-6 w-6" />
-      </button>
-
-      {/* Modal */}
-      {openModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-md p-6 rounded-xl shadow-lg relative">
+      {/* View Task Modal */}
+      {selectedTask && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-lg p-6 rounded-lg shadow-2xl relative animate-fadeIn">
+            {/* Close Button */}
             <button
-              onClick={() => setOpenModal(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+              onClick={() => setSelectedTask(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
             >
-              <X className="h-5 w-5" />
+              <X className="h-6 w-6" />
             </button>
 
-            <h2 className="text-xl font-bold mb-6">Add Work Record</h2>
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-6 border-b pb-3">
+              <CalendarDays className="h-6 w-6 text-blue-600" />
+              <h2 className="text-xl font-bold text-gray-900">
+                Work Record Details
+              </h2>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Date</label>
-                <input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, date: e.target.value })
-                  }
-                  className="w-full border-b py-2"
-                  required
-                />
+            {/* Content */}
+            <div className="space-y-4 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span className="font-semibold text-gray-600">📅 Date:</span>
+                <span>{selectedTask.date}</span>
               </div>
-
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Company
-                </label>
-                <input
-                  type="text"
-                  value={formData.company}
-                  onChange={(e) =>
-                    setFormData({ ...formData, company: e.target.value })
-                  }
-                  className="w-full border-b py-2"
-                  required
-                />
+              <div className="flex justify-between">
+                <span className="font-semibold text-gray-600">🗓 Day:</span>
+                <span>{getDayName(selectedTask.date)}</span>
               </div>
-
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Work Details
-                </label>
-                <textarea
-                  value={formData.work}
-                  onChange={(e) =>
-                    setFormData({ ...formData, work: e.target.value })
-                  }
-                  className="w-full border-b py-2 resize-none"
-                  required
-                />
+              <div className="flex justify-between">
+                <span className="font-semibold text-gray-600">🏢 Company:</span>
+                <span>{selectedTask.company}</span>
               </div>
-
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Hours
-                </label>
-                <input
-                  type="number"
-                  value={formData.hours}
-                  onChange={(e) =>
-                    setFormData({ ...formData, hours: e.target.value })
-                  }
-                  className="w-full border-b py-2"
-                  required
-                />
+              <div className="flex justify-between">
+                <span className="font-semibold text-gray-600">💻 Work:</span>
+                <span className="text-right">{selectedTask.work}</span>
               </div>
+              <div className="flex justify-between">
+                <span className="font-semibold text-gray-600">⏱ Hours:</span>
+                <span>{selectedTask.hours}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold text-gray-600">👤 Role:</span>
+                <span className="capitalize">
+                  {selectedTask.role.replace("_", " ")}
+                </span>
+              </div>
+            </div>
 
+            {/* Footer */}
+            <div className="mt-6 flex justify-end gap-3">
               <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg shadow"
+                onClick={() => setSelectedTask(null)}
+                className="px-4 py-1 bg-blue-100 text-blue-600 rounded font-semibold shadow hover:bg-blue-200 transition"
               >
-                Add Task
+                Close
               </button>
-            </form>
+            </div>
           </div>
         </div>
       )}
