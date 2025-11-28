@@ -10,10 +10,14 @@ interface Props {
 
 export default function AddEmployeeModal({ open, onClose }: Props) {
   const [form, setForm] = useState({
+    id: "",
     name: "",
     number: "",
     email: "",
     department: "",
+    designation: "",
+    address: "",
+    nid: "",
     joiningDate: "",
     salary: "",
     photo: null as File | null,
@@ -51,10 +55,14 @@ export default function AddEmployeeModal({ open, onClose }: Props) {
   // SUBMIT
   const handleSubmit = () => {
     if (
+      !form.id ||
       !form.name ||
       !form.number ||
       !form.email ||
       !form.department ||
+      !form.designation ||
+      !form.address ||
+      !form.nid ||
       !form.joiningDate ||
       !form.salary ||
       !form.photo
@@ -68,16 +76,27 @@ export default function AddEmployeeModal({ open, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md p-6 rounded-xl shadow-lg">
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white w-full max-w-2xl p-6 rounded-xl shadow-lg overflow-y-auto max-h-[90vh]">
         <h2 className="text-xl font-semibold mb-4">Add New Employee</h2>
 
-        <div className="space-y-4">
+        {/* FORM */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* ID */}
+          <input
+            type="text"
+            placeholder="Employee ID"
+            className="p-3 border rounded-lg"
+            required
+            value={form.id}
+            onChange={(e) => setForm({ ...form, id: e.target.value })}
+          />
+
           {/* NAME */}
           <input
             type="text"
             placeholder="Full Name"
-            className="w-full p-3 border rounded-lg"
+            className="p-3 border rounded-lg"
             required
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -87,7 +106,7 @@ export default function AddEmployeeModal({ open, onClose }: Props) {
           <input
             type="text"
             placeholder="Phone Number"
-            className="w-full p-3 border rounded-lg"
+            className="p-3 border rounded-lg"
             required
             value={form.number}
             onChange={(e) => setForm({ ...form, number: e.target.value })}
@@ -97,7 +116,7 @@ export default function AddEmployeeModal({ open, onClose }: Props) {
           <input
             type="email"
             placeholder="Email"
-            className="w-full p-3 border rounded-lg"
+            className="p-3 border rounded-lg"
             required
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -107,17 +126,46 @@ export default function AddEmployeeModal({ open, onClose }: Props) {
           <input
             type="text"
             placeholder="Department"
-            className="w-full p-3 border rounded-lg"
+            className="p-3 border rounded-lg"
             required
             value={form.department}
             onChange={(e) => setForm({ ...form, department: e.target.value })}
           />
 
+          {/* DESIGNATION */}
+          <input
+            type="text"
+            placeholder="Designation"
+            className="p-3 border rounded-lg"
+            required
+            value={form.designation}
+            onChange={(e) => setForm({ ...form, designation: e.target.value })}
+          />
+
+          {/* ADDRESS */}
+          <input
+            type="text"
+            placeholder="Address"
+            className="p-3 border rounded-lg"
+            required
+            value={form.address}
+            onChange={(e) => setForm({ ...form, address: e.target.value })}
+          />
+
+          {/* NID */}
+          <input
+            type="text"
+            placeholder="NID Number"
+            className="p-3 border rounded-lg"
+            required
+            value={form.nid}
+            onChange={(e) => setForm({ ...form, nid: e.target.value })}
+          />
+
           {/* JOINING DATE */}
           <input
             type="date"
-            placeholder="Joining Date"
-            className="w-full p-3 border rounded-lg"
+            className="p-3 border rounded-lg"
             required
             value={form.joiningDate}
             onChange={(e) => setForm({ ...form, joiningDate: e.target.value })}
@@ -127,14 +175,14 @@ export default function AddEmployeeModal({ open, onClose }: Props) {
           <input
             type="number"
             placeholder="Salary"
-            className="w-full p-3 border rounded-lg"
+            className="p-3 border rounded-lg"
             required
             value={form.salary}
             onChange={(e) => setForm({ ...form, salary: e.target.value })}
           />
 
-          {/* DRAG & DROP PHOTO */}
-          <div>
+          {/* PHOTO UPLOAD */}
+          <div className="col-span-2">
             <label className="font-medium">Upload Photo *</label>
 
             <div
