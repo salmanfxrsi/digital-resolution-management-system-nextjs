@@ -18,7 +18,7 @@ const metrics = [
   },
   {
     label: "Departments",
-    value: 6,
+    value: 5,
     icon: Building2,
     color: "text-purple-600 bg-purple-100",
   },

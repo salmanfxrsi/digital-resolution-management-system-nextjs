@@ -36,7 +36,7 @@ export default function EmployeeDetails() {
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL; // ✅ use env variable
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
         const res = await fetch(`${baseUrl}/employees/${id}`);
         const data = await res.json();
 
