@@ -14,14 +14,19 @@ interface Task {
 }
 
 interface Employee {
+  _id: string;
+  companyID: string;
+  photo: string;
   name: string;
-  role: Role;
+  number: string;
+  email: string;
+  department: string;
+  designation: string;
+  joiningDate: string;
+  salary: string | number;
+  address: string;
+  nid: string;
 }
-
-const employee: Employee = {
-  name: "John Doe",
-  role: "web_developer",
-};
 
 const initialHistory: Task[] = [
   {
@@ -47,19 +52,23 @@ const initialHistory: Task[] = [
   },
 ];
 
-export default function EmployeeHistory() {
+export default function HistoryTab({
+  employee,
+}: {
+  employee: Employee | null;
+}) {
   const [tasks] = useState<Task[]>(initialHistory);
   const [search, setSearch] = useState("");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const filteredTasks = tasks
-    .filter((t) => t.role === employee.role)
+    .filter((t) => employee && t.role === employee?.department)
     .filter((t) => {
       const query = search.toLowerCase();
       return (
         t.company.toLowerCase().includes(query) ||
         t.work.toLowerCase().includes(query) ||
-        t.date.toLowerCase().includes(query) // ✅ allow date filtering like "2025-11-19"
+        t.date.toLowerCase().includes(query)
       );
     });
 
@@ -75,9 +84,9 @@ export default function EmployeeHistory() {
       <div className="flex items-center gap-3">
         <CalendarDays className="h-6 w-6 text-blue-600" />
         <div>
-          <h2 className="text-xl font-semibold">{employee.name}</h2>
+          <h2 className="text-xl font-semibold">{employee?.name}</h2>
           <p className="text-gray-600 capitalize">
-            {employee.role.replace("_", " ")}
+            {employee?.department.replace("_", " ")}
           </p>
         </div>
       </div>

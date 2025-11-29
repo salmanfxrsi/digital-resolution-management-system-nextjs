@@ -1,120 +1,142 @@
 "use client";
 
-import OverViewCard from "@/components/module/Cards/OverViewCard";
-import OverViewGraph from "@/components/module/Graphs/OverViewGraph";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { Building2, Users } from "lucide-react";
-import { useState } from "react";
+import { Clock } from "lucide-react";
+import { UserCheck, UserX, CalendarX } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  BarChart,
+  Bar,
+  Legend,
+} from "recharts";
 
-const departments = [
-  { name: "HR", hours: "9 hrs/day", lead: "Alice Johnson" },
-  { name: "IT", hours: "8 hrs/day", lead: "Bob Smith" },
-  { name: "Finance", hours: "7 hrs/day", lead: "Carol Lee" },
+// Example data — replace with API data later
+const activityData = [
+  { month: "Jan", Count: 20 },
+  { month: "Feb", Count: 28 },
+  { month: "Mar", Count: 18 },
+  { month: "Apr", Count: 25 },
+  { month: "May", Count: 30 },
 ];
 
-const employees = [
-  { name: "John Doe", designation: "HR Manager", hours: "8 hrs/day" },
-  { name: "Jane Smith", designation: "Software Engineer", hours: "7 hrs/day" },
-  { name: "Mark Taylor", designation: "Accountant", hours: "6 hrs/day" },
+const metrics = [
+  {
+    label: "Total Hours",
+    value: "38.5 hrs",
+    icon: Clock,
+    color: "text-blue-600 bg-blue-100",
+    description: "Average working hours per week",
+  },
+  {
+    label: "Total Design",
+    value: "160 hrs",
+    icon: Clock,
+    color: "text-purple-600 bg-purple-100",
+    description: "Total working hours this month",
+  },
+];
+
+const attendanceStats = [
+  {
+    label: "Present",
+    value: 42,
+    icon: UserCheck,
+    color: "text-green-600 bg-green-100",
+  },
+  {
+    label: "Absent",
+    value: 5,
+    icon: UserX,
+    color: "text-red-600 bg-red-100",
+  },
+  {
+    label: "Leave",
+    value: 3,
+    icon: CalendarX,
+    color: "text-yellow-600 bg-yellow-100",
+  },
 ];
 
 export default function OverviewPage() {
-  const [deptView, setDeptView] = useState("daily");
-  const [empView, setEmpView] = useState("daily");
-
   return (
-    <div className="space-y-6">
-      {/* Metric Cards */}
-      <OverViewCard />
+    <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+      {/* Attendance Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        {attendanceStats.map((stat) => (
+          <Card
+            key={stat.label}
+            className="flex flex-row items-center p-3 rounded-lg"
+          >
+            <div className={`rounded-full p-3 mb-2 ${stat.color}`}>
+              <stat.icon className="h-6 w-6" />
+            </div>
+            <div>
+              <CardDescription className="text-sm font-medium text-gray-600">
+                {stat.label}
+              </CardDescription>
+              <CardTitle className="text-xl font-bold text-gray-900">
+                {stat.value}
+              </CardTitle>
+            </div>
+          </Card>
+        ))}
+      </div>
 
-      {/* Bar Chart Section */}
-      <div className="">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Graph */}
-          <OverViewGraph />
+      {/* Metrics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {metrics.map((metric) => (
+          <Card key={metric.label} className="flex p-5 rounded-lg">
+            <div className="flex justify-between items-center w-full">
+              <CardDescription className="text-md font-medium text-black">
+                {metric.label}
+              </CardDescription>
+              <CardTitle className="text-lg font-bold text-gray-900">
+                {metric.value}
+              </CardTitle>
+            </div>
+            <p className="text-xs text-gray-500 text-center font-semibold">
+              {metric.description}
+            </p>
+            <div className={`rounded-full w-full p-1 ${metric.color}`}>
+              <metric.icon className="h-6 w-6" />
+            </div>
+          </Card>
+        ))}
+      </div>
 
-          {/* Departments & Employees */}
-          <div className="flex flex-col gap-6">
-            {/* Departments Card */}
-            <Card className="p-4 shadow rounded-lg">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="rounded-full bg-purple-100 p-2">
-                    <Building2 className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <CardTitle className="text-lg font-semibold">
-                    Departments
-                  </CardTitle>
-                </div>
-                {/* Select option */}
-                <select
-                  value={deptView}
-                  onChange={(e) => setDeptView(e.target.value)}
-                  className="border rounded-md text-sm px-2 py-1 focus:outline-none focus:ring focus:ring-purple-300"
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                {departments.map((dept, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center border-b pb-2 text-sm"
-                  >
-                    <div>
-                      <p className="font-medium">{dept.name}</p>
-                      <p className="text-gray-500">Lead: {dept.lead}</p>
-                    </div>
-                    <span className="text-black font-semibold">
-                      {dept.hours}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Employees Card */}
-            <Card className="p-4 shadow rounded-lg">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="rounded-full bg-green-100 p-2">
-                    <Users className="h-6 w-6 text-green-600" />
-                  </div>
-                  <CardTitle className="text-lg font-semibold">
-                    Employees
-                  </CardTitle>
-                </div>
-                {/* Select option */}
-                <select
-                  value={empView}
-                  onChange={(e) => setEmpView(e.target.value)}
-                  className="border rounded-md text-sm px-2 py-1 focus:outline-none focus:ring focus:ring-green-300"
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                {employees.map((emp, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center border-b pb-2 text-sm"
-                  >
-                    <div>
-                      <p className="font-medium">{emp.name}</p>
-                      <p className="text-gray-500">{emp.designation}</p>
-                    </div>
-                    <span className="text-black font-semibold">
-                      {emp.hours}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
+      {/* Charts */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="bg-white border rounded-lg shadow p-4">
+          <h2 className="text-lg font-semibold mb-2">Total Hour</h2>
+          <LineChart width={400} height={250} data={activityData}>
+            <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="Count"
+              stroke="#2563eb"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+            />
+          </LineChart>
+        </div>
+        <div className="bg-white border rounded-lg shadow p-4">
+          <h2 className="text-lg font-semibold mb-2">Total Design</h2>
+          <BarChart width={400} height={250} data={activityData}>
+            <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="Count" fill="#10b981" radius={[4, 4, 0, 0]} />
+          </BarChart>
         </div>
       </div>
     </div>

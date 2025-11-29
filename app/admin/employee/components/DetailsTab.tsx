@@ -55,6 +55,7 @@ export default function DetailsTab({
           name: employee.name,
           email: employee.email,
           password,
+          employeeId: employee._id,
           userType: employee.department,
           createdBy: "admin",
         }),
@@ -158,10 +159,13 @@ export default function DetailsTab({
               {employee.email})
               <br />
               User type: <strong>{employee.department}</strong>
+              <br />
+              Company ID: <strong>{employee.companyID}</strong>
             </p>
+
             <input
               type="password"
-              placeholder="Enter employee password"
+              placeholder={`Set Company ID ${employee.companyID} as password`}
               className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-blue-300 mb-4"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
