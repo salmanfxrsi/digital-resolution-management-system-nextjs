@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
@@ -20,7 +21,11 @@ export default function Sidebar({
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  const userType = session?.user?.user?.userType;
+  const userType =
+    (session as any)?.user?.user?.userType ??
+    (session as any)?.user?.userType ??
+    (session as any)?.user?.role ??
+    (session as any)?.userType;
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -99,6 +104,7 @@ function SidebarItem({
 }) {
   return (
     <Link
+      title={label}
       href={href}
       className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition border-l-4 ${
         active

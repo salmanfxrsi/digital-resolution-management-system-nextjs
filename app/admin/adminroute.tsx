@@ -6,6 +6,7 @@ import {
   DollarSign,
   FileText,
   Settings,
+  Briefcase,
 } from "lucide-react";
 import React from "react";
 
@@ -31,7 +32,7 @@ export const adminRoutes = [
     href: "/admin/salary",
   },
   {
-    icon: <Users className="h-5 w-5" />,
+    icon: <Briefcase className="h-5 w-5" />,
     label: "Employee",
     href: "/admin/employee",
   },
