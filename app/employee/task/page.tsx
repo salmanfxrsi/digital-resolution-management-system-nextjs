@@ -1,14 +1,22 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Plus, X, Search, CalendarDays } from "lucide-react";
+import { Plus, X, Search, CalendarDays, Edit2 } from "lucide-react";
+
+// Define Task type
+type Task = {
+  date: string;
+  company: string;
+  work: string;
+  hours: number;
+};
 
 export default function TaskPage() {
   const [openModal, setOpenModal] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("All");
 
-  const [tasks, setTasks] = useState([
+  const [tasks, setTasks] = useState<Task[]>([
     {
       date: "2025-11-18",
       company: "Digital Resolution",
@@ -22,7 +30,7 @@ export default function TaskPage() {
       hours: 5,
     },
     {
-      date: "2025-11-20",
+      date: "2025-11-28",
       company: "Digital Resolution",
       work: "Policy Review & Planning",
       hours: 4,
@@ -31,11 +39,13 @@ export default function TaskPage() {
 
   // Form state
   const [formData, setFormData] = useState({
-    date: "",
     company: "",
     work: "",
     hours: "",
   });
+
+  // Edit state
+  const [editTaskIndex, setEditTaskIndex] = useState<number | null>(null);
 
   // Extract unique months from tasks
   const monthsList = useMemo(() => {
@@ -60,7 +70,6 @@ export default function TaskPage() {
   // Filter by month
   const monthFilteredTasks = useMemo(() => {
     if (selectedMonth === "All") return sortedTasks;
-
     return sortedTasks.filter((t) => {
       const monthYear = new Date(t.date).toLocaleString("default", {
         month: "long",
@@ -77,22 +86,66 @@ export default function TaskPage() {
       t.work.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Total hours for the filtered month
+  // Total hours
   const totalHours = filteredTasks.reduce((sum, t) => sum + t.hours, 0);
 
-  // Submit New Task
+  // Check if editable
+  const isEditable = (taskDate: string) => {
+    const [year, month, day] = taskDate.split("-").map(Number);
+    const taskDay = new Date(year, month - 1, day);
+    const now = new Date();
+    return (
+      taskDay.getFullYear() === now.getFullYear() &&
+      taskDay.getMonth() === now.getMonth() &&
+      taskDay.getDate() === now.getDate()
+    );
+  };
+
+  // Handle edit click
+  const handleEdit = (index: number) => {
+    if (!isEditable(tasks[index].date)) {
+      alert("You can only edit tasks on the same day before midnight!");
+      return;
+    }
+    setEditTaskIndex(index);
+    setFormData({ ...tasks[index], hours: String(tasks[index].hours) });
+    setOpenModal(true);
+  };
+
+  // Handle add/update
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    setTasks((prev) => [
-      ...prev,
-      {
+    // Today's date
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+    if (editTaskIndex !== null) {
+      // Update existing task
+      setTasks((prev) => {
+        const newTasks = [...prev];
+        newTasks[editTaskIndex] = {
+          ...formData,
+          hours: Number(formData.hours),
+          date: prev[editTaskIndex].date,
+        } as Task;
+        return newTasks;
+      });
+      setEditTaskIndex(null);
+    } else {
+      // Add new task
+      const newTask: Task = {
         ...formData,
         hours: Number(formData.hours),
-      },
-    ]);
+        date: todayStr,
+      };
+      setTasks((prev) => [...prev, newTask]);
+    }
 
-    setFormData({ date: "", company: "", work: "", hours: "" });
+    setFormData({ company: "", work: "", hours: "" });
     setOpenModal(false);
   };
 
@@ -118,9 +171,8 @@ export default function TaskPage() {
         </div>
       </div>
 
-      {/* Filters Row */}
+      {/* Filters */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        {/* Month Selector */}
         <select
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
@@ -133,7 +185,6 @@ export default function TaskPage() {
           ))}
         </select>
 
-        {/* Search */}
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
           <input
@@ -145,9 +196,12 @@ export default function TaskPage() {
           />
         </div>
 
-        {/* Add Task Button */}
         <button
-          onClick={() => setOpenModal(true)}
+          onClick={() => {
+            setOpenModal(true);
+            setEditTaskIndex(null);
+            setFormData({ company: "", work: "", hours: "" });
+          }}
           className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition"
         >
           <Plus className="h-5 w-5" /> Add Task
@@ -163,6 +217,7 @@ export default function TaskPage() {
               <th className="p-3 text-left">Company</th>
               <th className="p-3 text-left">Work Details</th>
               <th className="p-3 text-left">Hours</th>
+              <th className="p-3 text-left">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -173,11 +228,23 @@ export default function TaskPage() {
                   <td className="p-3">{task.company}</td>
                   <td className="p-3">{task.work}</td>
                   <td className="p-3">{task.hours}</td>
+                  <td className="p-3">
+                    {isEditable(task.date) ? (
+                      <button
+                        onClick={() => setOpenModal(true)}
+                        className="flex items-center gap-1 text-blue-600 hover:underline"
+                      >
+                        <Edit2 className="h-4 w-4" /> Edit
+                      </button>
+                    ) : (
+                      <span className="text-gray-400">Locked</span>
+                    )}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={4} className="p-5 text-center text-gray-500">
+                <td colSpan={5} className="p-5 text-center text-gray-500">
                   No tasks found for this month.
                 </td>
               </tr>
@@ -190,7 +257,6 @@ export default function TaskPage() {
       {openModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           <div className="bg-white w-full max-w-md rounded-xl p-6 relative shadow-xl">
-            {/* Close */}
             <button
               onClick={() => setOpenModal(false)}
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
@@ -199,24 +265,10 @@ export default function TaskPage() {
             </button>
 
             <h2 className="text-xl font-bold text-gray-800 mb-6">
-              Add New Task
+              {editTaskIndex !== null ? "Edit Task" : "Add New Task"}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Date */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Date</label>
-                <input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, date: e.target.value })
-                  }
-                  className="w-full border-b py-2 focus:border-blue-500 outline-none text-sm"
-                  required
-                />
-              </div>
-
               {/* Company */}
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -245,7 +297,7 @@ export default function TaskPage() {
                   placeholder="Describe the work..."
                   className="w-full border-b py-2 focus:border-blue-500 outline-none text-sm resize-none"
                   required
-                ></textarea>
+                />
               </div>
 
               {/* Hours */}
@@ -268,7 +320,7 @@ export default function TaskPage() {
                 type="submit"
                 className="w-full bg-blue-600 text-white py-2 rounded-lg shadow hover:bg-blue-700 transition font-medium"
               >
-                Submit Task
+                {editTaskIndex !== null ? "Update Task" : "Submit Task"}
               </button>
             </form>
           </div>
