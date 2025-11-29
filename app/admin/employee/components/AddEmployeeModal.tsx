@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState } from "react";
@@ -10,7 +11,7 @@ interface Props {
 
 export default function AddEmployeeModal({ open, onClose }: Props) {
   const [form, setForm] = useState({
-    id: "",
+    companyID: "",
     name: "",
     number: "",
     email: "",
@@ -52,10 +53,9 @@ export default function AddEmployeeModal({ open, onClose }: Props) {
     handleFile(file);
   };
 
-  // SUBMIT
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (
-      !form.id ||
+      !form.companyID ||
       !form.name ||
       !form.number ||
       !form.email ||
@@ -65,175 +65,148 @@ export default function AddEmployeeModal({ open, onClose }: Props) {
       !form.nid ||
       !form.joiningDate ||
       !form.salary ||
-      !form.photo
+      !form.photo?.name
     ) {
       alert("All fields are required!");
       return;
     }
 
-    console.log("EMPLOYEE DATA:", form);
-    onClose();
+    // Build plain JSON object
+    const payload = {
+      companyID: form.companyID,
+      name: form.name,
+      number: form.number,
+      email: form.email,
+      department: form.department,
+      designation: form.designation,
+      address: form.address,
+      nid: form.nid,
+      joiningDate: form.joiningDate,
+      salary: form.salary,
+      photo: form.photo?.name,
+    };
+    console.log(JSON.stringify(payload));
+
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+      console.log(baseUrl);
+
+      const res = await fetch(`${baseUrl}/employees/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText);
+      }
+
+      alert("Employee added successfully!");
+      onClose();
+    } catch (err) {
+      console.error("Error submitting employee:", err);
+      alert("Failed to add employee");
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white w-full max-w-2xl p-6 rounded-xl shadow-lg overflow-y-auto max-h-[90vh]">
-        <h2 className="text-xl font-semibold mb-4">Add New Employee</h2>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2 ">
+      <div className="bg-white w-full max-w-2xl p-3 rounded-lg shadow overflow-y-auto max-h-[90vh]">
+        <h2 className="text-2xl font-bold mb-3 text-gray-800 border-b pb-2">
+          Add New Employee
+        </h2>
 
-        {/* FORM */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* ID */}
+        {/* PHOTO UPLOAD */}
+        <div className="col-span-2 mb-6">
+          <div
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={onDrop}
+            onClick={() => document.getElementById("photoInput")?.click()}
+            className={`mt-2 p-2 h-30 w-[170px] border-2 border-dashed rounded text-center cursor-pointer transition ${
+              isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
+            }`}
+          >
+            {photoPreview ? (
+              <div className="flex justify-center">
+                <Image
+                  src={photoPreview}
+                  width={100}
+                  height={100}
+                  alt="Employee Photo"
+                  className="rounded border shadow"
+                />
+              </div>
+            ) : (
+              <p className="text-gray-500 mt-8 text-sm">
+                Drag & drop photo here, or{" "}
+                <span className="text-blue-600 font-medium">browse</span>
+              </p>
+            )}
+          </div>
           <input
-            type="text"
-            placeholder="Employee ID"
-            className="p-3 border rounded-lg"
-            required
-            value={form.id}
-            onChange={(e) => setForm({ ...form, id: e.target.value })}
+            id="photoInput"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleFile(e.target.files?.[0] || null)}
           />
+        </div>
 
-          {/* NAME */}
-          <input
-            type="text"
-            placeholder="Full Name"
-            className="p-3 border rounded-lg"
-            required
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
+        {/* FORM FIELDS */}
+        <div className="grid grid-cols-3 gap-6">
+          {[
+            { key: "companyID", placeholder: "Employee ID", type: "text" },
+            { key: "name", placeholder: "Full Name", type: "text" },
+            { key: "number", placeholder: "Phone Number", type: "text" },
+            { key: "email", placeholder: "Email", type: "email" },
+            { key: "designation", placeholder: "Designation", type: "text" },
+            { key: "address", placeholder: "Address", type: "text" },
+            { key: "nid", placeholder: "NID Number", type: "text" },
+            { key: "joiningDate", placeholder: "Joining Date", type: "date" },
+            { key: "salary", placeholder: "Salary", type: "number" },
+          ].map((field) => (
+            <input
+              key={field.key}
+              type={field.type}
+              placeholder={field.placeholder}
+              className="p-2 border-b border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm"
+              required
+              value={(form as any)[field.key]}
+              onChange={(e) =>
+                setForm({ ...form, [field.key]: e.target.value })
+              }
+            />
+          ))}
 
-          {/* PHONE */}
-          <input
-            type="text"
-            placeholder="Phone Number"
-            className="p-3 border rounded-lg"
-            required
-            value={form.number}
-            onChange={(e) => setForm({ ...form, number: e.target.value })}
-          />
-
-          {/* EMAIL */}
-          <input
-            type="email"
-            placeholder="Email"
-            className="p-3 border rounded-lg"
-            required
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-
-          {/* DEPARTMENT */}
-          <input
-            type="text"
-            placeholder="Department"
-            className="p-3 border rounded-lg"
+          {/* DEPARTMENT DROPDOWN */}
+          <select
             required
             value={form.department}
             onChange={(e) => setForm({ ...form, department: e.target.value })}
-          />
-
-          {/* DESIGNATION */}
-          <input
-            type="text"
-            placeholder="Designation"
-            className="p-3 border rounded-lg"
-            required
-            value={form.designation}
-            onChange={(e) => setForm({ ...form, designation: e.target.value })}
-          />
-
-          {/* ADDRESS */}
-          <input
-            type="text"
-            placeholder="Address"
-            className="p-3 border rounded-lg"
-            required
-            value={form.address}
-            onChange={(e) => setForm({ ...form, address: e.target.value })}
-          />
-
-          {/* NID */}
-          <input
-            type="text"
-            placeholder="NID Number"
-            className="p-3 border rounded-lg"
-            required
-            value={form.nid}
-            onChange={(e) => setForm({ ...form, nid: e.target.value })}
-          />
-
-          {/* JOINING DATE */}
-          <input
-            type="date"
-            className="p-3 border rounded-lg"
-            required
-            value={form.joiningDate}
-            onChange={(e) => setForm({ ...form, joiningDate: e.target.value })}
-          />
-
-          {/* SALARY */}
-          <input
-            type="number"
-            placeholder="Salary"
-            className="p-3 border rounded-lg"
-            required
-            value={form.salary}
-            onChange={(e) => setForm({ ...form, salary: e.target.value })}
-          />
-
-          {/* PHOTO UPLOAD */}
-          <div className="col-span-2">
-            <label className="font-medium">Upload Photo *</label>
-
-            <div
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
-              onDrop={onDrop}
-              onClick={() => document.getElementById("photoInput")?.click()}
-              className={`mt-2 p-5 border-2 border-dashed rounded-xl text-center cursor-pointer transition
-                ${
-                  isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
-                }`}
-            >
-              {photoPreview ? (
-                <div className="flex justify-center">
-                  <Image
-                    src={photoPreview}
-                    width={90}
-                    height={90}
-                    alt="Employee Photo"
-                    className="rounded-md border"
-                  />
-                </div>
-              ) : (
-                <p className="text-gray-500">
-                  Drag & drop photo here, or{" "}
-                  <span className="text-blue-600 font-medium">browse</span>
-                </p>
-              )}
-            </div>
-
-            <input
-              id="photoInput"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleFile(e.target.files?.[0] || null)}
-            />
-          </div>
+            className="p-2 border-b border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm col-span-3"
+          >
+            <option value="">Select Department</option>
+            <option value="marketer">Marketor</option>
+            <option value="web_developer">Web Developers</option>
+            <option value="graphic_designer">Graphic Designers</option>
+            <option value="video_editor">Video Editors</option>
+            <option value="admin">Admin Service</option>
+          </select>
         </div>
 
         {/* BUTTONS */}
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="flex justify-end gap-3 mt-8">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+            className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100 transition"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
           >
             Save
           </button>

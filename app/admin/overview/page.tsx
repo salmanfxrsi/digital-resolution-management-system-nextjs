@@ -2,8 +2,8 @@
 
 import OverViewCard from "@/components/module/Cards/OverViewCard";
 import OverViewGraph from "@/components/module/Graphs/OverViewGraph";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { Building2, Users } from "lucide-react";
+import { Card, CardTitle } from "@/components/ui/card";
+import { Briefcase, Building2 } from "lucide-react";
 import { useState } from "react";
 
 const departments = [
@@ -80,7 +80,7 @@ export default function OverviewPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="rounded-full bg-green-100 p-2">
-                    <Users className="h-6 w-6 text-green-600" />
+                    <Briefcase className="h-6 w-6 text-green-600" />
                   </div>
                   <CardTitle className="text-lg font-semibold">
                     Employees
