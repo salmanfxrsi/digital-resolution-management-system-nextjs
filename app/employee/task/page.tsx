@@ -1,67 +1,71 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Plus, X, Search, CalendarDays, Edit2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
-// Define Task type
+// Define Task type for display purposes
 type Task = {
-  date: string;
-  company: string;
-  work: string;
-  hours: number;
-  designs: number;
-  videos: number;
+  role: string;
+  attendance: string;
+  companyName?: string;
+  projectDetails?: string;
+  numberOfWebsites?: number;
+  hours?: number;
+  date?: string;
+  workDetails?: string;
+  companies?: string[];
+  numberOfDesigns?: number;
+  numberOfVideos?: number;
+  adsPlatform?: string;
+  numberOfPlatforms?: number;
 };
 
 export default function TaskPage() {
   const [openModal, setOpenModal] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("All");
+  const { data: session } = useSession();
+  const id = (session as any)?.user?.user?.employeeId;
+  console.log(id);
 
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      date: "2025-11-18",
-      company: "Digital Resolution",
-      work: "Recruitment Drive",
-      hours: 6,
-      designs: 0,
-      videos: 0,
-    },
-    {
-      date: "2025-11-19",
-      company: "Digital Resolution",
-      work: "Employee Training Session",
-      hours: 5,
-      designs: 0,
-      videos: 0,
-    },
-    {
-      date: "2025-11-28",
-      company: "Digital Resolution",
-      work: "Policy Review & Planning",
-      hours: 4,
-      designs: 2,
-      videos: 0,
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-  // Form state
+  const [role, setRole] = useState((session as any)?.user?.user?.userType);
+
   const [formData, setFormData] = useState({
-    company: "",
-    work: "",
+    attendance: "present",
+
+    // Developer fields
+    companyName: "",
+    projectDetails: "",
+    numberOfWebsites: "",
     hours: "",
-    designs: "",
-    videos: "",
+
+    // Graphic Designer
+    date: "",
+    workDetails: "",
+    companies: "",
+    numberOfDesigns: "",
+
+    // Video Editor
+    numberOfVideos: "",
+
+    // Marketor
+    adsPlatform: "",
+    numberOfPlatforms: "",
   });
 
-  // Edit state
   const [editTaskIndex, setEditTaskIndex] = useState<number | null>(null);
+  const [taskList, setTaskList] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Extract unique months
   const monthsList = useMemo(() => {
     const m = new Set<string>();
     tasks.forEach((t) => {
-      const month = new Date(t.date).toLocaleString("default", {
+      const taskDate = t.date || new Date().toISOString();
+      const month = new Date(taskDate).toLocaleString("default", {
         month: "long",
         year: "numeric",
       });
@@ -73,7 +77,9 @@ export default function TaskPage() {
   // Sort latest first
   const sortedTasks = useMemo(() => {
     return [...tasks].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      (a, b) =>
+        new Date(b.date || new Date().toISOString()).getTime() -
+        new Date(a.date || new Date().toISOString()).getTime()
     );
   }, [tasks]);
 
@@ -81,7 +87,9 @@ export default function TaskPage() {
   const monthFilteredTasks = useMemo(() => {
     if (selectedMonth === "All") return sortedTasks;
     return sortedTasks.filter((t) => {
-      const monthYear = new Date(t.date).toLocaleString("default", {
+      const monthYear = new Date(
+        t.date || new Date().toISOString()
+      ).toLocaleString("default", {
         month: "long",
         year: "numeric",
       });
@@ -92,15 +100,18 @@ export default function TaskPage() {
   // Search filter
   const filteredTasks = monthFilteredTasks.filter(
     (t) =>
-      t.company.toLowerCase().includes(search.toLowerCase()) ||
-      t.work.toLowerCase().includes(search.toLowerCase())
+      (t.companyName?.toLowerCase().includes(search.toLowerCase()) ||
+        t.projectDetails?.toLowerCase().includes(search.toLowerCase()) ||
+        t.workDetails?.toLowerCase().includes(search.toLowerCase())) ??
+      true
   );
 
   // Total hours
-  const totalHours = filteredTasks.reduce((sum, t) => sum + t.hours, 0);
+  const totalHours = filteredTasks.reduce((sum, t) => sum + (t.hours || 0), 0);
 
   // Allow same-day edit
-  const isEditable = (taskDate: string) => {
+  const isEditable = (taskDate: string | undefined) => {
+    if (!taskDate) return true;
     const d = new Date(taskDate);
     const now = new Date();
     return (
@@ -117,52 +128,124 @@ export default function TaskPage() {
       return;
     }
     setEditTaskIndex(index);
+    const task = tasks[index];
+    setRole(task.role);
     setFormData({
-      ...tasks[index],
-      hours: String(tasks[index].hours),
-      designs: String(tasks[index].designs),
-      videos: String(tasks[index].videos),
+      attendance: task.attendance || "present",
+      companyName: task.companyName || "",
+      projectDetails: task.projectDetails || "",
+      numberOfWebsites: task.numberOfWebsites?.toString() || "",
+      hours: task.hours?.toString() || "",
+      date: task.date || "",
+      workDetails: task.workDetails || "",
+      companies: task.companies?.join(",") || "",
+      numberOfDesigns: task.numberOfDesigns?.toString() || "",
+      numberOfVideos: task.numberOfVideos?.toString() || "",
+      adsPlatform: task.adsPlatform || "",
+      numberOfPlatforms: task.numberOfPlatforms?.toString() || "",
     });
     setOpenModal(true);
   };
 
   // Submit handler
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const dd = String(now.getDate()).padStart(2, "0");
-    const todayStr = `${yyyy}-${mm}-${dd}`;
+    const payload = {
+      employeeId: id,
+      role,
+      attendance: formData.attendance,
 
-    if (editTaskIndex !== null) {
-      setTasks((prev) => {
-        const newTasks = [...prev];
-        newTasks[editTaskIndex] = {
-          ...formData,
-          hours: Number(formData.hours),
-          designs: Number(formData.designs),
-          videos: Number(formData.videos),
-          date: prev[editTaskIndex].date,
-        };
-        return newTasks;
+      // Developer
+      companyName: formData.companyName,
+      projectDetails: formData.projectDetails,
+      numberOfWebsites: Number(formData.numberOfWebsites) || undefined,
+      hours: Number(formData.hours) || undefined,
+
+      // Designer
+      date: formData.date,
+      workDetails: formData.workDetails,
+      companies: formData.companies
+        ? formData.companies.split(",").map((c) => c.trim())
+        : undefined,
+      numberOfDesigns: Number(formData.numberOfDesigns) || undefined,
+
+      // Video Editor
+      numberOfVideos: Number(formData.numberOfVideos) || undefined,
+
+      // Marketor
+      adsPlatform: formData.adsPlatform,
+      numberOfPlatforms: Number(formData.numberOfPlatforms) || undefined,
+    };
+
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
+      const res = await fetch(`${baseUrl}/tasks/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-      setEditTaskIndex(null);
-    } else {
-      const newTask: Task = {
-        ...formData,
-        hours: Number(formData.hours),
-        designs: Number(formData.designs),
-        videos: Number(formData.videos),
-        date: todayStr,
-      };
-      setTasks((prev) => [...prev, newTask]);
-    }
 
-    setFormData({ company: "", work: "", hours: "", designs: "", videos: "" });
-    setOpenModal(false);
+      const data = await res.json();
+      console.log("Task saved:", data);
+
+      // Update tasks locally
+      if (editTaskIndex !== null) {
+        setTasks((prev) => {
+          const updated = [...prev];
+          updated[editTaskIndex] = payload;
+          return updated;
+        });
+        setEditTaskIndex(null);
+      } else {
+        setTasks((prev) => [payload, ...prev]);
+      }
+
+      setOpenModal(false);
+      setFormData({
+        attendance: "present",
+        companyName: "",
+        projectDetails: "",
+        numberOfWebsites: "",
+        hours: "",
+        date: "",
+        workDetails: "",
+        companies: "",
+        numberOfDesigns: "",
+        numberOfVideos: "",
+        adsPlatform: "",
+        numberOfPlatforms: "",
+      });
+      fetchTasks();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to submit task");
+    }
   };
+  // 🔹 Extract fetchEmployees so we can reuse it
+  const fetchTasks = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+      const res = await fetch(`${baseUrl}/tasks/employee/${id}`);
+      const data = await res.json();
+
+      if (data.success) {
+        setTaskList(data.data);
+      } else {
+        console.error("Failed to fetch employees:", data.message);
+      }
+    } catch (err) {
+      console.error("Error fetching employees:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, [id]);
+  console.log(taskList);
 
   return (
     <div className="p-6 space-y-8">
@@ -215,12 +298,20 @@ export default function TaskPage() {
           onClick={() => {
             setOpenModal(true);
             setEditTaskIndex(null);
+            setRole((session as any)?.user?.user?.userType);
             setFormData({
-              company: "",
-              work: "",
+              attendance: "present",
+              companyName: "",
+              projectDetails: "",
+              numberOfWebsites: "",
               hours: "",
-              designs: "",
-              videos: "",
+              date: "",
+              workDetails: "",
+              companies: "",
+              numberOfDesigns: "",
+              numberOfVideos: "",
+              adsPlatform: "",
+              numberOfPlatforms: "",
             });
           }}
           className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition"
@@ -229,32 +320,71 @@ export default function TaskPage() {
         </button>
       </div>
 
-      {/* Task Table */}
       <div className="bg-white border rounded-xl shadow overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
             <tr className="bg-gray-50 text-gray-700">
-              <th className="p-3 text-left">Date</th>
-              <th className="p-3 text-left">Company</th>
-              <th className="p-3 text-left">Work</th>
-              <th className="p-3 text-left">Designs</th>
-              <th className="p-3 text-left">Videos</th>
-              <th className="p-3 text-left">Hours</th>
-              <th className="p-3 text-left">Action</th>
+              <th className="p-3">Role</th>
+              <th className="p-3">Attendance</th>
+
+              {/* Dynamic headers */}
+              <th className="p-3">Details</th>
+              <th className="p-3">Hours</th>
+              <th className="p-3">Action</th>
             </tr>
           </thead>
 
           <tbody>
-            {filteredTasks.length > 0 ? (
-              filteredTasks.map((task, i) => (
+            {taskList.length > 0 ? (
+              taskList.map((task, i) => (
                 <tr key={i} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{task.date}</td>
-                  <td className="p-3">{task.company}</td>
-                  <td className="p-3">{task.work}</td>
-                  <td className="p-3">{task.designs}</td>
-                  <td className="p-3">{task.videos}</td>
-                  <td className="p-3">{task.hours}</td>
+                  {/* Common fields */}
+                  <td className="p-3 capitalize">{task.role}</td>
+                  <td className="p-3">{task.attendance}</td>
 
+                  {/* Role‑specific rendering */}
+                  <td className="p-3">
+                    {task.role === "developer" && (
+                      <>
+                        <div>Company: {task.companyName}</div>
+                        <div>Project: {task.projectDetails}</div>
+                        <div>Websites: {task.numberOfWebsites}</div>
+                      </>
+                    )}
+
+                    {task.role === "graphic_designer" && (
+                      <>
+                        <div>Date: {task.date}</div>
+                        <div>Work: {task.workDetails}</div>
+                        <div>Companies: {task.companies?.join(", ")}</div>
+                        <div>Designs: {task.numberOfDesigns}</div>
+                      </>
+                    )}
+
+                    {task.role === "video_editor" && (
+                      <>
+                        <div>Date: {task.date}</div>
+                        <div>Work: {task.workDetails}</div>
+                        <div>Company: {task.company}</div>
+                        <div>Videos: {task.numberOfVideos}</div>
+                      </>
+                    )}
+
+                    {task.role === "marketor" && (
+                      <>
+                        <div>Date: {task.date}</div>
+                        <div>Work: {task.workDetails}</div>
+                        <div>Company: {task.company}</div>
+                        <div>Ads Platform: {task.adsPlatform}</div>
+                        <div>Platforms: {task.numberOfPlatforms}</div>
+                      </>
+                    )}
+                  </td>
+
+                  {/* Hours */}
+                  <td className="p-3">{task.hours || "-"}</td>
+
+                  {/* Action */}
                   <td className="p-3">
                     {isEditable(task.date) ? (
                       <button
@@ -271,7 +401,7 @@ export default function TaskPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="p-5 text-center text-gray-500">
+                <td colSpan={5} className="p-5 text-center text-gray-500">
                   No tasks found for this month.
                 </td>
               </tr>
@@ -282,7 +412,7 @@ export default function TaskPage() {
 
       {/* Modal */}
       {openModal && (
-        <div className="fixed inset-0  backdrop-blur-sm  flex items-center justify-center bg-black/50 z-50">
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center bg-black/50 z-50">
           <div className="bg-white w-full max-w-md rounded-xl p-6 relative shadow-xl">
             <button
               onClick={() => setOpenModal(false)}
@@ -296,94 +426,238 @@ export default function TaskPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Company */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Company
-                </label>
-                <input
-                  type="text"
-                  value={formData.company}
-                  onChange={(e) =>
-                    setFormData({ ...formData, company: e.target.value })
-                  }
-                  placeholder="Enter company name"
-                  className="w-full border-b py-2 focus:border-blue-500 outline-none text-sm"
-                  required
-                />
+              {/* Role Selector */}
+              <div className="flex justify-between">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Role</label>
+                  <input
+                    disabled
+                    defaultValue={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="w-full border-b py-2 focus:border-blue-500 outline-none"
+                  ></input>
+                </div>
+                {/* Attendance */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Attendance
+                  </label>
+                  <input
+                    disabled
+                    defaultValue="Present"
+                    onChange={(e) =>
+                      setFormData({ ...formData, attendance: e.target.value })
+                    }
+                    className="w-full border-b py-2 outline-none"
+                  ></input>
+                </div>
               </div>
 
-              {/* Work */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Work</label>
-                <textarea
-                  value={formData.work}
-                  onChange={(e) =>
-                    setFormData({ ...formData, work: e.target.value })
-                  }
-                  placeholder="Describe the work..."
-                  className="w-full border-b py-2 focus:border-blue-500 outline-none text-sm resize-none"
-                  required
-                />
-              </div>
+              {/* =========== Developer Fields =========== */}
+              {role === "web_developer" && (
+                <>
+                  <div>
+                    <label className="block mb-1">Company Name</label>
+                    <input
+                      type="text"
+                      className="w-full border-b py-2"
+                      value={formData.companyName}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          companyName: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
 
-              {/* Designs */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Number of Designs
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.designs}
-                  onChange={(e) =>
-                    setFormData({ ...formData, designs: e.target.value })
-                  }
-                  placeholder="e.g. 3"
-                  className="w-full border-b py-2 focus:border-blue-500 outline-none text-sm"
-                  required
-                />
-              </div>
+                  <div>
+                    <label className="block mb-1">Project Details</label>
+                    <textarea
+                      className="w-full border-b py-2"
+                      value={formData.projectDetails}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          projectDetails: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
 
-              {/* Videos */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Number of Videos
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.videos}
-                  onChange={(e) =>
-                    setFormData({ ...formData, videos: e.target.value })
-                  }
-                  placeholder="e.g. 3"
-                  className="w-full border-b py-2 focus:border-blue-500 outline-none text-sm"
-                  required
-                />
-              </div>
+                  <div>
+                    <label className="block mb-1">Number of Websites</label>
+                    <input
+                      type="number"
+                      className="w-full border-b py-2"
+                      value={formData.numberOfWebsites}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          numberOfWebsites: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
 
-              {/* Hours */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Hours</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={formData.hours}
-                  onChange={(e) =>
-                    setFormData({ ...formData, hours: e.target.value })
-                  }
-                  placeholder="e.g. 5"
-                  className="w-full border-b py-2 focus:border-blue-500 outline-none text-sm"
-                  required
-                />
-              </div>
+                  <div>
+                    <label className="block mb-1">Hours</label>
+                    <input
+                      type="number"
+                      className="w-full border-b py-2"
+                      value={formData.hours}
+                      onChange={(e) =>
+                        setFormData({ ...formData, hours: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* ========== Designer Fields ========== */}
+              {role === "graphic_designer" && (
+                <>
+                  <div>
+                    <label className="block mb-1">Date</label>
+                    <input
+                      type="date"
+                      className="w-full border-b py-2"
+                      value={formData.date}
+                      onChange={(e) =>
+                        setFormData({ ...formData, date: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-1">Work Details</label>
+                    <textarea
+                      className="w-full border-b py-2"
+                      value={formData.workDetails}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          workDetails: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-1">
+                      Companies (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border-b py-2"
+                      value={formData.companies}
+                      onChange={(e) =>
+                        setFormData({ ...formData, companies: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-1">Number of Designs</label>
+                    <input
+                      type="number"
+                      className="w-full border-b py-2"
+                      value={formData.numberOfDesigns}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          numberOfDesigns: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* ========== Video Editor Fields ========== */}
+              {role === "video_editor" && (
+                <>
+                  <div>
+                    <label className="block mb-1">Number of Videos</label>
+                    <input
+                      type="number"
+                      className="w-full border-b py-2"
+                      value={formData.numberOfVideos}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          numberOfVideos: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-1">Hours</label>
+                    <input
+                      type="number"
+                      className="w-full border-b py-2"
+                      value={formData.hours}
+                      onChange={(e) =>
+                        setFormData({ ...formData, hours: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* ========== Marketor Fields ========== */}
+              {role === "marketor" && (
+                <>
+                  <div>
+                    <label className="block mb-1">Ads Platform</label>
+                    <input
+                      type="text"
+                      className="w-full border-b py-2"
+                      value={formData.adsPlatform}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          adsPlatform: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-1">Number of Platforms</label>
+                    <input
+                      type="number"
+                      className="w-full border-b py-2"
+                      value={formData.numberOfPlatforms}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          numberOfPlatforms: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                </>
+              )}
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg shadow hover:bg-blue-700 transition font-medium"
+                className="w-full bg-blue-600 text-white py-2 rounded-lg shadow"
               >
-                {editTaskIndex !== null ? "Update Task" : "Submit Task"}
+                Submit Task
               </button>
             </form>
           </div>

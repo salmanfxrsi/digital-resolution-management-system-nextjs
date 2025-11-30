@@ -27,14 +27,14 @@ export const adminRoutes = [
     href: "/admin/client",
   },
   {
-    icon: <DollarSign className="h-5 w-5" />,
-    label: "Salary",
-    href: "/admin/salary",
-  },
-  {
     icon: <Briefcase className="h-5 w-5" />,
     label: "Employee",
     href: "/admin/employee",
+  },
+  {
+    icon: <DollarSign className="h-5 w-5" />,
+    label: "Salary",
+    href: "/admin/salary",
   },
   {
     icon: <FileText className="h-5 w-5" />,

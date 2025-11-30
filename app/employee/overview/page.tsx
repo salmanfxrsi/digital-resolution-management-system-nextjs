@@ -1,5 +1,6 @@
 "use client";
 
+import DataQueryPage from "@/components/shared/Query/DataQueryPage";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 import { UserCheck, UserX, CalendarX } from "lucide-react";
@@ -34,7 +35,7 @@ const metrics = [
   },
   {
     label: "Total Design",
-    value: "160 hrs",
+    value: "160 ",
     icon: Clock,
     color: "text-purple-600 bg-purple-100",
     description: "Total working hours this month",
@@ -87,6 +88,13 @@ export default function OverviewPage() {
         ))}
       </div>
 
+      <div className="flex justify-between items-center mb-4">
+        {/* Title Section */}
+        <h2 className="text-2xl font-bold text-gray-800">
+          ⏱ Query Total Hours
+        </h2>
+        <DataQueryPage />
+      </div>
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {metrics.map((metric) => (
