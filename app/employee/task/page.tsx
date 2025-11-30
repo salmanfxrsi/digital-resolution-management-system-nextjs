@@ -238,6 +238,7 @@ export default function TaskPage() {
               <th className="p-3 text-left">Company</th>
               <th className="p-3 text-left">Work</th>
               <th className="p-3 text-left">Designs</th>
+              <th className="p-3 text-left">Videos</th>
               <th className="p-3 text-left">Hours</th>
               <th className="p-3 text-left">Action</th>
             </tr>
@@ -251,6 +252,7 @@ export default function TaskPage() {
                   <td className="p-3">{task.company}</td>
                   <td className="p-3">{task.work}</td>
                   <td className="p-3">{task.designs}</td>
+                  <td className="p-3">{task.videos}</td>
                   <td className="p-3">{task.hours}</td>
 
                   <td className="p-3">
