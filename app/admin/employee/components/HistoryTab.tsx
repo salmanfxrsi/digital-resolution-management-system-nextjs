@@ -51,7 +51,7 @@ export default function HistoryTab({
     if (!employee?._id) return;
     try {
       const res = await fetch(
-        `http://localhost:5000/api/v1/tasks/employee/${employee._id}`
+        `${process.env.NEXT_PUBLIC_API_URL}/tasks/employee/${employee._id}`
       );
       const data = await res.json();
       if (data.success) {
