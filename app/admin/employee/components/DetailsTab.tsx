@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Mail,
   Phone,
@@ -27,6 +28,13 @@ interface Employee {
   nid: string;
 }
 
+interface UserAccount {
+  _id: string;
+  email: string;
+  employeeId: string;
+  userType: string;
+}
+
 export default function DetailsTab({
   employee,
 }: {
@@ -35,16 +43,33 @@ export default function DetailsTab({
   const [openModal, setOpenModal] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userAccount, setUserAccount] = useState<UserAccount | null>(null);
 
   if (!employee)
     return <p className="text-gray-500 italic">No employee data available.</p>;
 
-  // Handle user creation
+  // 🔹 Check if user account already exists for this employee
+  useEffect(() => {
+    const fetchUserAccount = async () => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        const res = await fetch(
+          `${baseUrl}/users/by-employee/${employee?._id}`
+        );
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setUserAccount(data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching user account:", err);
+      }
+    };
+    fetchUserAccount();
+  }, [employee?._id]);
+
+  // 🔹 Handle user creation
   const handleCreateUser = async () => {
-    if (!password) {
-      alert("Please enter a password");
-      return;
-    }
+    const finalPassword = password || employee.companyID; // default to companyID
     setLoading(true);
     try {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -54,7 +79,7 @@ export default function DetailsTab({
         body: JSON.stringify({
           name: employee.name,
           email: employee.email,
-          password,
+          password: finalPassword,
           employeeId: employee._id,
           userType: employee.department,
           createdBy: "admin",
@@ -63,6 +88,7 @@ export default function DetailsTab({
       const data = await res.json();
       if (res.ok) {
         alert("Employee user account created successfully!");
+        setUserAccount(data.data); // store created user
         setPassword("");
         setOpenModal(false);
       } else {
@@ -77,7 +103,7 @@ export default function DetailsTab({
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10">
+    <div className="max-w-5xl mx-auto space-y-8">
       {/* Profile Card */}
       <div className="bg-white border rounded-lg p-8 flex gap-8 items-center">
         <div className="w-32 h-32 border rounded flex items-center justify-center">
@@ -134,17 +160,52 @@ export default function DetailsTab({
         </div>
       </div>
 
-      {/* Create User Account Button */}
+      {/* Employee User Account Section */}
       <div className="bg-white border rounded-lg p-8">
         <h2 className="text-lg font-semibold text-gray-800 mb-6">
           Employee User Account
         </h2>
-        <button
-          onClick={() => setOpenModal(true)}
-          className="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
-        >
-          Create Account
-        </button>
+
+        {userAccount ? (
+          <div className="bg-gray-50 border rounded-lg p-6 shadow-sm space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+              User Account Details
+            </h3>
+
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center gap-3">
+                <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
+                  User ID
+                </span>
+                <p className="font-medium text-gray-900">{userAccount._id}</p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">
+                  Login Email
+                </span>
+                <p className="font-medium text-gray-900">{userAccount.email}</p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">
+                  Password
+                </span>
+                <p className="font-medium text-gray-900">
+                  {employee.companyID}{" "}
+                  <span className="text-gray-500 text-xs">(default)</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setOpenModal(true)}
+            className="px-5 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+          >
+            Create Account
+          </button>
+        )}
       </div>
 
       {/* Popup Modal */}
@@ -156,8 +217,7 @@ export default function DetailsTab({
             </h2>
             <p className="text-sm text-gray-600 mb-4">
               Creating account for <strong>{employee.name}</strong> (
-              {employee.email})
-              <br />
+              {employee.email})<br />
               User type: <strong>{employee.department}</strong>
               <br />
               Company ID: <strong>{employee.companyID}</strong>
@@ -165,7 +225,7 @@ export default function DetailsTab({
 
             <input
               type="password"
-              placeholder={`Set Company ID ${employee.companyID} as password`}
+              placeholder={`Default: Company ID ${employee.companyID}`}
               className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-blue-300 mb-4"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

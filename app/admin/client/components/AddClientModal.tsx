@@ -4,14 +4,14 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Users } from "lucide-react";
-import { json } from "zod";
 
 interface Props {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export default function AddClientModal({ open, onClose }: Props) {
+export default function AddClientModal({ open, onClose, onSuccess }: Props) {
   const [form, setForm] = useState({
     name: "",
     location: "",
@@ -113,6 +113,7 @@ export default function AddClientModal({ open, onClose }: Props) {
           logo: null,
         });
         setLogoPreview(null);
+        onSuccess?.();
         onClose();
       } else {
         alert(`Failed: ${data.message || "Something went wrong"}`);
