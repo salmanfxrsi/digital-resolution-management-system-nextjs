@@ -7,9 +7,10 @@ import Image from "next/image";
 interface Props {
   open: boolean;
   onClose: () => void;
+  onSuccess: () => void;
 }
 
-export default function AddEmployeeModal({ open, onClose }: Props) {
+export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
   const [form, setForm] = useState({
     companyID: "",
     name: "",
@@ -103,6 +104,7 @@ export default function AddEmployeeModal({ open, onClose }: Props) {
       }
 
       alert("Employee added successfully!");
+      onSuccess?.();
       onClose();
     } catch (err) {
       console.error("Error submitting employee:", err);
@@ -188,7 +190,7 @@ export default function AddEmployeeModal({ open, onClose }: Props) {
             className="p-2 border-b border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm col-span-3"
           >
             <option value="">Select Department</option>
-            <option value="marketer">Marketor</option>
+            <option value="marketer">Marketer</option>
             <option value="web_developer">Web Developers</option>
             <option value="graphic_designer">Graphic Designers</option>
             <option value="video_editor">Video Editors</option>

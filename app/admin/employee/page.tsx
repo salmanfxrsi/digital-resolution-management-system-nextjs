@@ -25,26 +25,26 @@ export default function EmployeePage() {
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Fetch employees from backend
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-        const res = await fetch(`${baseUrl}/employees`);
-        const data = await res.json();
+  // 🔹 Extract fetchEmployees so we can reuse it
+  const fetchEmployees = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+      const res = await fetch(`${baseUrl}/employees`);
+      const data = await res.json();
 
-        if (data.success) {
-          setEmployees(data.data);
-        } else {
-          console.error("Failed to fetch employees:", data.message);
-        }
-      } catch (err) {
-        console.error("Error fetching employees:", err);
-      } finally {
-        setLoading(false);
+      if (data.success) {
+        setEmployees(data.data);
+      } else {
+        console.error("Failed to fetch employees:", data.message);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching employees:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchEmployees();
   }, []);
 
@@ -63,13 +63,12 @@ export default function EmployeePage() {
             Manage all employees of your organization
           </p>
         </div>
-
-        {/* Replace with an employee-related icon */}
         <Briefcase className="w-16 h-16 text-blue-500 opacity-80" />
       </div>
+
       <div className="flex justify-between gap-20 items-center">
         {/* SEARCH BAR */}
-        <div className="w-full ">
+        <div className="w-full">
           <input
             type="text"
             placeholder="Search by name or department..."
@@ -78,7 +77,8 @@ export default function EmployeePage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        {/* ADD EMPLOYEE CARD */}
+
+        {/* ADD EMPLOYEE BUTTON */}
         <div className="w-full flex justify-end">
           <button
             onClick={() => setOpenModal(true)}
@@ -104,7 +104,6 @@ export default function EmployeePage() {
                 <th className="p-3 border text-center">Action</th>
               </tr>
             </thead>
-
             <tbody>
               {filteredEmployees.map((emp, idx) => (
                 <tr
@@ -123,7 +122,6 @@ export default function EmployeePage() {
                   <td className="p-3 border text-gray-600">
                     {emp.designation}
                   </td>
-
                   <td className="p-3 border text-center">
                     <Link
                       href={`/admin/employee/${emp._id}`}
@@ -151,7 +149,11 @@ export default function EmployeePage() {
       </div>
 
       {/* MODAL COMPONENT */}
-      <AddEmployeeModal open={openModal} onClose={() => setOpenModal(false)} />
+      <AddEmployeeModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onSuccess={fetchEmployees} // 🔹 call reload after add
+      />
     </div>
   );
 }

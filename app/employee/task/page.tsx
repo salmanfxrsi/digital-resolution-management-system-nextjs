@@ -255,7 +255,7 @@ export default function TaskPage() {
 
       {/* Modal */}
       {openModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <div className="fixed inset-0  backdrop-blur-sm  flex items-center justify-center bg-black/50 z-50">
           <div className="bg-white w-full max-w-md rounded-xl p-6 relative shadow-xl">
             <button
               onClick={() => setOpenModal(false)}
