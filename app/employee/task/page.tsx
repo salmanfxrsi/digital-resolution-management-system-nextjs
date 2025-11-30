@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
@@ -31,9 +32,7 @@ export default function TaskPage() {
 
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  const [role, setRole] = useState(session?.user?.user?.userType);
-  console.log("User Type:", session?.user?.user?.userType);
-  console.log("Role State:", role);
+  const [role, setRole] = useState((session as any)?.user?.user?.userType);
 
   const [formData, setFormData] = useState({
     attendance: "present",
@@ -299,7 +298,7 @@ export default function TaskPage() {
           onClick={() => {
             setOpenModal(true);
             setEditTaskIndex(null);
-            setRole(session?.user?.user?.userType);
+            setRole((session as any)?.user?.user?.userType);
             setFormData({
               attendance: "present",
               companyName: "",
