@@ -65,7 +65,39 @@ export default function EmployeePage() {
         </div>
         <Briefcase className="w-16 h-16 text-blue-500 opacity-80" />
       </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+        {/* Total Employees */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+          <div className="flex items-center justify-between">
+            <p className="text-lg font-medium">Total Employees</p>
+            <span className="bg-white/20 px-3 py-1 rounded-full text-xs">
+              All Time
+            </span>
+          </div>
+          <p className="text-4xl font-extrabold mt-3">{employees.length}</p>
+          <div className="flex items-center gap-2 mt-2 text-sm text-blue-100">
+            <span className="w-2 h-2 bg-white rounded-full"></span>
+            Updated automatically
+          </div>
+        </div>
 
+        {/* Active Employees */}
+        <div className="bg-gradient-to-r from-green-600 to-green-500 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+          <div className="flex items-center justify-between">
+            <p className="text-lg font-medium">Active Employees</p>
+            <span className="bg-white/20 px-3 py-1 rounded-full text-xs">
+              Currently Working
+            </span>
+          </div>
+          <p className="text-4xl font-extrabold mt-3">
+            {employees.filter((emp) => emp.department !== "resigned").length}
+          </p>
+          <div className="flex items-center gap-2 mt-2 text-sm text-green-100">
+            <span className="w-2 h-2 bg-white rounded-full"></span>
+            Still in organization
+          </div>
+        </div>
+      </div>
       <div className="flex justify-between gap-20 items-center">
         {/* SEARCH BAR */}
         <div className="w-full">

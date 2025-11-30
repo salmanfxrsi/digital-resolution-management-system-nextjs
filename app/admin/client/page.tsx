@@ -8,6 +8,7 @@ import { Users } from "lucide-react";
 import SkeletonTable from "@/components/shared/Skeleton/SkeletonTable";
 
 interface Client {
+  [x: string]: React.ReactNode;
   _id: string;
   logo?: string;
   name: string;
@@ -74,6 +75,38 @@ export default function ClientPage() {
         <Users className="w-16 h-16 text-blue-500 opacity-80" />
       </div>
 
+      {/* SUMMARY SECTION */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {/* Total Companies Worked */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+          <div className="flex items-center justify-between">
+            <p className="text-lg font-medium">Total Companies Worked</p>
+            <span className="bg-white/20 px-3 py-1 rounded-full text-xs">
+              All Time
+            </span>
+          </div>
+          <p className="text-4xl font-extrabold mt-3">{totalCompanies}</p>
+          <div className="flex items-center gap-2 mt-2 text-sm text-blue-100">
+            <span className="w-2 h-2 bg-white rounded-full"></span>
+            Updated automatically
+          </div>
+        </div>
+
+        {/* Ongoing Companies */}
+        <div className="bg-gradient-to-r from-green-600 to-green-500 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+          <div className="flex items-center justify-between">
+            <p className="text-lg font-medium">Ongoing Companies</p>
+            <span className="bg-white/20 px-3 py-1 rounded-full text-xs">
+              Active
+            </span>
+          </div>
+          <p className="text-4xl font-extrabold mt-3">{ongoingCompanies}</p>
+          <div className="flex items-center gap-2 mt-2 text-sm text-green-100">
+            <span className="w-2 h-2 bg-white rounded-full"></span>
+            Currently in progress
+          </div>
+        </div>
+      </div>
       {/* SEARCH + ADD CLIENT */}
       <div className="flex justify-between gap-20 items-center">
         <div className="w-full">
@@ -92,18 +125,6 @@ export default function ClientPage() {
           >
             Add Client
           </button>
-        </div>
-      </div>
-
-      {/* SUMMARY SECTION */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-blue-600 text-white p-5 rounded-xl shadow">
-          <p className="text-lg font-medium">Total Companies Worked</p>
-          <p className="text-3xl font-bold mt-1">{totalCompanies}</p>
-        </div>
-        <div className="bg-green-600 text-white p-5 rounded-xl shadow">
-          <p className="text-lg font-medium">Ongoing Companies</p>
-          <p className="text-3xl font-bold mt-1">{ongoingCompanies}</p>
         </div>
       </div>
 
@@ -131,7 +152,7 @@ export default function ClientPage() {
                     {client.name}
                   </td>
                   <td className="p-3 border font-medium text-gray-800">
-                    {client.gmail}
+                    {client?.gmail}
                   </td>
                   <td className="p-3 border text-gray-600">
                     {client.number || "-"}

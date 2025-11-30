@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -14,7 +15,28 @@ import {
 } from "recharts";
 import { useParams } from "next/navigation";
 import SkeletonTable from "@/components/shared/Skeleton/SkeletonTable";
-
+const departments = [
+  {
+    id: "marketer",
+    name: "Marketing Team",
+  },
+  {
+    id: "web_developer",
+    name: "Web Developers",
+  },
+  {
+    id: "graphic_designer",
+    name: "Graphic Designers",
+  },
+  {
+    id: "video_editor",
+    name: "Video Editors",
+  },
+  {
+    id: "admin_service",
+    name: "Admin Service",
+  },
+];
 interface Employee {
   _id: string;
   photo?: string;
@@ -77,6 +99,9 @@ export default function DepartmentDetails() {
     view === "daily" ? dailyData : view === "weekly" ? weeklyData : monthlyData;
   const dataKey =
     view === "daily" ? "day" : view === "weekly" ? "week" : "month";
+  const demartmentname = (id: string) => {
+    return departments.find((dept) => dept.id === id);
+  };
 
   return (
     <div className="bg-white p-8 space-y-8">
@@ -84,7 +109,7 @@ export default function DepartmentDetails() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
-            Department Details
+            {demartmentname(id as any)?.name}
           </h1>
           <p className="text-gray-600 text-sm">Department ID: {id}</p>
         </div>

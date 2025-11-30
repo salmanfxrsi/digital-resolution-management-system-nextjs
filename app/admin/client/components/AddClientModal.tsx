@@ -175,7 +175,7 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
         <div className="grid grid-cols-3 gap-6">
           {[
             { key: "name", placeholder: "Client Name", type: "text" },
-            { key: "gmail", placeholder: "Gmail", type: "email" },
+            { key: "gmail", placeholder: "Email", type: "email" },
             { key: "number", placeholder: "Phone Number", type: "text" },
             { key: "location", placeholder: "Location", type: "text" },
           ].map((field) => (
