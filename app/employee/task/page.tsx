@@ -9,6 +9,8 @@ type Task = {
   company: string;
   work: string;
   hours: number;
+  designs: number;
+  videos: number;
 };
 
 export default function TaskPage() {
@@ -22,18 +24,24 @@ export default function TaskPage() {
       company: "Digital Resolution",
       work: "Recruitment Drive",
       hours: 6,
+      designs: 0,
+      videos: 0,
     },
     {
       date: "2025-11-19",
       company: "Digital Resolution",
       work: "Employee Training Session",
       hours: 5,
+      designs: 0,
+      videos: 0,
     },
     {
       date: "2025-11-28",
       company: "Digital Resolution",
       work: "Policy Review & Planning",
       hours: 4,
+      designs: 2,
+      videos: 0,
     },
   ]);
 
@@ -42,12 +50,14 @@ export default function TaskPage() {
     company: "",
     work: "",
     hours: "",
+    designs: "",
+    videos: "",
   });
 
   // Edit state
   const [editTaskIndex, setEditTaskIndex] = useState<number | null>(null);
 
-  // Extract unique months from tasks
+  // Extract unique months
   const monthsList = useMemo(() => {
     const m = new Set<string>();
     tasks.forEach((t) => {
@@ -67,7 +77,7 @@ export default function TaskPage() {
     );
   }, [tasks]);
 
-  // Filter by month
+  // Month filter
   const monthFilteredTasks = useMemo(() => {
     if (selectedMonth === "All") return sortedTasks;
     return sortedTasks.filter((t) => {
@@ -89,34 +99,37 @@ export default function TaskPage() {
   // Total hours
   const totalHours = filteredTasks.reduce((sum, t) => sum + t.hours, 0);
 
-  // Check if editable
+  // Allow same-day edit
   const isEditable = (taskDate: string) => {
-    const [year, month, day] = taskDate.split("-").map(Number);
-    const taskDay = new Date(year, month - 1, day);
+    const d = new Date(taskDate);
     const now = new Date();
     return (
-      taskDay.getFullYear() === now.getFullYear() &&
-      taskDay.getMonth() === now.getMonth() &&
-      taskDay.getDate() === now.getDate()
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
     );
   };
 
   // Handle edit click
   const handleEdit = (index: number) => {
     if (!isEditable(tasks[index].date)) {
-      alert("You can only edit tasks on the same day before midnight!");
+      alert("You can only edit tasks on the same day!");
       return;
     }
     setEditTaskIndex(index);
-    setFormData({ ...tasks[index], hours: String(tasks[index].hours) });
+    setFormData({
+      ...tasks[index],
+      hours: String(tasks[index].hours),
+      designs: String(tasks[index].designs),
+      videos: String(tasks[index].videos),
+    });
     setOpenModal(true);
   };
 
-  // Handle add/update
+  // Submit handler
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Today's date
     const now = new Date();
     const yyyy = now.getFullYear();
     const mm = String(now.getMonth() + 1).padStart(2, "0");
@@ -124,28 +137,30 @@ export default function TaskPage() {
     const todayStr = `${yyyy}-${mm}-${dd}`;
 
     if (editTaskIndex !== null) {
-      // Update existing task
       setTasks((prev) => {
         const newTasks = [...prev];
         newTasks[editTaskIndex] = {
           ...formData,
           hours: Number(formData.hours),
+          designs: Number(formData.designs),
+          videos: Number(formData.videos),
           date: prev[editTaskIndex].date,
-        } as Task;
+        };
         return newTasks;
       });
       setEditTaskIndex(null);
     } else {
-      // Add new task
       const newTask: Task = {
         ...formData,
         hours: Number(formData.hours),
+        designs: Number(formData.designs),
+        videos: Number(formData.videos),
         date: todayStr,
       };
       setTasks((prev) => [...prev, newTask]);
     }
 
-    setFormData({ company: "", work: "", hours: "" });
+    setFormData({ company: "", work: "", hours: "", designs: "", videos: "" });
     setOpenModal(false);
   };
 
@@ -200,7 +215,13 @@ export default function TaskPage() {
           onClick={() => {
             setOpenModal(true);
             setEditTaskIndex(null);
-            setFormData({ company: "", work: "", hours: "" });
+            setFormData({
+              company: "",
+              work: "",
+              hours: "",
+              designs: "",
+              videos: "",
+            });
           }}
           className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition"
         >
@@ -215,11 +236,13 @@ export default function TaskPage() {
             <tr className="bg-gray-50 text-gray-700">
               <th className="p-3 text-left">Date</th>
               <th className="p-3 text-left">Company</th>
-              <th className="p-3 text-left">Work Details</th>
+              <th className="p-3 text-left">Work</th>
+              <th className="p-3 text-left">Designs</th>
               <th className="p-3 text-left">Hours</th>
               <th className="p-3 text-left">Action</th>
             </tr>
           </thead>
+
           <tbody>
             {filteredTasks.length > 0 ? (
               filteredTasks.map((task, i) => (
@@ -227,11 +250,13 @@ export default function TaskPage() {
                   <td className="p-3">{task.date}</td>
                   <td className="p-3">{task.company}</td>
                   <td className="p-3">{task.work}</td>
+                  <td className="p-3">{task.designs}</td>
                   <td className="p-3">{task.hours}</td>
+
                   <td className="p-3">
                     {isEditable(task.date) ? (
                       <button
-                        onClick={() => setOpenModal(true)}
+                        onClick={() => handleEdit(i)}
                         className="flex items-center gap-1 text-blue-600 hover:underline"
                       >
                         <Edit2 className="h-4 w-4" /> Edit
@@ -244,7 +269,7 @@ export default function TaskPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="p-5 text-center text-gray-500">
+                <td colSpan={6} className="p-5 text-center text-gray-500">
                   No tasks found for this month.
                 </td>
               </tr>
@@ -296,6 +321,42 @@ export default function TaskPage() {
                   }
                   placeholder="Describe the work..."
                   className="w-full border-b py-2 focus:border-blue-500 outline-none text-sm resize-none"
+                  required
+                />
+              </div>
+
+              {/* Designs */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Number of Designs
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.designs}
+                  onChange={(e) =>
+                    setFormData({ ...formData, designs: e.target.value })
+                  }
+                  placeholder="e.g. 3"
+                  className="w-full border-b py-2 focus:border-blue-500 outline-none text-sm"
+                  required
+                />
+              </div>
+
+              {/* Videos */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Number of Videos
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.videos}
+                  onChange={(e) =>
+                    setFormData({ ...formData, videos: e.target.value })
+                  }
+                  placeholder="e.g. 3"
+                  className="w-full border-b py-2 focus:border-blue-500 outline-none text-sm"
                   required
                 />
               </div>
