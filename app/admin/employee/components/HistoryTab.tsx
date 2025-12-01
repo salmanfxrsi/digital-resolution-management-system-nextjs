@@ -45,13 +45,14 @@ export default function HistoryTab({
   const [search, setSearch] = useState("");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
+  console.log(employee?._id);
 
   // Fetch tasks from API
   const fetchTasks = async () => {
     if (!employee?._id) return;
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/tasks/employee/${employee._id}`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tasks/employee/${employee._id}`
       );
       const data = await res.json();
       if (data.success) {
@@ -202,6 +203,7 @@ export default function HistoryTab({
         return null;
     }
   };
+  console.log(tasks);
 
   return (
     <div className="space-y-8">
