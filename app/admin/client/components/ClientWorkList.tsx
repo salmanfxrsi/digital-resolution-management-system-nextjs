@@ -2,7 +2,7 @@ import React from "react";
 const historyData = [
   {
     date: "2025-11-28",
-    department: "Monitor",
+    department: "Video ",
     video: 2,
     ads: "X",
     web: "X",
@@ -10,18 +10,18 @@ const historyData = [
   },
   {
     date: "2025-11-29",
-    department: "TikTok Factory",
+    department: "Marketing",
     video: 2,
     ads: "X",
     web: "X",
     graphic: "X",
   },
   {
-    date: "2025-11-30",
-    department: "Complete Home",
+    date: "2025-11-29",
+    department: "MERN",
     video: 0,
     ads: "X",
-    web: "X",
+    web: "Completed Homepage",
     graphic: "X",
   },
 ];
