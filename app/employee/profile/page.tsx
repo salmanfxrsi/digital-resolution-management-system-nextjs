@@ -30,6 +30,7 @@ interface Employee {
 export default function Page() {
   const { data: session } = useSession();
   const id = (session as any)?.user?.user?.employeeId;
+  console.log(id);
 
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,9 +39,7 @@ export default function Page() {
     const fetchEmployee = async () => {
       if (!id) return;
       try {
-        const baseUrl =
-          process.env.NEXT_PUBLIC_BASE_URL ||
-          "https://digital-resolution-server.vercel.app/api/v1";
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
         const res = await fetch(`${baseUrl}/employees/${id}`);
         const data = await res.json();

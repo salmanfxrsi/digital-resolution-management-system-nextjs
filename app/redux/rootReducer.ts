@@ -1,4 +1,4 @@
-import userReducer from "./features/userSlice";
+import userReducer from "./features/Auth/userSlice";
 
 export const reducer = {
   user: userReducer,
