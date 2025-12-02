@@ -27,7 +27,8 @@ export default function TaskPage() {
   const [search, setSearch] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("All");
   const { data: session } = useSession();
-  const id = (session as any)?.user?.user?.employeeId;
+
+  const id = (session as any)?.user?.user?._id;
   console.log(id);
 
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -224,7 +225,7 @@ export default function TaskPage() {
     }
   };
   // 🔹 Extract fetchEmployees so we can reuse it
-  const fetchTasks = async () => {
+  const fetchTasks = async (id: string) => {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
       const res = await fetch(`${baseUrl}/tasks/employee/${id}`);
@@ -243,7 +244,7 @@ export default function TaskPage() {
   };
 
   useEffect(() => {
-    fetchTasks();
+    fetchTasks(id);
   }, [id]);
   console.log(taskList);
 
