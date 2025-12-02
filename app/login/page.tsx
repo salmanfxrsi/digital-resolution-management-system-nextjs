@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Link from "next/link";
@@ -30,8 +31,8 @@ export default function Loginpage() {
   };
 
   useEffect(() => {
-    if (session?.user?.user?.userType) {
-      const userType = session?.user?.user?.userType;
+    if ((session as any)?.user?.user?.userType) {
+      const userType = (session as any)?.user?.user?.userType;
       router.push(
         userType === "admin" ? "/admin/overview" : "/employee/overview"
       );
@@ -83,7 +84,7 @@ export default function Loginpage() {
             <Button
               disabled={!email || !password}
               type="submit"
-              className="w-full mt-4 bg-red-500 uppercase hover:bg-red-600 transition"
+              className="w-full cursor-pointer mt-4 bg-red-500 uppercase hover:bg-red-600 transition"
             >
               Login
             </Button>
