@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import OverviewTab from "../components/OverviewTab";
 import DetailsTab from "../components/DetailsTab";
-import HistoryTab from "../components/HistoryTab";
+import HistoryTab from "../components/(HistoryTab)/HistoryTab";
 import DataQueryPage from "@/components/shared/Query/DataQueryPage";
 import OverviewSkeleton from "@/components/shared/Skeleton/OverviewSkeleton";
 
