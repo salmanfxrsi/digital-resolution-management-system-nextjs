@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
@@ -15,13 +16,7 @@ import {
   PanelRightOpen,
 } from "lucide-react";
 
-import {
-  Button,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-} from "@headlessui/react";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 
@@ -70,25 +65,25 @@ const Navbar = ({
   };
 
   // 🔹 Check user type
-  const userType = session?.user?.user?.userType;
+  const userType = (session as any)?.user?.user?.userType;
 
   return (
     <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-[0px_0_4px_rgba(0,0,0,0.1)]">
       <div className="flex h-full items-center justify-between px-6 md:px-8">
         {/* Sidebar Toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
+        {/* Sidebar Toggle */}
+        <button
+          type="button"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="text-muted-foreground font-bold"
+          className="text-muted-foreground font-bold rounded-full p-1 hover:text-foreground transition"
+          aria-label="Toggle sidebar"
         >
           {isSidebarOpen ? (
             <PanelRightClose className="h-5 w-5 font-bold" />
           ) : (
             <PanelRightOpen className="h-5 w-5" />
           )}
-        </Button>
-        {/* Search Bar + Admin Status */}
+        </button>
         <div className="hidden md:flex items-center gap-6 transition-all duration-300">
           {userType === "admin" && (
             <div className="flex items-center gap-4">
@@ -204,7 +199,7 @@ const Navbar = ({
             <MenuItems className="absolute right-0 mt-2 py-4 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-50">
               <MenuItem>
                 <div className="px-4 py-2 text-sm text-gray-700 font-semibold">
-                  {session?.user?.user?.name}
+                  {(session as any)?.user?.user?.name}
                 </div>
               </MenuItem>
               <MenuItem>
