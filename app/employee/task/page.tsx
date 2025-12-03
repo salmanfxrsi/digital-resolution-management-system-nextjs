@@ -7,6 +7,7 @@ import { Plus, Pencil } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Task } from "./components/task.type";
 import TaskFormModal from "./components/TaskFromModel";
+import { toast } from "react-toastify";
 
 export default function TaskPage() {
   const { data: session } = useSession();
@@ -32,10 +33,10 @@ export default function TaskPage() {
         if (data.success) {
           setTasks(data.data); // assuming API returns { success, data: [...] }
         } else {
-          console.error("Failed to fetch tasks:", data.message);
+          toast.error("Failed to fetch tasks:", data.message);
         }
       } catch (err) {
-        console.error("Error fetching tasks:", err);
+        toast.error("Error fetching tasks:", err);
       }
     };
 

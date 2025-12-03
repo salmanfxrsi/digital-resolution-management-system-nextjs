@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { SessionProvider, useSession } from "next-auth/react";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
+import { ToastContainer } from "react-toastify";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -93,6 +94,7 @@ export default function RootLayout({
             </AuthGuard>
           </Provider>
         </SessionProvider>
+        <ToastContainer />
       </body>
     </html>
   );

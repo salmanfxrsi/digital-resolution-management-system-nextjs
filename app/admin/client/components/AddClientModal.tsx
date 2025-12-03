@@ -4,6 +4,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Users } from "lucide-react";
+import { toast } from "react-toastify";
 
 interface Props {
   open: boolean;
@@ -32,7 +33,7 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
   const handleFile = (file: File | null) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      alert("Only image files allowed!");
+      toast.error("Only image files allowed!");
       return;
     }
     setForm({ ...form, logo: file });
@@ -63,7 +64,7 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
       !form.status ||
       !form.logo?.name
     ) {
-      alert("All fields are required!");
+      toast.error("All fields are required!");
       return;
     }
 
@@ -102,7 +103,7 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
 
       const data = await res.json();
       if (res.ok) {
-        alert("Client created successfully!");
+        toast.success("Client created successfully!");
         setForm({
           name: "",
           location: "",
@@ -116,11 +117,11 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
         onSuccess?.();
         onClose();
       } else {
-        alert(`Failed: ${data.message || "Something went wrong"}`);
+        toast.error(`Failed: ${data.message || "Something went wrong"}`);
       }
     } catch (err) {
       console.error("Error creating client:", err);
-      alert("Error creating client");
+      toast.error("Error creating client");
     } finally {
       setLoading(false);
     }

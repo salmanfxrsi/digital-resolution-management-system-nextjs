@@ -3,6 +3,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 interface Props {
   open: boolean;
@@ -34,7 +35,7 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
   const handleFile = (file: File | null) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      alert("Only image files allowed!");
+      toast.error("Only image files allowed!");
       return;
     }
     setForm({ ...form, photo: file });
@@ -68,7 +69,7 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
       !form.salary ||
       !form.photo?.name
     ) {
-      alert("All fields are required!");
+      toast.error("All fields are required!");
       return;
     }
 
@@ -103,12 +104,12 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
         throw new Error(errText);
       }
 
-      alert("Employee added successfully!");
+      toast.success("Employee added successfully!");
       onSuccess?.();
       onClose();
     } catch (err) {
       console.error("Error submitting employee:", err);
-      alert("Failed to add employee");
+      toast.error("Failed to add employee");
     }
   };
 
