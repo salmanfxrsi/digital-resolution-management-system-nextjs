@@ -3,7 +3,6 @@
 export interface Task {
   role: "web_developer" | "graphic_designer" | "video_editor" | "marketer";
   employeeId: string; // MongoDB ObjectId as string
-  bdDate: string; // formatted date (YYYY-MM-DD)
   attendance: "present" | "absent" | "leave";
   hours: number;
   companies: string;
