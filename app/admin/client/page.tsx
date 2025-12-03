@@ -57,18 +57,18 @@ export default function ClientPage() {
     fetchClients();
   }, []);
 
-  // 🔍 Filter Search
+  //  Filter Search
   const filteredClients = clients.filter(
     (client) =>
       client.name.toLowerCase().includes(search.toLowerCase()) ||
       (client.location || "").toLowerCase().includes(search.toLowerCase())
   );
 
-  // 🧮 Stats
+  //  Stats
   const totalCompanies = clients.length;
   const ongoingCompanies = clients.filter((c) => c.status === "ongoing").length;
 
-  // 🔥 Pagination Logic
+  //  Pagination Logic
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
   const currentClients = filteredClients.slice(indexOfFirst, indexOfLast);
