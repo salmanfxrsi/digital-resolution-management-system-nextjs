@@ -15,6 +15,8 @@ const handler = NextAuth({
           // Use env variable instead of hard-coded localhost
           const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
+          console.log("BASE URL =", baseUrl);
+
           const res = await fetch(`${baseUrl}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
