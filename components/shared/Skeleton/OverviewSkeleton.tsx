@@ -1,54 +1,50 @@
-"use client";
-
-import { Skeleton } from "@/components/ui/skeleton";
-
 export default function OverviewSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-      {/* Attendance Summary Skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-1 gap-6 animate-pulse">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="h-6 w-48 bg-gray-200 rounded"></div>
+        <div className="h-10 w-60 bg-gray-200 rounded"></div>
+      </div>
+
+      {/* Attendance cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {Array.from({ length: 3 }).map((_, idx) => (
-          <div
-            key={idx}
-            className="flex flex-row items-center p-3 rounded-lg border bg-white"
-          >
-            <Skeleton className="h-10 w-10 rounded-full mr-3" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-6 w-16" />
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="p-3 rounded-lg bg-gray-100 flex gap-3">
+            <div className="h-10 w-10 rounded-full bg-gray-300"></div>
+            <div>
+              <div className="h-4 w-20 bg-gray-300 rounded mb-2"></div>
+              <div className="h-5 w-14 bg-gray-300 rounded"></div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Metrics Cards Skeleton */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {Array.from({ length: 2 }).map((_, idx) => (
-          <div
-            key={idx}
-            className="flex flex-col p-5 rounded-lg border bg-white space-y-3"
-          >
-            <div className="flex justify-between items-center w-full">
-              <Skeleton className="h-4 w-28" />
-              <Skeleton className="h-5 w-20" />
+      {/* Metrics cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="p-5 rounded-lg bg-gray-100 space-y-3">
+            <div className="flex justify-between">
+              <div className="h-4 w-32 bg-gray-300 rounded"></div>
+              <div className="h-4 w-20 bg-gray-300 rounded"></div>
             </div>
-            <Skeleton className="h-3 w-40 mx-auto" />
-            <Skeleton className="h-6 w-6 rounded-full mx-auto" />
+            <div className="h-3 w-full bg-gray-200 rounded"></div>
+            <div className="h-6 w-6 bg-gray-300 rounded-full"></div>
           </div>
         ))}
       </div>
 
-      {/* Charts Skeleton */}
+      {/* Graph skeletons */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {Array.from({ length: 2 }).map((_, idx) => (
-          <div
-            key={idx}
-            className="bg-white border rounded-lg shadow p-4 space-y-3"
-          >
-            <Skeleton className="h-5 w-32" />
-            <Skeleton className="h-48 w-full" />
-          </div>
-        ))}
+        <div className="bg-white border rounded-lg shadow p-4">
+          <div className="h-5 w-32 bg-gray-200 rounded mb-3"></div>
+          <div className="h-40 w-full bg-gray-100 rounded"></div>
+        </div>
+
+        <div className="bg-white border rounded-lg shadow p-4">
+          <div className="h-5 w-32 bg-gray-200 rounded mb-3"></div>
+          <div className="h-40 w-full bg-gray-100 rounded"></div>
+        </div>
       </div>
     </div>
   );
