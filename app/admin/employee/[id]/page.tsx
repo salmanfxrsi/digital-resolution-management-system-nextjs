@@ -32,7 +32,7 @@ export default function EmployeeDetails() {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch employee data by ID
+
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
