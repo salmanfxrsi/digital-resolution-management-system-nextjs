@@ -9,6 +9,9 @@ interface TaskModalProps {
   formatDate: (d: any) => string;
 }
 
+
+
+
 export default function TaskModal({
   task,
   onClose,
@@ -16,9 +19,7 @@ export default function TaskModal({
 }: TaskModalProps) {
   if (!task) return null;
 
-  const companyList = task.companyName
-    ? task.companyName.split(",").map((c: string) => c.trim())
-    : [];
+
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
@@ -83,16 +84,18 @@ export default function TaskModal({
           <span className="text-gray-500 text-xs">Company</span>
 
           <div className="mt-2 flex flex-wrap gap-2">
-            {companyList.map((c: string, i: number) => (
-              <span
-                key={i}
-                className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold"
-              >
-                {c}
-              </span>
-            ))}
+            {task.companies &&
+              task.companies.split(",").map((c: string, i: number) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold"
+                >
+                  {c.trim()}
+                </span>
+              ))}
           </div>
         </div>
+
 
         {/* Footer */}
         <div className="mt-6 flex justify-end">

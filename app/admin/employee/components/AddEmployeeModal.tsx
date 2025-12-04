@@ -3,7 +3,11 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+<<<<<<< HEAD
 import { toast } from "react-toastify";
+=======
+import { uploadToImgBB } from "@/utils/uploadImage";
+>>>>>>> f2df2c784d746f2c5d3b4179ce46027130fa67ea
 
 interface Props {
   open: boolean;
@@ -25,22 +29,55 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
     salary: "",
     photo: null as File | null,
   });
-
+  
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // 🔥 NEW: Saving state
 
   if (!open) return null;
 
+
+  const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<File> => {
+    return new Promise((resolve) => {
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = maxWidth;
+        canvas.height = maxHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, maxWidth, maxHeight);
+
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(new File([blob], file.name, { type: "image/jpeg" }));
+          }
+        }, "image/jpeg", 0.8); // 80% quality
+      };
+    });
+  };
+
+
   // FILE HANDLER
-  const handleFile = (file: File | null) => {
+  const handleFile = async (file: File | null) => {
     if (!file) return;
+
     if (!file.type.startsWith("image/")) {
       toast.error("Only image files allowed!");
       return;
     }
-    setForm({ ...form, photo: file });
-    setPhotoPreview(URL.createObjectURL(file));
+
+    // Resize to 300x300
+    const resized = await resizeImage(file, 300, 300);
+
+    setForm({ ...form, photo: resized });
+    setPhotoPreview(URL.createObjectURL(resized));
   };
+
+
 
   // DRAG EVENTS
   const onDragOver = (e: React.DragEvent) => {
@@ -55,6 +92,7 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
     handleFile(file);
   };
 
+  // SUBMIT FUNCTION
   const handleSubmit = async () => {
     if (
       !form.companyID ||
@@ -67,31 +105,34 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
       !form.nid ||
       !form.joiningDate ||
       !form.salary ||
-      !form.photo?.name
+      !form.photo
     ) {
       toast.error("All fields are required!");
       return;
     }
 
-    // Build plain JSON object
-    const payload = {
-      companyID: form.companyID,
-      name: form.name,
-      number: form.number,
-      email: form.email,
-      department: form.department,
-      designation: form.designation,
-      address: form.address,
-      nid: form.nid,
-      joiningDate: form.joiningDate,
-      salary: form.salary,
-      photo: form.photo?.name,
-    };
-    console.log(JSON.stringify(payload));
+    setIsSaving(true); // 🔥 Start loading
 
     try {
+      // 1️⃣ Upload to ImgBB
+      const imageUrl = await uploadToImgBB(form.photo);
+
+      // 2️⃣ Build payload
+      const payload = {
+        companyID: form.companyID,
+        name: form.name,
+        number: form.number,
+        email: form.email,
+        department: form.department,
+        designation: form.designation,
+        address: form.address,
+        nid: form.nid,
+        joiningDate: form.joiningDate,
+        salary: form.salary,
+        photo: imageUrl,
+      };
+
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      console.log(baseUrl);
 
       const res = await fetch(`${baseUrl}/employees/create`, {
         method: "POST",
@@ -99,17 +140,28 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText);
-      }
+      if (!res.ok) throw new Error(await res.text());
 
+<<<<<<< HEAD
       toast.success("Employee added successfully!");
       onSuccess?.();
       onClose();
     } catch (err) {
       console.error("Error submitting employee:", err);
       toast.error("Failed to add employee");
+=======
+      alert("Employee added successfully!");
+
+      setIsSaving(false);
+
+      onSuccess?.();
+      onClose();
+    } catch (err) {
+      console.error("Error submitting:", err);
+      alert("Failed to add employee");
+
+      setIsSaving(false); // Stop loading
+>>>>>>> f2df2c784d746f2c5d3b4179ce46027130fa67ea
     }
   };
 
@@ -121,48 +173,46 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
         </h2>
 
         {/* PHOTO UPLOAD */}
-        <div className="col-span-2 mb-6">
-          <div
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
-            onDrop={onDrop}
-            onClick={() => document.getElementById("photoInput")?.click()}
-            className={`mt-2 p-2 h-30 w-[170px] border-2 border-dashed rounded text-center cursor-pointer transition ${
-              isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
+        <div
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
+          onClick={() => fileInputRef.current?.click()}
+          className={`mt-2 h-[100px] w-[100px] mb-2 border-2 border-dashed rounded-lg text-center cursor-pointer overflow-hidden flex items-center justify-center transition ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
             }`}
-          >
-            {photoPreview ? (
-              <div className="flex justify-center">
-                <Image
-                  src={photoPreview}
-                  width={100}
-                  height={100}
-                  alt="Employee Photo"
-                  className="rounded border shadow"
-                />
-              </div>
-            ) : (
-              <p className="text-gray-500 mt-8 text-sm">
-                Drag & drop photo here, or{" "}
-                <span className="text-blue-600 font-medium">browse</span>
-              </p>
-            )}
-          </div>
-          <input
-            id="photoInput"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => handleFile(e.target.files?.[0] || null)}
-          />
+        >
+          {photoPreview ? (
+            <Image
+              src={photoPreview}
+              width={100}
+              height={100}
+              alt="Preview"
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <p className="text-gray-500 text-sm">
+              Drag & drop<br />
+              or <span className="text-blue-600 font-medium">browse</span>
+            </p>
+          )}
         </div>
+
+        <input
+          ref={fileInputRef}
+          id="photoInput"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => handleFile(e.target.files?.[0] || null)}
+        />
+
 
         {/* FORM FIELDS */}
         <div className="grid grid-cols-3 gap-6">
           {[
             { key: "companyID", placeholder: "Employee ID", type: "text" },
             { key: "name", placeholder: "Full Name", type: "text" },
-            { key: "number", placeholder: "Phone Number", type: "text" },
+            { key: "number", placeholder: "Phone Number", type: "" },
             { key: "email", placeholder: "Email", type: "email" },
             { key: "designation", placeholder: "Designation", type: "text" },
             { key: "address", placeholder: "Address", type: "text" },
@@ -176,6 +226,7 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
               placeholder={field.placeholder}
               className="p-2 border-b border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm"
               required
+              disabled={isSaving}
               value={(form as any)[field.key]}
               onChange={(e) =>
                 setForm({ ...form, [field.key]: e.target.value })
@@ -186,6 +237,7 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
           {/* DEPARTMENT DROPDOWN */}
           <select
             required
+            disabled={isSaving}
             value={form.department}
             onChange={(e) => setForm({ ...form, department: e.target.value })}
             className="p-2 border-b border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm col-span-3"
@@ -202,16 +254,25 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
         {/* BUTTONS */}
         <div className="flex justify-end gap-3 mt-8">
           <button
-            onClick={onClose}
-            className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100 transition"
+            onClick={isSaving ? undefined : onClose}
+            disabled={isSaving}
+            className={`px-5 py-2 border rounded-lg ${isSaving
+              ? "text-gray-400 border-gray-300 cursor-not-allowed"
+              : "text-gray-600 hover:bg-gray-100"
+              } transition`}
           >
             Cancel
           </button>
+
           <button
-            onClick={handleSubmit}
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
+            onClick={isSaving ? undefined : handleSubmit}
+            disabled={isSaving}
+            className={`px-5 py-2 rounded-lg shadow transition ${isSaving
+              ? "bg-blue-300 text-white cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
           >
-            Save
+            {isSaving ? "Saving..." : "Save"}
           </button>
         </div>
       </div>
