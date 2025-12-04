@@ -184,7 +184,7 @@ export default function EmployeePage() {
       <AddEmployeeModal
         open={openModal}
         onClose={() => setOpenModal(false)}
-        onSuccess={fetchEmployees} // 🔹 call reload after add
+        onSuccess={fetchEmployees}
       />
     </div>
   );
