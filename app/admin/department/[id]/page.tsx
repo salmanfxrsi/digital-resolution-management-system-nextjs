@@ -15,28 +15,15 @@ import {
 } from "recharts";
 import { useParams } from "next/navigation";
 import SkeletonTable from "@/components/shared/Skeleton/SkeletonTable";
+
 const departments = [
-  {
-    id: "marketer",
-    name: "Marketing Team",
-  },
-  {
-    id: "web_developer",
-    name: "Web Developers",
-  },
-  {
-    id: "graphic_designer",
-    name: "Graphic Designers",
-  },
-  {
-    id: "video_editor",
-    name: "Video Editors",
-  },
-  {
-    id: "admin_service",
-    name: "Admin Service",
-  },
+  { id: "marketer", name: "Marketing Team" },
+  { id: "web_developer", name: "Web Developers" },
+  { id: "graphic_designer", name: "Graphic Designers" },
+  { id: "video_editor", name: "Video Editors" },
+  { id: "admin_service", name: "Admin Service" },
 ];
+
 interface Employee {
   _id: string;
   photo?: string;
@@ -53,7 +40,11 @@ export default function DepartmentDetails() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { id } = useParams(); // department id from route
+  const { id } = useParams();
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // 🔹 Fetch employees by department id
   useEffect(() => {
@@ -62,9 +53,7 @@ export default function DepartmentDetails() {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
         const res = await fetch(`${baseUrl}/departments/employees/${id}`);
         const data = await res.json();
-        if (res.ok && data.success) {
-          setEmployees(data.data);
-        }
+        if (res.ok && data.success) setEmployees(data.data);
       } catch (err) {
         console.error("Error fetching employees:", err);
       } finally {
@@ -73,7 +62,21 @@ export default function DepartmentDetails() {
     };
     if (id) fetchEmployees();
   }, [id]);
-  console.log(employees);
+
+  // Reset page when employees change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [employees]);
+
+  // Pagination logic
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentEmployees = employees.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(employees.length / itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
 
   // Demo graph data
   const dailyData = [
@@ -99,7 +102,8 @@ export default function DepartmentDetails() {
     view === "daily" ? dailyData : view === "weekly" ? weeklyData : monthlyData;
   const dataKey =
     view === "daily" ? "day" : view === "weekly" ? "week" : "month";
-  const demartmentname = (id: string) => {
+
+  const departmentName = (id: string) => {
     return departments.find((dept) => dept.id === id);
   };
 
@@ -109,20 +113,19 @@ export default function DepartmentDetails() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
-            {demartmentname(id as any)?.name}
+            {departmentName(id as any)?.name}
           </h1>
           <p className="text-gray-600 text-sm">Department ID: {id}</p>
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <CalendarDays className="h-4 w-4" />
-          {/* Example static established date */}
           Established: 2018-03-01
         </div>
       </div>
 
-      {/* Metrics + Graph side by side */}
+      {/* Metrics + Graph */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Metrics */}
+        {/* Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <MetricCard label="Daily Work Hours" value="9 hrs/day" color="blue" />
           <MetricCard label="Weekly Hours" value="45 hrs" color="yellow" />
@@ -135,7 +138,7 @@ export default function DepartmentDetails() {
           />
         </div>
 
-        {/* Right: Graph */}
+        {/* Graph */}
         <div className="bg-white border rounded-lg shadow p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-700">
@@ -158,9 +161,9 @@ export default function DepartmentDetails() {
               <Tooltip />
               <Bar
                 dataKey="hours"
-                fill="#ca8a04"
-                radius={6}
-                background={{ fill: "#fef9c3" }}
+                fill="#3b82f6"
+                radius={[6, 6, 0, 0]}
+                background={{ fill: "#dbeafe" }}
               />
             </BarChart>
           </ResponsiveContainer>
@@ -176,59 +179,105 @@ export default function DepartmentDetails() {
           {loading ? (
             <SkeletonTable />
           ) : (
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 text-gray-700">
-                  <th className="p-3 text-left">Photo</th>
-                  <th className="p-3 text-left">Name</th>
-                  <th className="p-3 text-left">Phone</th>
-                  <th className="p-3 text-left">Email</th>
-                  <th className="p-3 text-left">Designation</th>
-                  <th className="p-3 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {employees?.map((emp) => (
-                  <tr key={emp._id} className="border-t hover:bg-gray-50">
-                    <td className="p-3">
-                      <div className="w-12 h-12 relative">
-                        {/* <Image
-                          src={emp.photo || "/default-avatar.png"}
-                          alt={`${emp.name} Photo`}
-                          fill
-                          className="object-cover rounded-full border"
-                        />
-                       */}
-                        <Users className="h-8 w-8 text-gray-300" />
-                      </div>
-                    </td>
-                    <td className="p-3">{emp.name}</td>
-                    <td className="p-3">{emp.number}</td>
-                    <td className="p-3">{emp.email}</td>
-                    <td className="p-3">{emp.designation}</td>
-
-                    <td className="p-3 text-center">
-                      <Link
-                        href={`/admin/employee/${emp._id}`}
-                        className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+            <>
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 text-gray-700">
+                    <th className="p-3 text-left">Photo</th>
+                    <th className="p-3 text-left">Name</th>
+                    <th className="p-3 text-left">Phone</th>
+                    <th className="p-3 text-left">Email</th>
+                    <th className="p-3 text-left">Designation</th>
+                    <th className="p-3 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentEmployees?.map((emp) => (
+                    <tr key={emp._id} className="border-t hover:bg-gray-50">
+                      <td className="p-3">
+                        <div className="w-12 h-12 relative">
+                          <Users className="h-8 w-8 text-gray-300" />
+                        </div>
+                      </td>
+                      <td className="p-3">{emp.name}</td>
+                      <td className="p-3">{emp.number}</td>
+                      <td className="p-3">{emp.email}</td>
+                      <td className="p-3">{emp.designation}</td>
+                      <td className="p-3 text-center">
+                        <Link
+                          href={`/admin/employee/${emp._id}`}
+                          className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+                        >
+                          Details
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                  {employees.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={8}
+                        className="p-4 text-center text-gray-500 italic"
                       >
-                        Details
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-                {employees.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className="p-4 text-center text-gray-500 italic"
+                        No employees found for this department.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+
+              {/* Pagination Controls */}
+              <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <span>Rows per page:</span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="border p-1 rounded"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className="px-3 py-1 border rounded hover:bg-gray-100"
+                    disabled={currentPage === 1}
+                  >
+                    Prev
+                  </button>
+
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handlePageChange(i + 1)}
+                      className={`px-3 py-1 rounded border ${
+                        currentPage === i + 1
+                          ? "bg-blue-600 text-white"
+                          : "hover:bg-gray-100"
+                      }`}
                     >
-                      No employees found for this department.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className="px-3 py-1 border rounded hover:bg-gray-100"
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>
