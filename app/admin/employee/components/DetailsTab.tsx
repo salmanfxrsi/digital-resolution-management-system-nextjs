@@ -16,16 +16,15 @@ import {
 import { useGetEmployeeByIdQuery } from "@/app/redux/features/Employees/employeesApi";
 import { useParams } from "next/navigation";
 
-
-
 export default function Page() {
   const { id: employeeId } = useParams();
 
+  //  Using RTK Query instead of manual fetch
+  const { data, isLoading } = useGetEmployeeByIdQuery(employeeId, {
+    skip: !employeeId,
+  });
 
-  // ✅ Using RTK Query instead of manual fetch
-  const { data, isLoading } = useGetEmployeeByIdQuery(employeeId, { skip: !employeeId });
-
-  // 📌 Your backend returns employee under employeeId object
+  //  Your backend returns employee under employeeId object
   const employee = data?.data || data?.employeeId;
 
   if (isLoading) {
@@ -55,7 +54,6 @@ export default function Page() {
 
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white border rounded-xl shadow-lg space-y-10">
-
       {/* TOP SECTION */}
       <div className="flex mx-auto justify-between gap-8 items-center bg-white border rounded-lg p-8">
         <div className="flex justify-between gap-8 items-center">
@@ -76,8 +74,12 @@ export default function Page() {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-gray-900">{employee.name}</h1>
-            <p className="text-blue-600 font-semibold">{employee.designation}</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {employee.name}
+            </h1>
+            <p className="text-blue-600 font-semibold">
+              {employee.designation}
+            </p>
             <p className="text-gray-500 capitalize">{employee.department}</p>
           </div>
         </div>
@@ -107,13 +109,10 @@ export default function Page() {
               <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">
                 Password
               </span>
-              <p className="font-medium text-gray-900">
-                {employee.companyID}
-              </p>
+              <p className="font-medium text-gray-900">{employee.companyID}</p>
             </div>
           </div>
         </div>
-
       </div>
 
       {/* Divider */}

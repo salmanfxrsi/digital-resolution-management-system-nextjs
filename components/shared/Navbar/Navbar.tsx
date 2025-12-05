@@ -23,10 +23,30 @@ import { signOut, useSession } from "next-auth/react";
 import { useGetEmployeeByIdQuery } from "@/app/redux/features/Employees/employeesApi";
 
 const notifications = [
-  { id: 1, date: "01-11-24 Today", message: "This is your first notification message!", unread: true },
-  { id: 2, date: "01-11-24 Today", message: "This is your first notification message!", unread: true },
-  { id: 3, date: "01-11-24 Today", message: "This is your first notification message!", unread: true },
-  { id: 4, date: "01-11-24 Today", message: "This is your first notification message!", unread: true },
+  {
+    id: 1,
+    date: "01-11-24 Today",
+    message: "This is your first notification message!",
+    unread: true,
+  },
+  {
+    id: 2,
+    date: "01-11-24 Today",
+    message: "This is your first notification message!",
+    unread: true,
+  },
+  {
+    id: 3,
+    date: "01-11-24 Today",
+    message: "This is your first notification message!",
+    unread: true,
+  },
+  {
+    id: 4,
+    date: "01-11-24 Today",
+    message: "This is your first notification message!",
+    unread: true,
+  },
 ];
 
 const Navbar = ({
@@ -53,7 +73,7 @@ const Navbar = ({
 
   const employee = empData?.data;
 
-  console.log(employee)
+  console.log(employee);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -63,19 +83,21 @@ const Navbar = ({
   return (
     <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-[0px_0_4px_rgba(0,0,0,0.1)]">
       <div className="flex h-full items-center justify-between px-6 md:px-8">
-
         {/* Sidebar Toggle */}
         <button
           type="button"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className="text-muted-foreground rounded-full p-1 hover:text-foreground transition"
         >
-          {isSidebarOpen ? <PanelRightClose className="h-5 w-5" /> : <PanelRightOpen className="h-5 w-5" />}
+          {isSidebarOpen ? (
+            <PanelRightClose className="h-5 w-5" />
+          ) : (
+            <PanelRightOpen className="h-5 w-5" />
+          )}
         </button>
 
         {/* LEFT: Search + Admin Stats */}
         <div className="hidden md:flex items-center gap-6">
-
           {/* Admin Box */}
           {userType === "admin" && (
             <div className="bg-green-50 border border-green-200 rounded px-4 py-1 shadow flex gap-2">
@@ -106,15 +128,14 @@ const Navbar = ({
           {/* Admin Box */}
           {userType === "admin" && (
             <div className="bg-blue-50 border border-blue-200 rounded px-4 py-1 shadow flex gap-2">
-              <p className="text-xs text-gray-500">Revenue</p>
-              <p className="text-sm font-semibold text-blue-700">$12,340</p>
+              <p className="text-xs text-gray-500">Total Leave</p>
+              <p className="text-sm font-semibold text-blue-700">12</p>
             </div>
           )}
         </div>
 
         {/* RIGHT: Notifications + Profile */}
         <div className="flex items-center gap-4 md:gap-6">
-
           {/* Notifications */}
           <div className="relative">
             <button
@@ -141,20 +162,28 @@ const Navbar = ({
               <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg ring-1 ring-black/5 z-50">
                 <div className="flex justify-between px-4 py-3 border-b">
                   <h3 className="text-sm font-semibold">Notification</h3>
-                  <Link href="/notifications" className="text-xs text-blue-600 hover:underline">
+                  <Link
+                    href="/notifications"
+                    className="text-xs text-blue-600 hover:underline"
+                  >
                     View all
                   </Link>
                 </div>
 
                 <ul className="max-h-64 overflow-y-auto divide-y">
                   {notifications.map((note) => (
-                    <li key={note.id} className="px-4 py-3 text-sm flex justify-between">
+                    <li
+                      key={note.id}
+                      className="px-4 py-3 text-sm flex justify-between"
+                    >
                       <div>
                         <p className="font-medium">{note.date}</p>
                         <p className="text-gray-600">{note.message}</p>
                       </div>
 
-                      {note.unread && <span className="mt-1 w-2 h-2 bg-red-500 rounded-full" />}
+                      {note.unread && (
+                        <span className="mt-1 w-2 h-2 bg-red-500 rounded-full" />
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -165,8 +194,6 @@ const Navbar = ({
           {/* Profile Dropdown */}
           <Menu as="div" className="relative">
             <MenuButton className="flex items-center gap-2 rounded-full">
-
-
               {isLoading ? (
                 <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse" />
               ) : (
@@ -181,7 +208,6 @@ const Navbar = ({
             </MenuButton>
 
             <MenuItems className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black/5 py-2 z-50">
-
               <MenuItem>
                 <p className="px-4 py-2 text-sm font-semibold text-gray-700">
                   {employee?.name || "ADMIN"}
@@ -205,7 +231,6 @@ const Navbar = ({
                   <LogOut className="h-4 w-4" /> Logout
                 </button>
               </MenuItem>
-
             </MenuItems>
           </Menu>
         </div>

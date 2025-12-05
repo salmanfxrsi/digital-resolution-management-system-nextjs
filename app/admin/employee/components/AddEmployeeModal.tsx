@@ -6,6 +6,11 @@ import Image from "next/image";
 import { uploadToImgBB } from "@/utils/uploadImage";
 import { useCreateEmployeeMutation } from "@/app/redux/features/Employees/employeesApi";
 import toast from "react-hot-toast";
+import {
+  validateNID,
+  validatePhone,
+  ValidationEmail,
+} from "@/components/module/FormValidation/InputValidation";
 
 interface Props {
   open: boolean;
@@ -32,13 +37,20 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  //  New state for image uploading
+  const [isUploading, setIsUploading] = useState(false);
+
   // RTK Query mutation
   const [createEmployee, { isLoading }] = useCreateEmployeeMutation();
 
   if (!open) return null;
 
   // 🔵 Resize image before upload
-  const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<File> => {
+  const resizeImage = (
+    file: File,
+    maxWidth: number,
+    maxHeight: number
+  ): Promise<File> => {
     return new Promise((resolve) => {
       const img = document.createElement("img");
       img.src = URL.createObjectURL(file);
@@ -51,11 +63,15 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
         const ctx = canvas.getContext("2d");
         ctx?.drawImage(img, 0, 0, maxWidth, maxHeight);
 
-        canvas.toBlob((blob) => {
-          if (blob) {
-            resolve(new File([blob], file.name, { type: "image/jpeg" }));
-          }
-        }, "image/jpeg", 0.8);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(new File([blob], file.name, { type: "image/jpeg" }));
+            }
+          },
+          "image/jpeg",
+          0.8
+        );
       };
     });
   };
@@ -105,6 +121,9 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
     }
 
     try {
+      //  Prevent multiple clicks
+      setIsUploading(true);
+
       toast.loading("Uploading image...");
       const imageUrl = await uploadToImgBB(form.photo);
       toast.dismiss();
@@ -140,8 +159,24 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
     } catch (error) {
       console.error(error);
       toast.error("Failed to add employee.");
+    } finally {
+      // Re-enable Save button after upload completes
+      setIsUploading(false);
     }
   };
+
+  const visible =
+    form.companyID &&
+    form.name &&
+    validatePhone(form.number) &&
+    ValidationEmail(form.email) &&
+    form.department &&
+    form.designation &&
+    form.address &&
+    validateNID(form.nid) &&
+    form.joiningDate &&
+    form.salary &&
+    form.photo;
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2">
@@ -156,8 +191,9 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
           onDragLeave={onDragLeave}
           onDrop={onDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`mt-2 h-[100px] w-[100px] mb-2 border-2 border-dashed rounded-lg text-center cursor-pointer flex items-center justify-center transition ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
-            }`}
+          className={`mt-2 h-[100px] w-[100px] mb-2 border-2 border-dashed rounded text-center cursor-pointer flex items-center justify-center transition ${
+            isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
+          }`}
         >
           {photoPreview ? (
             <Image
@@ -205,18 +241,16 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
               onChange={(e) =>
                 setForm({ ...form, [field.key]: e.target.value })
               }
-              disabled={isLoading}
+              disabled={isLoading || isUploading}
             />
           ))}
 
           {/* Department Dropdown */}
           <select
             value={form.department}
-            onChange={(e) =>
-              setForm({ ...form, department: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, department: e.target.value })}
             className="p-2 border-b border-gray-300 focus:border-blue-500 outline-none text-sm col-span-3"
-            disabled={isLoading}
+            disabled={isLoading || isUploading}
           >
             <option value="">Select Department</option>
             <option value="marketer">Marketer</option>
@@ -227,23 +261,45 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
           </select>
         </div>
 
+        {!validateNID(form.nid) && form.nid && (
+          <p className="text-red-500 text-xs">
+            NID must be 10, 13, or 17 digits
+          </p>
+        )}
+        {!ValidationEmail(form.email) && form.email && (
+          <p className="text-red-500 text-xs">Email is not valid</p>
+        )}
+        {!validatePhone(form.number) && form.number && (
+          <p className="text-red-500 text-xs">
+            Phone must be 11 digits starting with 01
+          </p>
+        )}
+
         {/* Buttons */}
         <div className="flex justify-end gap-3 mt-8">
           <button
             onClick={onClose}
-            disabled={isLoading}
-            className="px-5 py-2 border rounded-lg hover:bg-gray-100"
+            disabled={isLoading || isUploading}
+            className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100 transition disabled:opacity-50"
           >
             Cancel
           </button>
-
-          <button
-            onClick={handleSubmit}
-            disabled={isLoading}
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
-          >
-            {isLoading ? "Saving..." : "Save"}
-          </button>
+          {!visible ? (
+            <button
+              disabled
+              className="px-5 py-2 bg-gray-400 cursor-not-allowed text-white rounded-lg shadow"
+            >
+              Save
+            </button>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading || isUploading}
+              className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition disabled:opacity-50"
+            >
+              {isUploading ? "Uploading..." : isLoading ? "Saving..." : "Save"}
+            </button>
+          )}
         </div>
       </div>
     </div>

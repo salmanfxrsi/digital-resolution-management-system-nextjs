@@ -10,9 +10,15 @@ import {
   PenTool,
   Megaphone,
 } from "lucide-react";
+import Image from "next/image";
 
 interface ClientOverviewProps {
   client: {
+    name: string;
+    location: string;
+    number: string;
+    gmail: string;
+    photo?: string;
     contractAmount: number;
     payAmount: number;
     dueAmount: number;
@@ -21,21 +27,9 @@ interface ClientOverviewProps {
     designCount: number;
     ads: Record<string, boolean>;
   };
-  setClient: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export default function ClientOverview({
-  client,
-  setClient,
-}: ClientOverviewProps) {
-  const toggleAd = (platform: keyof typeof client.ads) => {
-    setClient((prev: any) =>
-      prev
-        ? { ...prev, ads: { ...prev.ads, [platform]: !prev.ads[platform] } }
-        : prev
-    );
-  };
-
+export default function ClientOverview({ client }: ClientOverviewProps) {
   return (
     <div className="space-y-8">
       {/* Financial Metrics */}
@@ -63,42 +57,42 @@ export default function ClientOverview({
       {/* Project Sections */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Video */}
-        <div className="bg-indigo-50 border rounded-lg p-4 hover:shadow-md transition">
+        <div className="border rounded-lg p-4 bg-white hover:shadow-md transition">
           <div className="flex items-center justify-between mb-2">
             <div>
               <p className="text-sm text-gray-600">Video Project</p>
-              <p className="text-lg font-bold text-indigo-600">
+              <p className="text-lg font-bold text-gray-800">
                 {client.projectDetails || "No video project details"}
               </p>
             </div>
-            <Video className="h-6 w-6 text-indigo-600 animate-pulse" />
+            <Video className="h-6 w-6 text-indigo-600" />
           </div>
           <label className="block text-sm text-gray-700 mt-2">
             Number of Videos Running:
           </label>
-          <p className="text-indigo-700 font-semibold">{client.videoCount}</p>
+          <p className="text-gray-900 font-semibold">{client.videoCount}</p>
         </div>
 
         {/* Design */}
-        <div className="bg-yellow-50 border rounded-lg p-4 hover:shadow-md transition">
+        <div className="border rounded-lg p-4 bg-white hover:shadow-md transition">
           <div className="flex items-center justify-between mb-2">
             <div>
               <p className="text-sm text-gray-600">Design Project</p>
-              <p className="text-lg font-bold text-yellow-600">
+              <p className="text-lg font-bold text-gray-800">
                 {client.projectDetails || "No design project details"}
               </p>
             </div>
-            <PenTool className="h-6 w-6 text-yellow-600 animate-bounce" />
+            <PenTool className="h-6 w-6 text-yellow-600" />
           </div>
           <label className="block text-sm text-gray-700 mt-2">
             Number of Designs Delivered:
           </label>
-          <p className="text-yellow-700 font-semibold">{client.designCount}</p>
+          <p className="text-gray-900 font-semibold">{client.designCount}</p>
         </div>
       </div>
 
       {/* Ads Section */}
-      <div className="bg-gray-50 border rounded-lg p-6">
+      <div className="bg-white border rounded-lg p-6 shadow hover:shadow-md transition">
         <h2 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
           <Megaphone className="h-5 w-5 text-gray-600" /> Ad Campaigns
         </h2>
@@ -107,8 +101,7 @@ export default function ClientOverview({
             <AdCard
               key={platform}
               platform={platform.charAt(0).toUpperCase() + platform.slice(1)}
-              active={active}
-              onToggle={() => toggleAd(platform as keyof typeof client.ads)}
+              initialActive={active}
             />
           ))}
         </div>
@@ -116,6 +109,7 @@ export default function ClientOverview({
     </div>
   );
 }
+
 /* Reusable Metric Card */
 function MetricCard({
   label,
@@ -125,7 +119,7 @@ function MetricCard({
 }: {
   label: string;
   value: string | number;
-  color: string;
+  color: "blue" | "green" | "red";
   icon: React.ReactNode;
 }) {
   const colorMap: Record<string, string> = {
@@ -136,32 +130,42 @@ function MetricCard({
 
   return (
     <div
-      className={`border rounded-lg p-4 flex items-center justify-between ${colorMap[color]}`}
+      className={`border rounded-lg p-4 flex items-center justify-between hover:shadow-md transition ${colorMap[color]}`}
     >
+      {icon}
       <div>
         <p className="text-sm text-gray-700">{label}</p>
         <p className={`text-lg font-bold ${colorMap[color].split(" ")[0]}`}>
           {value}
         </p>
       </div>
-      {icon}
     </div>
   );
 }
 
-/* Ad Card Component */
+/* Ad Card Component with local toggle */
 function AdCard({
   platform,
-  active,
-  onToggle,
+  initialActive,
 }: {
   platform: string;
-  active: boolean;
-  onToggle: () => void;
+  initialActive: boolean;
 }) {
+  const [active, setActive] = React.useState(initialActive);
+
+  const handleToggle = () => {
+    const newStatus = !active;
+    setActive(newStatus);
+    console.log(
+      `${platform} status changed to:`,
+      newStatus ? "Active" : "Inactive"
+    );
+    // 🔜 In future: call API here with newStatus
+  };
+
   return (
     <button
-      onClick={onToggle}
+      onClick={handleToggle}
       className={`border rounded-lg p-4 flex flex-col items-center justify-center transition transform hover:scale-105 ${
         active ? "bg-green-50 border-green-300" : "bg-red-50 border-red-300"
       }`}

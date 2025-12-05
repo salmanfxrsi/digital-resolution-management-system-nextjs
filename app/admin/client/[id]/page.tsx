@@ -1,131 +1,93 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  CalendarDays,
-  DollarSign,
-  CheckCircle,
-  XCircle,
-  Video,
-  PenTool,
-  Megaphone,
-} from "lucide-react";
+import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import ClientSkeleton from "@/components/shared/Skeleton/ClientSkeleton";
 import ClientWorkList from "../components/ClientWorkList";
 import ClientOverview from "../components/ClientOverview";
+import { useGetClientByIdQuery } from "@/app/redux/features/clients/clientsApi";
+import Image from "next/image";
 
-interface ClientApiResponse {
-  _id: string;
-  name: string;
-  location: string;
-  number: string;
-  gmail: string;
-  projectDetails: string;
-  status: "ongoing" | "completed";
-  logo: string;
-  contractCount: number;
-  designCount: number;
-  videoCount: number;
-  contractAmount: number;
-  payAmount: number;
-  dueAmount: number;
-  ads: {
-    youtube: boolean;
-    facebook: boolean;
-    instagram: boolean;
-    tiktok: boolean;
-  };
-  createdAt: string;
-}
+// Import lucide-react icons
+import { MapPin, Mail, Phone } from "lucide-react";
 
 export default function ClientPage() {
-  const [client, setClient] = useState<ClientApiResponse | null>(null);
   const params = useParams();
-  const [loading, setLoading] = useState(true);
+  const { id } = params;
+
   const [activeTab, setActiveTab] = useState<"overview" | "history">(
     "overview"
   );
 
-  const { id } = params;
-  useEffect(() => {
-    const fetchClient = async () => {
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  // RTK Query hook
+  const { data, error, isLoading } = useGetClientByIdQuery(id);
 
-        const res = await fetch(`${baseUrl}/clients/${id}`);
+  const client = data?.data; // assuming API returns { success, data }
 
-        const data = await res.json();
-        if (data.success) {
-          setClient(data.data);
-        } else {
-          console.error("Failed to fetch client:", data.message);
-        }
-      } catch (err) {
-        console.error("Error fetching client:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClient();
-  }, []);
-
-  if (!client) {
-    return (
-      <div className="p-8">
-        <p className="text-gray-500 animate-pulse">Loading client data...</p>
-      </div>
-    );
-  }
-
-  // Toggle ads active/inactive
-  const toggleAd = (platform: keyof typeof client.ads) => {
-    setClient((prev) =>
-      prev
-        ? {
-            ...prev,
-            ads: { ...prev.ads, [platform]: !prev.ads[platform] },
-          }
-        : prev
-    );
-  };
+  if (isLoading) return <ClientSkeleton />;
+  if (error) return <p className="text-red-500">Failed to load client</p>;
+  if (!client) return <p className="text-gray-500">No client found</p>;
 
   return (
-    <div>
-      {loading ? (
-        <ClientSkeleton />
-      ) : (
-        <div className="bg-white p-8 space-y-8">
-          <div className="flex gap-4 border-b mb-6">
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`px-4 py-2 font-medium ${
-                activeTab === "overview"
-                  ? "border-b-2 border-blue-600 text-blue-600"
-                  : "text-gray-500 hover:text-blue-500"
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveTab("history")}
-              className={`px-4 py-2 font-medium ${
-                activeTab === "history"
-                  ? "border-b-2 border-blue-600 text-blue-600"
-                  : "text-gray-500 hover:text-blue-500"
-              }`}
-            >
-              History
-            </button>
-          </div>
-          {activeTab === "overview" && (
-            <ClientOverview client={client} setClient={setClient} />
+    <div className="bg-white px-8 space-y-8">
+      {/* Client Profile Card */}
+      <div className="flex items-center gap-6 bg-white border rounded-lg p-6 transition hover:shadow">
+        <div className="w-24 h-24 rounded-full overflow-hidden border">
+          {client.photo ? (
+            <Image
+              src={client.photo}
+              alt={client.name}
+              width={96}
+              height={96}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
+              No Image
+            </div>
           )}
-
-          {activeTab === "history" && <ClientWorkList />}
         </div>
-      )}
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold text-gray-800">{client.name}</h2>
+          <p className="flex items-center gap-2 text-sm text-gray-600">
+            <MapPin className="h-4 w-4 text-blue-600" /> {client.location}
+          </p>
+          <p className="flex items-center gap-2 text-sm text-gray-600">
+            <Mail className="h-4 w-4 text-green-600" /> {client.gmail}
+          </p>
+          <p className="flex items-center gap-2 text-sm text-gray-600">
+            <Phone className="h-4 w-4 text-indigo-600" /> {client.number}
+          </p>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-4 border-b mb-6">
+        <button
+          onClick={() => setActiveTab("overview")}
+          className={`px-4 py-2 font-medium ${
+            activeTab === "overview"
+              ? "border-b-2 border-blue-600 text-blue-600"
+              : "text-gray-500 hover:text-blue-500"
+          }`}
+        >
+          Overview
+        </button>
+        <button
+          onClick={() => setActiveTab("history")}
+          className={`px-4 py-2 font-medium ${
+            activeTab === "history"
+              ? "border-b-2 border-blue-600 text-blue-600"
+              : "text-gray-500 hover:text-blue-500"
+          }`}
+        >
+          History
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === "overview" && <ClientOverview client={client} />}
+      {activeTab === "history" && <ClientWorkList />}
     </div>
   );
 }

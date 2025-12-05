@@ -1,11 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import AddClientModal from "./components/AddClientModal";
 import { Users } from "lucide-react";
 import SkeletonTable from "@/components/shared/Skeleton/SkeletonTable";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  useDeleteClientMutation,
+  useGetClientsQuery,
+} from "@/app/redux/features/clients/clientsApi";
+import toast from "react-hot-toast";
+import { setSearch } from "@/app/redux/features/clients/clientsSlice";
 
 interface Client {
   [x: string]: React.ReactNode;
@@ -24,38 +31,21 @@ interface Client {
 }
 
 export default function ClientPage() {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [search, setSearch] = useState("");
+  const dispatch = useDispatch();
+  const search = useSelector((state: any) => state.clients.search);
   const [openModal, setOpenModal] = useState(false);
-  const [loading, setLoading] = useState(true);
-
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  // RTK Query hooks
+  const { data, isLoading } = useGetClientsQuery(undefined);
+  const [deleteClient, { isLoading: isDeleting }] = useDeleteClientMutation();
 
-  // 🔹 Fetch Clients
-  const fetchClients = async () => {
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      const res = await fetch(`${baseUrl}/clients`);
-      const data = await res.json();
-
-      if (data.success) {
-        const clientsArray = Array.isArray(data.data) ? data.data : [data.data];
-        setClients(clientsArray);
-      } else {
-        console.error("Failed to fetch clients:", data.message);
-      }
-    } catch (err) {
-      console.error("Error fetching clients:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchClients();
-  }, []);
+  // Sort DESC (newest first)
+  const clients: Client[] = data?.data
+    ? [...data.data].sort((a, b) => b._id.localeCompare(a._id))
+    : [];
 
   //  Filter Search
   const filteredClients = clients.filter(
@@ -79,10 +69,19 @@ export default function ClientPage() {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  // Reset pagination when search changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
+  // Handle Delete
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+
+    try {
+      await deleteClient(deleteId).unwrap();
+      toast.success("Client deleted successfully!");
+      setDeleteId(null);
+      setCurrentPage(1);
+    } catch {
+      toast.error("Failed to delete client.");
+    }
+  };
 
   return (
     <div className="p-6 space-y-8">
@@ -138,7 +137,10 @@ export default function ClientPage() {
             placeholder="Search by name or location..."
             className="w-full p-2 border rounded shadow focus:outline-none focus:ring focus:ring-blue-300"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              dispatch(setSearch(e.target.value));
+              setCurrentPage(1);
+            }}
           />
         </div>
 
@@ -154,7 +156,7 @@ export default function ClientPage() {
 
       {/* TABLE + PAGINATION */}
       <div className="overflow-x-auto">
-        {loading ? (
+        {isLoading ? (
           <SkeletonTable />
         ) : (
           <>
@@ -183,13 +185,21 @@ export default function ClientPage() {
                     <td className="p-3 border text-gray-600">
                       {client.number || "-"}
                     </td>
-                    <td className="p-3 border text-center">
+
+                    <td className="p-3 border text-center flex justify-center gap-2">
                       <Link
                         href={`/admin/client/${client._id}`}
-                        className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
                       >
                         Details
                       </Link>
+
+                      <button
+                        onClick={() => setDeleteId(client._id)}
+                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -263,12 +273,43 @@ export default function ClientPage() {
           </>
         )}
       </div>
+      {/* Delete Confirmation Modal */}
+      {deleteId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[350px] text-center">
+            <h2 className="text-xl font-semibold mb-4">Confirm Delete</h2>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this client?
+            </p>
 
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setDeleteId(null)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* MODAL */}
       <AddClientModal
         open={openModal}
         onClose={() => setOpenModal(false)}
-        onSuccess={fetchClients}
+        onSuccess={() => {
+          dispatch(setSearch("")); // <-- CLEAR SEARCH BAR
+          setCurrentPage(1); // reset pagination
+          toast.success("Client added successfully!");
+        }}
       />
     </div>
   );
