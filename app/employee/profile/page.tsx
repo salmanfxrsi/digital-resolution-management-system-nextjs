@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Image from "next/image";
 import {
   Mail,
@@ -13,51 +13,21 @@ import {
   User,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useGetEmployeeByIdQuery } from "@/app/redux/features/Employees/employeesApi";
 
-interface Employee {
-  _id: string;
-  photo?: string;
-  name: string;
-  number: string;
-  email: string;
-  department: string;
-  designation: string;
-  joiningDate: string;
-  salary: string;
-  address: string;
-}
+
 
 export default function Page() {
   const { data: session } = useSession();
   const id = (session as any)?.user?.user?.employeeId;
-  console.log(id);
 
-  const [employee, setEmployee] = useState<Employee | null>(null);
-  const [loading, setLoading] = useState(true);
+  // ✅ Using RTK Query instead of manual fetch
+  const { data, isLoading } = useGetEmployeeByIdQuery(id, { skip: !id });
 
-  useEffect(() => {
-    const fetchEmployee = async () => {
-      if (!id) return;
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  // 📌 Your backend returns employee under employeeId object
+  const employee = data?.data || data?.employeeId;
 
-        const res = await fetch(`${baseUrl}/employees/${id}`);
-        const data = await res.json();
-
-        if (data.success) {
-          setEmployee(data.data);
-        }
-      } catch (err) {
-        console.error("Error fetching employee:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEmployee();
-  }, [id]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="max-w-3xl mx-auto p-8">
         <div className="animate-pulse space-y-6">
@@ -83,26 +53,66 @@ export default function Page() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-8 bg-white border rounded-xl shadow-lg space-y-10">
-      {/* Header Section */}
-      <div className="flex flex-col items-center text-center space-y-4">
-        <div className="relative w-32 h-32">
-          {/* <Image
-            src={employee.photo || "/default-avatar.png"}
-            alt={employee.name}
-            fill
-            className="rounded-full object-cover border-4 border-blue-200 shadow-md"
-          /> */}
-          <User className="h-32 w-32 text-gray-300" />
+    <div className="max-w-4xl mx-auto p-8 bg-white border rounded-xl shadow-lg space-y-10">
+
+      {/* TOP SECTION */}
+      <div className="flex mx-auto justify-between gap-8 items-center bg-white border rounded-lg p-8">
+        <div className="flex justify-between gap-8 items-center">
+          <div className="w-32 h-32 border rounded-full flex items-center justify-center overflow-hidden">
+            {employee.photo ? (
+              <Image
+                src={employee.photo}
+                width={100}
+                height={100}
+                alt={employee.name}
+                quality={50}
+                sizes="100px"
+                className="object-cover w-full h-full object-center"
+              />
+            ) : (
+              <User className="h-20 w-20 text-gray-300" />
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-gray-900">{employee.name}</h1>
+            <p className="text-blue-600 font-semibold">{employee.designation}</p>
+            <p className="text-gray-500 capitalize">{employee.department}</p>
+          </div>
         </div>
 
-        <div>
-          <h2 className="text-3xl font-bold text-gray-800">{employee.name}</h2>
-          <p className="text-blue-600 font-semibold">{employee.designation}</p>
-          <p className="text-gray-500 text-sm">
-            {employee.department} Department
-          </p>
+        {/* USER ACCOUNT SECTION */}
+        <div className="bg-gray-50 border rounded-lg p-6 shadow-sm space-y-4">
+          <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+            User Account Details
+          </h3>
+
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center gap-3">
+              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
+                User ID
+              </span>
+              <p className="font-medium text-gray-900">{employee._id}</p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">
+                Login Email
+              </span>
+              <p className="font-medium text-gray-900">{employee.email}</p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">
+                Password
+              </span>
+              <p className="font-medium text-gray-900">
+                {employee.companyID}
+              </p>
+            </div>
+          </div>
         </div>
+
       </div>
 
       {/* Divider */}
@@ -123,7 +133,7 @@ export default function Page() {
         <DetailCard
           icon={<Calendar className="h-5 w-5 text-blue-600" />}
           label="Joining Date"
-          value={employee.joiningDate}
+          value={employee.joiningDate?.split("T")[0]}
         />
         <DetailCard
           icon={<DollarSign className="h-5 w-5 text-blue-600" />}

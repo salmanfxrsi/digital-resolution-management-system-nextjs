@@ -3,11 +3,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-<<<<<<< HEAD
-import { toast } from "react-toastify";
-=======
 import { uploadToImgBB } from "@/utils/uploadImage";
->>>>>>> f2df2c784d746f2c5d3b4179ce46027130fa67ea
 
 interface Props {
   open: boolean;
@@ -66,7 +62,7 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Only image files allowed!");
+      alert("Only image files allowed!");
       return;
     }
 
@@ -107,7 +103,7 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
       !form.salary ||
       !form.photo
     ) {
-      toast.error("All fields are required!");
+      alert("All fields are required!");
       return;
     }
 
@@ -142,14 +138,6 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
 
       if (!res.ok) throw new Error(await res.text());
 
-<<<<<<< HEAD
-      toast.success("Employee added successfully!");
-      onSuccess?.();
-      onClose();
-    } catch (err) {
-      console.error("Error submitting employee:", err);
-      toast.error("Failed to add employee");
-=======
       alert("Employee added successfully!");
 
       setIsSaving(false);
@@ -161,7 +149,6 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
       alert("Failed to add employee");
 
       setIsSaving(false); // Stop loading
->>>>>>> f2df2c784d746f2c5d3b4179ce46027130fa67ea
     }
   };
 

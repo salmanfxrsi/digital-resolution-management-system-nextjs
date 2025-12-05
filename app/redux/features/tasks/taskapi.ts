@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const taskApi = createApi({
     reducerPath: "taskApi",
 
-    tagTypes: ["tasks"],
+    tagTypes: ["Tasks"],
 
     baseQuery: fetchBaseQuery({
         baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
@@ -12,7 +12,7 @@ export const taskApi = createApi({
         // GET Employee Tasks
         getTasksByEmployee: builder.query({
             query: (id: string) => `/tasks/employee/${id}`,
-            providesTags: ["tasks"],
+            providesTags: ["Tasks"],
         }),
 
         // CREATE Task
@@ -22,7 +22,7 @@ export const taskApi = createApi({
                 method: "POST",
                 body: payload,
             }),
-            invalidatesTags: ["tasks"],
+            invalidatesTags: ["Tasks"],
         }),
 
         updateTask: builder.mutation({
@@ -31,7 +31,7 @@ export const taskApi = createApi({
                 method: "PUT",
                 body: payload,
             }),
-            invalidatesTags: ["tasks"],
+            invalidatesTags: ["Tasks"],
         }),
 
     }),
