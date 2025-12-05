@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
+
+import OverviewSkeleton from "@/components/shared/Skeleton/OverviewSkeleton";
+import DataQueryPage from "@/components/shared/Query/DataQueryPage";
+
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { Clock, UserCheck, UserX, CalendarX } from "lucide-react";
+
 import {
   LineChart,
   Line,
@@ -15,96 +21,158 @@ import {
   Legend,
 } from "recharts";
 
-// SAMPLE DATA
-const daysData = [
-  { day: "Mon", Count: 5 },
-  { day: "Tue", Count: 6 },
-  { day: "Wed", Count: 7 },
-  { day: "Thu", Count: 4 },
-  { day: "Fri", Count: 8 },
-];
+import { useGetOverviewQuery } from "@/app/redux/features/tasks/EmployeeTaskoverviewApi";
+import { useGetEmployeeByIdQuery } from "@/app/redux/features/Employees/employeesApi";
 
-const weeksData = [
-  { week: "W1", Count: 18 },
-  { week: "W2", Count: 22 },
-  { week: "W3", Count: 20 },
-  { week: "W4", Count: 25 },
-];
 
-const monthsData = [
-  { month: "Jan", Count: 20 },
-  { month: "Feb", Count: 28 },
-  { month: "Mar", Count: 18 },
-  { month: "Apr", Count: 25 },
-  { month: "May", Count: 30 },
-];
 
-const metrics = [
-  {
-    label: "Total Hours",
-    value: "38.5 hrs",
-    icon: Clock,
-    color: "text-blue-600 bg-blue-100",
-    description: "Average working hours per week",
-  },
-  {
-    label: "Total Design",
-    value: "160 hrs",
-    icon: Clock,
-    color: "text-purple-600 bg-purple-100",
-    description: "Total working hours this month",
-  },
-];
+export default function OverviewPage() {
+  // Get employeeId from URL
+  const { id: employeeId } = useParams();
 
-const attendanceStats = [
-  {
-    label: "Present",
-    value: 42,
-    icon: UserCheck,
-    color: "text-green-600 bg-green-100",
-  },
-  { label: "Absent", value: 5, icon: UserX, color: "text-red-600 bg-red-100" },
-  {
-    label: "Leave",
-    value: 3,
-    icon: CalendarX,
-    color: "text-yellow-600 bg-yellow-100",
-  },
-];
+  // Fetch employee to get department (role)
+  const { data: employeeData } = useGetEmployeeByIdQuery(employeeId);
 
-export default function OverviewTab() {
-  const [range, setRange] = useState<"days" | "weeks" | "months">("months");
+  const role = employeeData?.data?.department; // web_developer, graphic_designer, etc.
 
-  const chartData =
-    range === "days" ? daysData : range === "weeks" ? weeksData : monthsData;
+  // Days or Date Range
+  const [days, setDays] = useState<number | null>(7);
+  const [range, setRange] = useState<{ from?: string; to?: string } | null>(
+    null
+  );
 
-  const xKey = range === "days" ? "day" : range === "weeks" ? "week" : "month";
+  // Build query params for overview API
+  const queryParams = days
+    ? { employeeId, days }
+    : { employeeId, from: range?.from, to: range?.to };
+
+  // Fetch Overview Data
+  const { data, isLoading } = useGetOverviewQuery(queryParams, {
+    skip: !employeeId,
+  });
+
+  const summary = data?.data?.summary || {};
+
+  // Attendance Summary Cards
+  const attendanceStats = [
+    {
+      label: "Present",
+      value: summary.present ?? 0,
+      icon: UserCheck,
+      color: "text-green-600 bg-green-100",
+    },
+    {
+      label: "Absent",
+      value: summary.absent ?? 0,
+      icon: UserX,
+      color: "text-red-600 bg-red-100",
+    },
+    {
+      label: "Leave",
+      value: summary.leave ?? 0,
+      icon: CalendarX,
+      color: "text-yellow-600 bg-yellow-100",
+    },
+  ];
+
+  // Metrics (Role Based)
+  const metrics = [
+    {
+      label: "Total Hours",
+      value: `${summary.averageHours ?? 0} hrs`,
+      icon: Clock,
+      color: "text-blue-600 bg-blue-100",
+      description: "Total hours worked",
+    },
+
+    ...(role === "web_developer"
+      ? [
+        {
+          label: "Total Websites",
+          value: summary.totalWebsites ?? 0,
+          icon: Clock,
+          color: "text-indigo-600 bg-indigo-100",
+          description: "Websites created",
+        },
+      ]
+      : []),
+
+    ...(role === "graphic_designer"
+      ? [
+        {
+          label: "Total Designs",
+          value: summary.totalDesigns ?? 0,
+          icon: Clock,
+          color: "text-purple-600 bg-purple-100",
+          description: "Designs created",
+        },
+      ]
+      : []),
+
+    ...(role === "video_editor"
+      ? [
+        {
+          label: "Total Videos",
+          value: summary.totalVideos ?? 0,
+          icon: Clock,
+          color: "text-orange-600 bg-orange-100",
+          description: "Videos edited",
+        },
+      ]
+      : []),
+
+    ...(role === "marketer"
+      ? [
+        {
+          label: "Total Ads",
+          value: summary.totalAds ?? 0,
+          icon: Clock,
+          color: "text-yellow-600 bg-yellow-100",
+          description: "Ads managed",
+        },
+      ]
+      : []),
+  ];
+
+  const activityData = summary.last7Days || [];
+
+  // Show loading skeleton
+  if (isLoading) return <OverviewSkeleton />;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-      {/* Attendance Summary */}
+    <div className="grid grid-cols-1 gap-6">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">Employee Overview</h2>
+
+        <DataQueryPage
+          onDayChange={(val) => {
+            setDays(val);
+            setRange(null);
+          }}
+          onRangeChange={(r) => {
+            setRange(r);
+            setDays(null);
+          }}
+        />
+      </div>
+
+      {/* Attendance Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         {attendanceStats.map((stat) => (
-          <Card
-            key={stat.label}
-            className="flex flex-row items-center p-3 rounded-lg"
-          >
-            <div className={`rounded-full p-3 mb-2 ${stat.color}`}>
+          <Card key={stat.label} className="flex flex-row items-center p-3">
+            <div className={`rounded-full p-3 ${stat.color}`}>
               <stat.icon className="h-6 w-6" />
             </div>
-            <div>
-              <CardDescription className="text-sm font-medium text-gray-600">
-                {stat.label}
-              </CardDescription>
-              <CardTitle className="text-xl font-bold text-gray-900">
-                {stat.value}
-              </CardTitle>
+            <div className="ml-3">
+              <CardDescription>{stat.label}</CardDescription>
+              <CardTitle>{stat.value}</CardTitle>
             </div>
           </Card>
         ))}
       </div>
 
-      {/* Metrics */}
+      {/* Role Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {metrics.map((metric) => (
           <Card key={metric.label} className="flex p-5 rounded-lg">
@@ -128,56 +196,55 @@ export default function OverviewTab() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {/* Total Hour Chart */}
-        <div className="bg-white border rounded-lg shadow p-4 relative">
-          <select
-            value={range}
-            onChange={(e) => setRange(e.target.value as any)}
-            className="absolute right-4 top-4 border px-2 py-1 text-sm rounded"
-          >
-            <option value="days">Days</option>
-            <option value="weeks">Weeks</option>
-            <option value="months">Months</option>
-          </select>
-
+        {/* Hours Chart */}
+        <div className="bg-white border rounded-lg shadow p-4">
           <h2 className="text-lg font-semibold mb-2">Total Hour</h2>
 
-          <LineChart width={400} height={250} data={chartData}>
-            <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
-            <XAxis dataKey={xKey} />
+          <LineChart width={400} height={250} data={activityData}>
+            <CartesianGrid stroke="#e5e7eb" />
+            <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
             <Line
               type="monotone"
-              dataKey="Count"
+              dataKey="hours"
               stroke="#2563eb"
               strokeWidth={3}
-              dot={{ r: 4 }}
             />
           </LineChart>
         </div>
 
-        {/* Total Design Chart */}
-        <div className="bg-white border rounded-lg shadow p-4 relative">
-          <select
-            value={range}
-            onChange={(e) => setRange(e.target.value as any)}
-            className="absolute right-4 top-4 border px-2 py-1 text-sm rounded"
-          >
-            <option value="days">Days</option>
-            <option value="weeks">Weeks</option>
-            <option value="months">Months</option>
-          </select>
+        {/* Role Based Dynamic Chart */}
+        <div className="bg-white border rounded-lg shadow p-4">
+          <h2 className="text-lg font-semibold mb-2">
+            {role === "graphic_designer"
+              ? "Total Design"
+              : role === "video_editor"
+                ? "Total Videos"
+                : role === "web_developer"
+                  ? "Total Websites"
+                  : "Total Activity"}
+          </h2>
 
-          <h2 className="text-lg font-semibold mb-2">Total Design</h2>
-
-          <BarChart width={400} height={250} data={chartData}>
-            <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
-            <XAxis dataKey={xKey} />
+          <BarChart width={400} height={250} data={activityData}>
+            <CartesianGrid stroke="#e5e7eb" />
+            <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="Count" fill="#10b981" radius={[4, 4, 0, 0]} />
+            <Bar
+              dataKey={
+                role === "graphic_designer"
+                  ? "designs"
+                  : role === "video_editor"
+                    ? "videos"
+                    : role === "web_developer"
+                      ? "websites"
+                      : "hours"
+              }
+              fill="#10b981"
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         </div>
       </div>

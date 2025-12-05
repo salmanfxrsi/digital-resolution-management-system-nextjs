@@ -76,7 +76,7 @@ export default function EmployeeDetails() {
             </button>
           ))}
         </div>
-        {activeTab === "overview" && <DataQueryPage />}
+      
       </div>
 
       {/* Tab Content */}
