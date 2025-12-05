@@ -41,6 +41,7 @@ export default function DetailsTab({
   // -----------------------------
   // STATES
   // -----------------------------
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [userAccount, setUserAccount] = useState<any>(null);
   const [openModal, setOpenModal] = useState(false);
   const [password, setPassword] = useState("");

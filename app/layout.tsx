@@ -1,6 +1,7 @@
 "use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 import Navbar from "@/components/shared/Navbar/Navbar";
@@ -86,6 +87,7 @@ export default function RootLayout({
                       setIsSidebarOpen={setIsSidebarOpen}
                     />
                     <main className="flex-1 overflow-y-auto p-6">
+                      <Toaster position="top-right" />
                       {children}
                     </main>
                   </div>

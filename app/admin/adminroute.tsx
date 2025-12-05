@@ -37,11 +37,6 @@ export const adminRoutes = [
     href: "/admin/salary",
   },
   {
-    icon: <FileText className="h-5 w-5" />,
-    label: "Documentation",
-    href: "/admin/about",
-  },
-  {
     icon: <Settings className="h-5 w-5" />,
     label: "Settings",
     href: "/setting",

@@ -4,12 +4,13 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { uploadToImgBB } from "@/utils/uploadImage";
-import { toast } from "react-toastify";
+import { useCreateEmployeeMutation } from "@/app/redux/features/Employees/employeesApi";
+import toast from "react-hot-toast";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: () => void; // refresh + toast from parent
 }
 
 export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
@@ -26,15 +27,17 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
     salary: "",
     photo: null as File | null,
   });
-  
+
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // 🔥 NEW: Saving state
+
+  // RTK Query mutation
+  const [createEmployee, { isLoading }] = useCreateEmployeeMutation();
 
   if (!open) return null;
 
-
+  // 🔵 Resize image before upload
   const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<File> => {
     return new Promise((resolve) => {
       const img = document.createElement("img");
@@ -52,31 +55,25 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
           if (blob) {
             resolve(new File([blob], file.name, { type: "image/jpeg" }));
           }
-        }, "image/jpeg", 0.8); // 80% quality
+        }, "image/jpeg", 0.8);
       };
     });
   };
 
-
-  // FILE HANDLER
+  // 🔵 File handler
   const handleFile = async (file: File | null) => {
     if (!file) return;
-
     if (!file.type.startsWith("image/")) {
-      toast.error("Only image files allowed!");
+      toast.error("Only image files are allowed!");
       return;
     }
 
-    // Resize to 300x300
     const resized = await resizeImage(file, 300, 300);
-
     setForm({ ...form, photo: resized });
     setPhotoPreview(URL.createObjectURL(resized));
   };
 
-
-
-  // DRAG EVENTS
+  // Drag events
   const onDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -85,11 +82,10 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files?.[0] || null;
-    handleFile(file);
+    handleFile(e.dataTransfer.files?.[0] || null);
   };
 
-  // SUBMIT FUNCTION
+  // 🔵 SUBMIT handler (RTK + ImgBB)
   const handleSubmit = async () => {
     if (
       !form.companyID ||
@@ -108,65 +104,59 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
       return;
     }
 
-    setIsSaving(true); // 🔥 Start loading
-
     try {
-      // 1️⃣ Upload to ImgBB
+      toast.loading("Uploading image...");
       const imageUrl = await uploadToImgBB(form.photo);
+      toast.dismiss();
 
-      // 2️⃣ Build payload
       const payload = {
-        companyID: form.companyID,
-        name: form.name,
-        number: form.number,
-        email: form.email,
-        department: form.department,
-        designation: form.designation,
-        address: form.address,
-        nid: form.nid,
-        joiningDate: form.joiningDate,
-        salary: form.salary,
+        ...form,
         photo: imageUrl,
       };
 
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-
-      const res = await fetch(`${baseUrl}/employees/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error(await res.text());
+      await createEmployee(payload).unwrap();
 
       toast.success("Employee added successfully!");
+      // 🔥 RESET FORM AFTER SUCCESS
+      setForm({
+        companyID: "",
+        name: "",
+        number: "",
+        email: "",
+        department: "",
+        designation: "",
+        address: "",
+        nid: "",
+        joiningDate: "",
+        salary: "",
+        photo: null,
+      });
 
-      setIsSaving(false);
+      setPhotoPreview(null);
+      setIsDragging(false);
 
-      onSuccess?.();
+      onSuccess();
       onClose();
-    } catch (err) {
-      console.error("Error submitting:", err);
-      toast.error("Failed to add employee");
-
-      setIsSaving(false); // Stop loading
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add employee.");
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2 ">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2">
       <div className="bg-white w-full max-w-2xl p-3 rounded-lg shadow overflow-y-auto max-h-[90vh]">
         <h2 className="text-2xl font-bold mb-3 text-gray-800 border-b pb-2">
           Add New Employee
         </h2>
 
-        {/* PHOTO UPLOAD */}
+        {/* Photo Upload */}
         <div
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
           onDrop={onDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`mt-2 h-[100px] w-[100px] mb-2 border-2 border-dashed rounded-lg text-center cursor-pointer overflow-hidden flex items-center justify-center transition ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
+          className={`mt-2 h-[100px] w-[100px] mb-2 border-2 border-dashed rounded-lg text-center cursor-pointer flex items-center justify-center transition ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
             }`}
         >
           {photoPreview ? (
@@ -179,7 +169,7 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
             />
           ) : (
             <p className="text-gray-500 text-sm">
-              Drag & drop<br />
+              Drag & drop <br />
               or <span className="text-blue-600 font-medium">browse</span>
             </p>
           )}
@@ -187,24 +177,22 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
 
         <input
           ref={fileInputRef}
-          id="photoInput"
           type="file"
           accept="image/*"
           className="hidden"
           onChange={(e) => handleFile(e.target.files?.[0] || null)}
         />
 
-
-        {/* FORM FIELDS */}
+        {/* Form Fields */}
         <div className="grid grid-cols-3 gap-6">
           {[
             { key: "companyID", placeholder: "Employee ID", type: "text" },
             { key: "name", placeholder: "Full Name", type: "text" },
-            { key: "number", placeholder: "Phone Number", type: "" },
+            { key: "number", placeholder: "Phone Number", type: "number" },
             { key: "email", placeholder: "Email", type: "email" },
             { key: "designation", placeholder: "Designation", type: "text" },
             { key: "address", placeholder: "Address", type: "text" },
-            { key: "nid", placeholder: "NID Number", type: "text" },
+            { key: "nid", placeholder: "NID Number", type: "number" },
             { key: "joiningDate", placeholder: "Joining Date", type: "date" },
             { key: "salary", placeholder: "Salary", type: "number" },
           ].map((field) => (
@@ -212,55 +200,49 @@ export default function AddEmployeeModal({ open, onClose, onSuccess }: Props) {
               key={field.key}
               type={field.type}
               placeholder={field.placeholder}
-              className="p-2 border-b border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm"
-              required
-              disabled={isSaving}
+              className="p-2 border-b border-gray-300 focus:border-blue-500 outline-none text-sm"
               value={(form as any)[field.key]}
               onChange={(e) =>
                 setForm({ ...form, [field.key]: e.target.value })
               }
+              disabled={isLoading}
             />
           ))}
 
-          {/* DEPARTMENT DROPDOWN */}
+          {/* Department Dropdown */}
           <select
-            required
-            disabled={isSaving}
             value={form.department}
-            onChange={(e) => setForm({ ...form, department: e.target.value })}
-            className="p-2 border-b border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm col-span-3"
+            onChange={(e) =>
+              setForm({ ...form, department: e.target.value })
+            }
+            className="p-2 border-b border-gray-300 focus:border-blue-500 outline-none text-sm col-span-3"
+            disabled={isLoading}
           >
             <option value="">Select Department</option>
             <option value="marketer">Marketer</option>
-            <option value="web_developer">Web Developers</option>
-            <option value="graphic_designer">Graphic Designers</option>
-            <option value="video_editor">Video Editors</option>
+            <option value="web_developer">Web Developer</option>
+            <option value="graphic_designer">Graphic Designer</option>
+            <option value="video_editor">Video Editor</option>
             <option value="admin">Admin Service</option>
           </select>
         </div>
 
-        {/* BUTTONS */}
+        {/* Buttons */}
         <div className="flex justify-end gap-3 mt-8">
           <button
-            onClick={isSaving ? undefined : onClose}
-            disabled={isSaving}
-            className={`px-5 py-2 border rounded-lg ${isSaving
-              ? "text-gray-400 border-gray-300 cursor-not-allowed"
-              : "text-gray-600 hover:bg-gray-100"
-              } transition`}
+            onClick={onClose}
+            disabled={isLoading}
+            className="px-5 py-2 border rounded-lg hover:bg-gray-100"
           >
             Cancel
           </button>
 
           <button
-            onClick={isSaving ? undefined : handleSubmit}
-            disabled={isSaving}
-            className={`px-5 py-2 rounded-lg shadow transition ${isSaving
-              ? "bg-blue-300 text-white cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
           >
-            {isSaving ? "Saving..." : "Save"}
+            {isLoading ? "Saving..." : "Save"}
           </button>
         </div>
       </div>

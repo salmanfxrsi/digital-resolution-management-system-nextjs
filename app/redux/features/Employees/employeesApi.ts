@@ -45,7 +45,7 @@ export const employeesApi = createApi({
     // DELETE employee
     deleteEmployee: builder.mutation({
       query: (id) => ({
-        url: `/employees/delete/${id}`,
+        url: `/employees/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Employees"],
