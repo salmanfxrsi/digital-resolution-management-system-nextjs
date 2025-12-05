@@ -29,12 +29,12 @@ export default function ClientWorkList() {
   return (
     <div>
       {" "}
-      <div className="bg-white border rounded-xl shadow p-6 overflow-x-auto">
+      <div className="bg-white border rounded-lg shadow p-6 overflow-x-auto">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           📋 Task History Overview
         </h2>
-        <table className="min-w-full text-sm text-left">
-          <thead className="bg-gray-100 text-gray-700">
+        <table className="min-w-full border text-sm text-left">
+          <thead className="bg-gray-100 text-center text-gray-700">
             <tr>
               <th className="px-4 py-2">Date</th>
               <th className="px-4 py-2">Department</th>
@@ -44,7 +44,7 @@ export default function ClientWorkList() {
               <th className="px-4 py-2">Graphic Design</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y text-center divide-gray-200">
             {historyData.map((entry, index) => (
               <tr key={index} className="hover:bg-gray-50">
                 <td className="px-4 py-2">{entry.date}</td>

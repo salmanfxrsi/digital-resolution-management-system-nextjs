@@ -5,11 +5,18 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Users } from "lucide-react";
 import { toast } from "react-toastify";
+import {
+  validatePhone,
+  ValidationEmail,
+} from "@/components/module/FormValidation/InputValidation";
+
+import { uploadToImgBB } from "@/utils/uploadImage";
+import { useCreateClientMutation } from "@/app/redux/features/clients/clientsApi";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: () => void; // refresh + toast from parent
 }
 
 export default function AddClientModal({ open, onClose, onSuccess }: Props) {
@@ -25,7 +32,12 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
 
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  //  New state for image uploading
+  const [isUploading, setIsUploading] = useState(false);
+
+  // RTK Query mutation
+  const [createClient, { isLoading }] = useCreateClientMutation();
 
   if (!open) return null;
 
@@ -69,9 +81,13 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
     }
 
     try {
-      setLoading(true);
+      // Prevent multiple clicks
+      setIsUploading(true);
 
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+      toast.loading("Uploading image...");
+      const imageUrl = await uploadToImgBB(form.logo);
+      toast.dismiss();
+
       const payload = {
         name: form.name,
         location: form.location,
@@ -79,7 +95,7 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
         gmail: form.gmail,
         projectDetails: form.projectDetails,
         status: form.status,
-        logo: form.logo?.name || "",
+        logo: imageUrl,
         contractCount: 0,
         designCount: 0,
         videoCount: 0,
@@ -93,39 +109,42 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
         payAmount: 0,
         dueAmount: 0,
       };
-      console.log(JSON.stringify(payload));
 
-      const res = await fetch(`${baseUrl}/clients/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      await createClient(payload).unwrap();
+      toast.success("Client created successfully!");
+
+      // Reset form
+      setForm({
+        name: "",
+        location: "",
+        number: "",
+        gmail: "",
+        projectDetails: "",
+        status: "",
+        logo: null,
       });
+      setLogoPreview(null);
+      setIsDragging(false);
 
-      const data = await res.json();
-      if (res.ok) {
-        toast.success("Client created successfully!");
-        setForm({
-          name: "",
-          location: "",
-          number: "",
-          gmail: "",
-          projectDetails: "",
-          status: "",
-          logo: null,
-        });
-        setLogoPreview(null);
-        onSuccess?.();
-        onClose();
-      } else {
-        toast.error(`Failed: ${data.message || "Something went wrong"}`);
-      }
+      onSuccess?.();
+      onClose();
     } catch (err) {
       console.error("Error creating client:", err);
       toast.error("Error creating client");
     } finally {
-      setLoading(false);
+      //  Re-enable Save button after upload completes
+      setIsUploading(false);
     }
   };
+
+  const visible =
+    form.name &&
+    form.location &&
+    validatePhone(form.number) &&
+    ValidationEmail(form.gmail) &&
+    form.projectDetails &&
+    form.status &&
+    form.logo?.name;
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-2">
@@ -136,13 +155,13 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
         </h2>
 
         {/* LOGO UPLOAD */}
-        <div className="col-span-2 mb-6">
+        <div>
           <div
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
             onClick={() => document.getElementById("logoInput")?.click()}
-            className={`mt-2 p-2 h-32 w-[180px] border-2 border-dashed rounded text-center cursor-pointer transition ${
+            className={`mt-2 h-[100px] w-[100px] mb-2 border-2 border-dashed rounded text-center cursor-pointer flex items-center justify-center transition ${
               isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
             }`}
           >
@@ -150,16 +169,16 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
               <div className="flex justify-center">
                 <Image
                   src={logoPreview}
-                  width={180}
-                  height={180}
+                  width={100}
+                  height={100}
                   alt="Client Logo"
-                  className="rounded border shadow"
+                  className="object-cover w-full h-full"
                 />
               </div>
             ) : (
-              <p className="text-gray-500 mt-8 text-sm">
-                Drag & drop logo here, or{" "}
-                <span className="text-blue-600 font-medium">browse</span>
+              <p className="text-gray-500 text-sm">
+                Drag & drop <br />
+                or <span className="text-blue-600 font-medium">browse</span>
               </p>
             )}
           </div>
@@ -196,7 +215,7 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
           {/* PROJECT DETAILS */}
           <textarea
             placeholder="Project Details"
-            className="p-2 w-full border rounded bg-gray-100 border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm col-span-2 h-24 resize-none"
+            className="p-2 w-full rounded border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm col-span-2 border-b resize-none"
             required
             value={form.projectDetails}
             onChange={(e) =>
@@ -210,12 +229,21 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
           required
           value={form.status}
           onChange={(e) => setForm({ ...form, status: e.target.value })}
-          className="p-2 border-b w-50 mt-4 border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm col-span-2"
+          className="p-2 border-b w-50 mt-8 border-gray-300 focus:border-blue-500 focus:outline-none transition text-sm col-span-2"
         >
           <option value="">Select Status</option>
           <option value="ongoing">Ongoing</option>
           <option value="completed">Completed</option>
         </select>
+
+        {!ValidationEmail(form.gmail) && form.gmail && (
+          <p className="text-red-500 text-xs">Email is not valid</p>
+        )}
+        {!validatePhone(form.number) && form.number && (
+          <p className="text-red-500 text-xs">
+            Phone must be 11 digits starting with 01
+          </p>
+        )}
 
         {/* BUTTONS */}
         <div className="flex justify-end gap-3 mt-8">
@@ -227,10 +255,14 @@ export default function AddClientModal({ open, onClose, onSuccess }: Props) {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading}
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition disabled:opacity-50"
+            disabled={!visible || isLoading || isUploading} //  disable when uploading or saving
+            className={`px-5 py-2 rounded-lg shadow transition ${
+              !visible || isLoading || isUploading
+                ? "bg-gray-400 cursor-not-allowed text-white"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
           >
-            {loading ? "Saving..." : "Save"}
+            {isUploading ? "Uploading..." : isLoading ? "Saving..." : "Save"}
           </button>
         </div>
       </div>

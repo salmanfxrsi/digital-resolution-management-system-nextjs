@@ -31,11 +31,11 @@ export const adminRoutes = [
     label: "Employee",
     href: "/admin/employee",
   },
-  {
-    icon: <DollarSign className="h-5 w-5" />,
-    label: "Salary",
-    href: "/admin/salary",
-  },
+  // {
+  //   icon: <DollarSign className="h-5 w-5" />,
+  //   label: "Salary",
+  //   href: "/admin/salary",
+  // },
   {
     icon: <Settings className="h-5 w-5" />,
     label: "Settings",
