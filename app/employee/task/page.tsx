@@ -29,24 +29,6 @@ export default function TaskPage() {
   const selectedTask = useSelector((state: any) => state.task.selectedTask);
 
 
-<<<<<<< HEAD
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/tasks/employee/${id}`
-        );
-        const data = await res.json();
-        if (data.success) {
-          setTasks(data.data); // assuming API returns { success, data: [...] }
-        } else {
-          toast.error("Failed to fetch tasks:", data.message);
-        }
-      } catch (err) {
-        toast.error("Error fetching tasks:", err);
-      }
-    };
-=======
   const { data, isLoading, isError } = useGetTasksByEmployeeQuery(id, {
     skip: !id,
   });
@@ -74,7 +56,6 @@ export default function TaskPage() {
 
   if (isLoading) return <p className="p-6">Loading...</p>;
   if (isError) return <p className="p-6 text-red-500">Failed to load tasks.</p>;
->>>>>>> 66be321eeaa112a937a0b45c5e004d19989e78dd
 
   return (
     <div className="p-6 space-y-6">

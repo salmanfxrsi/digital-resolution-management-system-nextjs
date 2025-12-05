@@ -1,7 +1,8 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
+import Image from "next/image";
 import {
   Mail,
   Phone,
@@ -9,110 +10,51 @@ import {
   MapPin,
   Briefcase,
   DollarSign,
-  IdCard,
   User,
 } from "lucide-react";
-import { toast } from "react-toastify";
-import Image from "next/image";
 
-interface Employee {
-  _id: string;
-  companyID: string;
-  photo: string;
-  name: string;
-  number: string;
-  email: string;
-  department: string;
-  designation: string;
-  joiningDate: string;
-  salary: string | number;
-  address: string;
-  nid: string;
-}
+import { useGetEmployeeByIdQuery } from "@/app/redux/features/Employees/employeesApi";
+import { useParams } from "next/navigation";
 
-export default function DetailsTab({
-  employee,
-}: {
-  employee: Employee | null;
-}) {
-  if (!employee)
-    return <p className="text-gray-500 italic">No employee data available.</p>;
 
-  // -----------------------------
-  // STATES
-  // -----------------------------
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [userAccount, setUserAccount] = useState<any>(null);
-  const [openModal, setOpenModal] = useState(false);
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  // -----------------------------
-  // FETCH USER ACCOUNT
-  // -----------------------------
-  useEffect(() => {
-    const fetchUserAccount = async () => {
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-        const res = await fetch(
-          `${baseUrl}/users/by-employee/${employee?._id}`
-        );
-        const data = await res.json();
-        if (res.ok && data.success) {
-          setUserAccount(data.data);
-        }
-      } catch (err) {
-        toast.error("Error fetching user account");
-      }
-    };
-    fetchUserAccount();
-  }, [employee?._id]);
+export default function Page() {
+  const { id: employeeId } = useParams();
 
-  // -----------------------------
-  // CREATE USER ACCOUNT
-  // -----------------------------
-  const handleCreateUser = async () => {
-    const finalPassword = password || employee.companyID;
 
-    setLoading(true);
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      const res = await fetch(`${baseUrl}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: employee.name,
-          email: employee.email,
-          password: finalPassword,
-          employeeId: employee._id,
-          userType: employee.department,
-          createdBy: "admin",
-        }),
-      });
+  // ✅ Using RTK Query instead of manual fetch
+  const { data, isLoading } = useGetEmployeeByIdQuery(employeeId, { skip: !employeeId });
 
-      const data = await res.json();
+  // 📌 Your backend returns employee under employeeId object
+  const employee = data?.data || data?.employeeId;
 
-      if (res.ok) {
-        toast.success("Employee user account created successfully!");
-        setUserAccount(data.data);
-        setPassword("");
-        setOpenModal(false);
-      } else {
-        toast.error(data.message || "Failed to create user");
-      }
-    } catch (err) {
-      toast.error("Error creating user");
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="max-w-3xl mx-auto p-8">
+        <div className="animate-pulse space-y-6">
+          <div className="h-32 w-32 bg-gray-200 rounded-full mx-auto"></div>
+          <div className="h-6 w-1/2 bg-gray-200 rounded mx-auto"></div>
+          <div className="h-4 w-1/3 bg-gray-200 rounded mx-auto"></div>
+          <div className="grid grid-cols-2 gap-4 mt-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-20 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  // =====================================================
-  // ================ RETURN UI ==========================
-  // =====================================================
+  if (!employee) {
+    return (
+      <div className="p-8 text-center text-gray-500">
+        No employee data found.
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto p-8 bg-white border rounded-xl shadow-lg space-y-10">
 
       {/* TOP SECTION */}
       <div className="flex mx-auto justify-between gap-8 items-center bg-white border rounded-lg p-8">
@@ -134,7 +76,7 @@ export default function DetailsTab({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-gray-900">{employee.name}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{employee.name}</h1>
             <p className="text-blue-600 font-semibold">{employee.designation}</p>
             <p className="text-gray-500 capitalize">{employee.department}</p>
           </div>
@@ -147,122 +89,84 @@ export default function DetailsTab({
           </h3>
 
           <div className="space-y-3 text-sm">
-            <DetailRow label="User ID" value={employee._id} badgeColor="blue" />
+            <div className="flex items-center gap-3">
+              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
+                User ID
+              </span>
+              <p className="font-medium text-gray-900">{employee._id}</p>
+            </div>
 
-            <DetailRow
-              label="Login Email"
-              value={userAccount ? userAccount.email : employee.email}
-              badgeColor="green"
-            />
+            <div className="flex items-center gap-3">
+              <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">
+                Login Email
+              </span>
+              <p className="font-medium text-gray-900">{employee.email}</p>
+            </div>
 
-            <DetailRow
-              label="Password"
-              value={employee.companyID}
-              badgeColor="yellow"
-            />
-          </div>
-
-          {!userAccount && (
-            <button
-              onClick={() => setOpenModal(true)}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
-            >
-              Create User Account
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* DETAILS CARD */}
-      <div className="bg-white border rounded-lg p-8">
-        <h2 className="text-lg font-semibold text-gray-800 mb-6">
-          Personal Details
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-          <Detail icon={<Phone />} label="Phone" value={employee.number} />
-          <Detail icon={<Mail />} label="Email" value={employee.email} />
-          <Detail
-            icon={<Calendar />}
-            label="Joining Date"
-            value={new Date(employee.joiningDate).toLocaleDateString()}
-          />
-          <Detail
-            icon={<DollarSign />}
-            label="Salary"
-            value={`${employee.salary} BDT`}
-          />
-          <Detail icon={<MapPin />} label="Address" value={employee.address} />
-          <Detail
-            icon={<Briefcase />}
-            label="Department"
-            value={employee.department}
-          />
-          <Detail icon={<IdCard />} label="NID" value={employee.nid} />
-        </div>
-      </div>
-
-      {/* PASSWORD SET MODAL */}
-      {openModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-2">
-          <div className="bg-white w-full max-w-md p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">
-              Set Employee Password
-            </h2>
-
-            <p className="text-sm text-gray-600 mb-4">
-              Creating account for <strong>{employee.name}</strong> (
-              {employee.email})<br />
-              User type: <strong>{employee.department}</strong>
-              <br />
-              Company ID: <strong>{employee.companyID}</strong>
-            </p>
-
-            <input
-              type="text"
-              placeholder="Enter custom password (optional)"
-              className="w-full border p-2 rounded mb-4"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-
-            <button
-              onClick={handleCreateUser}
-              disabled={loading}
-              className="w-full py-2 bg-blue-600 text-white rounded"
-            >
-              {loading ? "Creating..." : "Create User"}
-            </button>
+            <div className="flex items-center gap-3">
+              <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">
+                Password
+              </span>
+              <p className="font-medium text-gray-900">
+                {employee.companyID}
+              </p>
+            </div>
           </div>
         </div>
-      )}
+
+      </div>
+
+      {/* Divider */}
+      <div className="border-t"></div>
+
+      {/* Details Grid Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+        <DetailCard
+          icon={<Phone className="h-5 w-5 text-blue-600" />}
+          label="Phone"
+          value={employee.number}
+        />
+        <DetailCard
+          icon={<Mail className="h-5 w-5 text-blue-600" />}
+          label="Email"
+          value={employee.email}
+        />
+        <DetailCard
+          icon={<Calendar className="h-5 w-5 text-blue-600" />}
+          label="Joining Date"
+          value={employee.joiningDate?.split("T")[0]}
+        />
+        <DetailCard
+          icon={<DollarSign className="h-5 w-5 text-blue-600" />}
+          label="Salary"
+          value={`৳ ${employee.salary}`}
+        />
+        <DetailCard
+          icon={<MapPin className="h-5 w-5 text-blue-600" />}
+          label="Address"
+          value={employee.address}
+        />
+        <DetailCard
+          icon={<Briefcase className="h-5 w-5 text-blue-600" />}
+          label="Department"
+          value={employee.department}
+        />
+      </div>
+
+      {/* Footer Card */}
+      <div className="p-5 bg-blue-50 rounded-xl border border-blue-200 flex items-center gap-4 shadow-sm">
+        <User className="h-6 w-6 text-blue-600" />
+        <p className="text-gray-700 text-sm">
+          This employee profile contains personal and job-related information.
+          Keep data updated for HR accuracy.
+        </p>
+      </div>
     </div>
   );
 }
 
-// Small helper component for user account rows
-function DetailRow({
-  label,
-  value,
-  badgeColor,
-}: {
-  label: string;
-  value: string;
-  badgeColor: string;
-}) {
-  return (
-    <div className="flex items-center gap-3">
-      <span
-        className={`px-2 py-1 bg-${badgeColor}-100 text-${badgeColor}-700 rounded text-xs font-semibold`}
-      >
-        {label}
-      </span>
-      <p className="font-medium text-gray-900">{value}</p>
-    </div>
-  );
-}
-
-function Detail({
+/* Reusable Detail Card */
+function DetailCard({
   icon,
   label,
   value,
@@ -272,11 +176,11 @@ function Detail({
   value: string;
 }) {
   return (
-    <div className="flex items-center gap-3 bg-gray-50 border rounded-lg p-4">
+    <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl border hover:shadow-md transition">
       {icon}
       <div>
-        <p className="text-xs text-gray-500">{label}</p>
-        <p className="text-gray-800 font-medium">{value}</p>
+        <p className="text-gray-500 text-xs uppercase tracking-wide">{label}</p>
+        <p className="font-semibold text-gray-800">{value}</p>
       </div>
     </div>
   );
