@@ -1,156 +1,169 @@
-/* eslint-disable prefer-const */
 "use client";
 
-import React from "react";
+import React, { useMemo, useState } from "react";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  addMonths,
+  subMonths,
+  isBefore,
+  isAfter,
+  isSameDay,
+  parseISO,
+} from "date-fns";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-interface AttendanceCalendarProps {
-  detailed: {
-    presentDays: string[];
-    leaveDays: string[];
-    absentDays: string[];
-  };
-  range: { start: string; end: string };
-}
 
-export default function AttendanceCalendar({
-  detailed,
-  range,
-}: AttendanceCalendarProps) {
-  const startDate = new Date(range.start);
-  const endDate = new Date(range.end);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function AttendanceCalendar({ detailed, joiningDate }: any) {
+  const today = new Date();
+  const joinDate = joiningDate ? new Date(joiningDate) : new Date(0);
+  const presentSet = new Set((detailed.presentDays || []).map((s: string) => s.split("T")[0]));
+  const leaveSet = new Set((detailed.leaveDays || []).map((s: string) => s.split("T")[0]));
+  const absentSet = new Set((detailed.absentDays || []).map((s: string) => s.split("T")[0]));
 
-  const getStatus = (date: string) => {
-    if (detailed.presentDays.includes(date)) return "present";
-    if (detailed.leaveDays.includes(date)) return "leave";
-    if (detailed.absentDays.includes(date)) return "absent";
-    return "none";
-  };
+  const [currentMonth, setCurrentMonth] = useState<Date>(startOfMonth(today));
 
-  const statusColor: Record<string, string> = {
-    present: "bg-green-100 text-green-600 border-green-300",
-    leave: "bg-yellow-100 text-yellow-600 border-yellow-300",
-    absent: "bg-red-100 text-red-600 border-red-300",
-    none: "bg-white text-gray-500 border-gray-200",
-  };
+  const prevMonth = () => setCurrentMonth((m) => subMonths(m, 1));
+  const nextMonth = () => setCurrentMonth((m) => addMonths(m, 1));
+  const goToToday = () => setCurrentMonth(startOfMonth(new Date()));
 
-  const generateCalendarGrid = () => {
-    const days: { date: string; status: string }[] = [];
-    let current = new Date(startDate);
+  const monthGrid = useMemo(() => {
+    const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 0 });
+    const end = endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 0 });
+    const allDays = eachDayOfInterval({ start, end });
 
-    while (current <= endDate) {
-      const iso = current.toISOString().split("T")[0];
-      days.push({ date: iso, status: getStatus(iso) });
-      current.setDate(current.getDate() + 1);
+    const weeks: Date[][] = [];
+    for (let i = 0; i < allDays.length; i += 7) {
+      weeks.push(allDays.slice(i, i + 7));
+    }
+    return weeks;
+  }, [currentMonth]);
+
+  const getDayStatus = (day: Date) => {
+    const dateStr = format(day, "yyyy-MM-dd");
+
+    if (isBefore(day, startOfMonth(currentMonth)) && isBefore(day, joinDate)) {
+      // days before join + not in month -> still white (handled below)
     }
 
-    const firstDay = new Date(days[0].date).getDay(); // 0 = Sunday
-    const paddedStart = Array(firstDay).fill(null);
-    return [...paddedStart, ...days];
+    if (isBefore(day, joinDate)) return "beforeJoin";
+    if (isAfter(day, today)) return "future";
+    if (presentSet.has(dateStr)) return "present";
+    if (leaveSet.has(dateStr)) return "leave";
+    if (absentSet.has(dateStr)) return "absent";
+    return "worked";
   };
 
-  const calendarGrid = generateCalendarGrid();
-
-  const formatDate = (date: Date) =>
-    date.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+  const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <div className="bg-white border rounded-lg shadow p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col  sm:flex-row justify-between items-start sm:items-center">
-        <div className="flex justify-between items-center ">
-          <h2 className="text-xl font-bold text-gray-800">
-            Attendance Calendar
+    <div className="bg-white border rounded-lg shadow p-4 mb-14">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-lg font-semibold">
+            {format(currentMonth, "MMMM yyyy")}
           </h2>
+          <div className="text-sm text-gray-500">{`Joining: ${joinDate.toISOString().split("T")[0]}`}</div>
         </div>
-        <div className="flex items-center gap-2 mt-2">
-          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1 shadow-sm">
-            <span className="text-xs font-semibold text-gray-500">From</span>
-            <span className="flex items-center gap-1 text-sm font-medium text-gray-700">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-blue-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              {formatDate(startDate)}
-            </span>
-          </div>
 
-          <span className="text-gray-400 font-medium">→</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={prevMonth}
+            className="p-2 rounded-lg border bg-white shadow-sm hover:bg-gray-100 transition flex items-center justify-center"
+            aria-label="Previous month"
+          >
+            <FiChevronLeft className="text-gray-700 text-xl" />
+          </button>
 
-          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1 shadow-sm">
-            <span className="text-xs font-semibold text-gray-500">To</span>
-            <span className="flex items-center gap-1 text-sm font-medium text-gray-700">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-green-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              {formatDate(endDate)}
-            </span>
-          </div>
+          <button
+            onClick={goToToday}
+            className="px-3 py-1 rounded border hover:bg-gray-50"
+            aria-label="Today"
+          >
+            Today
+          </button>
+
+          <button
+            onClick={nextMonth}
+            className="p-2 rounded-lg border bg-white shadow-sm hover:bg-gray-100 transition flex items-center justify-center"
+            aria-label="Next month"
+          >
+            <FiChevronRight className="text-gray-700 text-xl" />
+          </button>
         </div>
       </div>
 
-      {/* Weekdays Header */}
-      <div className="grid grid-cols-7 gap-2 text-center text-sm font-semibold text-gray-600">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <div key={day}>{day}</div>
+      <div className="grid grid-cols-7 gap-2 text-center font-medium text-gray-700 mb-2">
+        {weekdayNames.map((w) => (
+          <div key={w} className="text-xs">
+            {w}
+          </div>
         ))}
       </div>
 
-      {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-2">
-        {calendarGrid.map((entry, index) =>
-          entry ? (
-            <div
-              key={entry.date}
-              className={`border  rounded  text-center text-sm ${
-                statusColor[entry.status]
-              } transition hover:scale-[1.02]`}
-            >
-              <p className="font-semibold">{new Date(entry.date).getDate()}</p>
-            </div>
-          ) : (
-            <div key={`empty-${index}`} className="p-2" />
-          )
+        {monthGrid.map((week, wi) =>
+          week.map((day, di) => {
+            const inMonth = day.getMonth() === currentMonth.getMonth();
+            const status = getDayStatus(day);
+
+            const baseClasses =
+              "h-12 flex items-center justify-center rounded text-sm border";
+            let styleClasses = "bg-white text-gray-700";
+
+            if (!inMonth) {
+              styleClasses = "bg-transparent text-gray-400";
+            } else if (status === "beforeJoin") {
+              styleClasses = "bg-white text-gray-400";
+            } else if (status === "future") {
+              styleClasses = "bg-white text-gray-400";
+            } else if (status === "present") {
+              styleClasses = "bg-green-500 text-white";
+            } else if (status === "leave") {
+              styleClasses = "bg-yellow-400 text-black";
+            } else if (status === "absent") {
+              styleClasses = "bg-red-500 text-white";
+            } else if (status === "worked") {
+              styleClasses = "bg-gray-100 text-gray-800";
+            }
+
+            const isToday = isSameDay(day, today);
+
+            return (
+              <div
+                key={`${wi}-${di}`}
+                className={`${baseClasses} ${styleClasses} ${isToday ? "ring-2 ring-blue-400" : ""}`}
+                title={format(day, "yyyy-MM-dd")}
+              >
+                <div className="flex flex-col items-center">
+                  <div>{format(day, "d")}</div>
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
 
-      {/* Legend */}
-      <div className="flex gap-6 justify-center mt-4 text-sm">
+      <div className="flex gap-4 mt-4 text-sm items-center">
         <div className="flex items-center gap-2">
-          <span className="w-4 h-4 bg-green-100 rounded-full border border-green-300"></span>{" "}
-          Present
+          <div className="w-4 h-4 bg-green-500 rounded" /> Present
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-4 h-4 bg-yellow-100 rounded-full border border-yellow-300"></span>{" "}
-          Leave
+          <div className="w-4 h-4 bg-yellow-400 rounded" /> Leave
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-4 h-4 bg-red-100 rounded-full border border-red-300"></span>{" "}
-          Absent
+          <div className="w-4 h-4 bg-red-500 rounded" /> Absent
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-gray-100 rounded border" /> Worked
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-white rounded border" /> Before Join / Future
         </div>
       </div>
     </div>

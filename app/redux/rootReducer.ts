@@ -7,6 +7,7 @@ import { employeesApi } from "./features/Employees/employeesApi";
 import { overviewApi } from "./features/tasks/EmployeeTaskoverviewApi";
 import { clientsApi } from "./features/clients/clientsApi";
 import { leaveApi } from "./features/leave/leaveApi";
+import { attendanceApi } from "./features/attendance/attendanceApi";
 export const reducer = {
   user: userReducer,
   task: taskReducer,
@@ -18,4 +19,5 @@ export const reducer = {
   [overviewApi.reducerPath]: overviewApi.reducer,
   [clientsApi.reducerPath]: clientsApi.reducer,
   [leaveApi.reducerPath]: leaveApi.reducer,
+  [attendanceApi.reducerPath]: attendanceApi.reducer,
 };
