@@ -23,7 +23,9 @@ export default function OverviewPage() {
   const role = employeeData?.data?.department;
 
   const [days, setDays] = useState<number | null>(7);
-  const [range, setRange] = useState<{ from?: string; to?: string } | null>(null);
+  const [range, setRange] = useState<{ from?: string; to?: string } | null>(
+    null
+  );
 
   const queryParams = days
     ? { employeeId, days }
@@ -35,10 +37,12 @@ export default function OverviewPage() {
 
   const summary = data?.data?.summary || {};
 
-  const { data: attendanceData } = useGetFullAttendanceQuery(employeeId as string, {
-    skip: !employeeId,
-  });
-
+  const { data: attendanceData } = useGetFullAttendanceQuery(
+    employeeId as string,
+    {
+      skip: !employeeId,
+    }
+  );
 
   const attendanceStats = [
     {
@@ -64,7 +68,7 @@ export default function OverviewPage() {
   const metrics = [
     {
       label: "Total Hours",
-      value: `${summary.averageHours ?? 0} hrs`,
+      value: `${summary?.totalHours ?? 0} hrs`,
       icon: Clock,
       color: "text-blue-600 bg-blue-100",
       description: "Total hours worked",
@@ -72,54 +76,55 @@ export default function OverviewPage() {
 
     ...(role === "web_developer"
       ? [
-        {
-          label: "Total Websites",
-          value: summary.totalWebsites ?? 0,
-          icon: Clock,
-          color: "text-indigo-600 bg-indigo-100",
-          description: "Websites created",
-        },
-      ]
+          {
+            label: "Total Websites",
+            value: summary?.totalWebsites ?? 0,
+            icon: Clock,
+            color: "text-indigo-600 bg-indigo-100",
+            description: "Websites created",
+          },
+        ]
       : []),
 
     ...(role === "graphic_designer"
       ? [
-        {
-          label: "Total Designs",
-          value: summary.totalDesigns ?? 0,
-          icon: Clock,
-          color: "text-purple-600 bg-purple-100",
-          description: "Designs created",
-        },
-      ]
+          {
+            label: "Total Designs",
+            value: summary.totalDesigns ?? 0,
+            icon: Clock,
+            color: "text-purple-600 bg-purple-100",
+            description: "Designs created",
+          },
+        ]
       : []),
 
     ...(role === "video_editor"
       ? [
-        {
-          label: "Total Videos",
-          value: summary.totalVideos ?? 0,
-          icon: Clock,
-          color: "text-orange-600 bg-orange-100",
-          description: "Videos edited",
-        },
-      ]
+          {
+            label: "Total Videos",
+            value: summary.totalVideos ?? 0,
+            icon: Clock,
+            color: "text-orange-600 bg-orange-100",
+            description: "Videos edited",
+          },
+        ]
       : []),
 
     ...(role === "marketer"
       ? [
-        {
-          label: "Total Ads",
-          value: summary.totalAds ?? 0,
-          icon: Clock,
-          color: "text-yellow-600 bg-yellow-100",
-          description: "Ads managed",
-        },
-      ]
+          {
+            label: "Total Ads",
+            value: summary.totalAds ?? 0,
+            icon: Clock,
+            color: "text-yellow-600 bg-yellow-100",
+            description: "Ads managed",
+          },
+        ]
       : []),
   ];
 
   if (isLoading) return <OverviewSkeleton />;
+  console.log(data);
 
   return (
     <div className="grid grid-cols-1 gap-6">
