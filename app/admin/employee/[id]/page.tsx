@@ -9,6 +9,7 @@ import HistoryTab from "../components/(HistoryTab)/HistoryTab";
 
 import OverviewSkeleton from "@/components/shared/Skeleton/OverviewSkeleton";
 import { useGetEmployeeByIdQuery } from "@/app/redux/features/Employees/employeesApi";
+import LeaveManagementTab from "../components/(LeaveManagementTab)/LeaveManagementTab";
 
 export default function EmployeeDetails() {
   const params = useParams();
@@ -17,7 +18,7 @@ export default function EmployeeDetails() {
   const employee = data?.data; // assuming API returns { success, data }
 
   const [activeTab, setActiveTab] = useState<
-    "overview" | "details" | "history"
+    "overview" | "details" | "history" | "leave management" 
   >("overview");
 
   return (
@@ -27,15 +28,14 @@ export default function EmployeeDetails() {
       {/* Tabs + Date Filter */}
       <div className="flex justify-between items-center border-b">
         <div className="flex gap-4">
-          {["overview", "details", "history"].map((tab) => (
+          {["overview", "details", "history", "leave management"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`px-4 py-2 font-semibold capitalize ${
-                activeTab === tab
+              className={`px-4 py-2 font-semibold capitalize ${activeTab === tab
                   ? "border-b-2 border-red-600 text-red-600"
                   : "text-gray-600 hover:text-red-600"
-              }`}
+                }`}
             >
               {tab}
             </button>
@@ -54,6 +54,8 @@ export default function EmployeeDetails() {
             React.createElement(DetailsTab as any, { employee })}
           {activeTab === "history" &&
             React.createElement(HistoryTab as any, { employee })}
+          {activeTab === "leave management" &&
+            React.createElement(LeaveManagementTab as any, { employee })}
         </>
       )}
     </div>
