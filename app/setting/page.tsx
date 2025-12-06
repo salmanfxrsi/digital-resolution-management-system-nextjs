@@ -9,7 +9,7 @@ export default function Settingpage() {
   const [twoFactor, setTwoFactor] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-6">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-12">
       <div className="max-w-5xl mx-auto space-y-10">
         {/* Page Header */}
         <div className="text-center">
@@ -21,7 +21,7 @@ export default function Settingpage() {
         </div>
 
         {/* Settings Grid */}
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Notifications */}
           <SettingCard
             icon={<Bell className="h-6 w-6 text-blue-600" />}
@@ -104,7 +104,7 @@ export default function Settingpage() {
               />
               <button
                 type="submit"
-                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
+                className="flex w-full justify-center items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
               >
                 <Save className="h-4 w-4" />
                 Save Changes
@@ -131,14 +131,16 @@ function SettingCard({
 }) {
   return (
     <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        {icon}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-          <p className="text-sm text-gray-500">{description}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+        <div className="flex items-center gap-2">
+          {icon}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+            <p className="text-sm text-gray-500">{description}</p>
+          </div>
         </div>
+        <div className="mt-2 sm:mt-0">{children}</div>
       </div>
-      <div>{children}</div>
     </div>
   );
 }
