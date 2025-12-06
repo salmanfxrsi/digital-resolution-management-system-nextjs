@@ -90,7 +90,7 @@ export default function RootLayout({
                       isSidebarOpen={isSidebarOpen}
                       setIsSidebarOpen={setIsSidebarOpen}
                     />
-                    <main className="flex-1 overflow-y-auto p-6">
+                    <main className="flex-1 overflow-y-auto p-6 pb-20 md:pb-6">
                       <Toaster position="top-right" />
                       {children}
                     </main>
