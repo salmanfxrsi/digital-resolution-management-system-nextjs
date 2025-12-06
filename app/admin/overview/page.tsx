@@ -27,7 +27,7 @@ export default function OverviewPage() {
       {/* Metric Cards */}
       <OverViewCard />
 
-      {/* Bar Chart Section */}
+      {/* Bar Chart & Details */}
       <div className="">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Graph */}
@@ -36,8 +36,8 @@ export default function OverviewPage() {
           {/* Departments & Employees */}
           <div className="flex flex-col gap-6">
             {/* Departments Card */}
-            <Card className="p-4 shadow rounded-lg">
-              <div className="flex items-center justify-between mb-4">
+            <Card className="p-4 sm:p-6 shadow rounded-lg">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2 sm:gap-0">
                 <div className="flex items-center gap-2">
                   <div className="rounded-full bg-purple-100 p-2">
                     <Building2 className="h-6 w-6 text-purple-600" />
@@ -46,7 +46,6 @@ export default function OverviewPage() {
                     Departments
                   </CardTitle>
                 </div>
-                {/* Select option */}
                 <select
                   value={deptView}
                   onChange={(e) => setDeptView(e.target.value)}
@@ -61,13 +60,13 @@ export default function OverviewPage() {
                 {departments.map((dept, i) => (
                   <div
                     key={i}
-                    className="flex justify-between items-center border-b pb-2 text-sm"
+                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 text-sm"
                   >
                     <div>
                       <p className="font-medium">{dept.name}</p>
                       <p className="text-gray-500">Lead: {dept.lead}</p>
                     </div>
-                    <span className="text-black font-semibold">
+                    <span className="text-black font-semibold mt-1 sm:mt-0">
                       {dept.hours}
                     </span>
                   </div>
@@ -76,8 +75,8 @@ export default function OverviewPage() {
             </Card>
 
             {/* Employees Card */}
-            <Card className="p-4 shadow rounded-lg">
-              <div className="flex items-center justify-between mb-4">
+            <Card className="p-4 sm:p-6 shadow rounded-lg">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2 sm:gap-0">
                 <div className="flex items-center gap-2">
                   <div className="rounded-full bg-green-100 p-2">
                     <Briefcase className="h-6 w-6 text-green-600" />
@@ -86,7 +85,6 @@ export default function OverviewPage() {
                     Employees
                   </CardTitle>
                 </div>
-                {/* Select option */}
                 <select
                   value={empView}
                   onChange={(e) => setEmpView(e.target.value)}
@@ -101,13 +99,13 @@ export default function OverviewPage() {
                 {employees.map((emp, i) => (
                   <div
                     key={i}
-                    className="flex justify-between items-center border-b pb-2 text-sm"
+                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 text-sm"
                   >
                     <div>
                       <p className="font-medium">{emp.name}</p>
                       <p className="text-gray-500">{emp.designation}</p>
                     </div>
-                    <span className="text-black font-semibold">
+                    <span className="text-black font-semibold mt-1 sm:mt-0">
                       {emp.hours}
                     </span>
                   </div>
