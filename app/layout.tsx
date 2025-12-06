@@ -6,6 +6,7 @@ import "./globals.css";
 
 import Navbar from "@/components/shared/Navbar/Navbar";
 import Sidebar from "@/components/shared/Sidebar";
+import BottomBar from "@/components/shared/BottomBar";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { SessionProvider, useSession } from "next-auth/react";
@@ -23,7 +24,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// 🔹 Wrapper to protect routes
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -76,11 +76,15 @@ export default function RootLayout({
                   {children}
                 </main>
               ) : (
-                <div className="flex h-screen overflow-hidden">
-                  <Sidebar
-                    isOpen={isSidebarOpen}
-                    setIsOpen={setIsSidebarOpen}
-                  />
+                <div className="flex h-screen overflow-hidden relative">
+                  {/* Sidebar only visible on md+ */}
+                  <div className="hidden md:flex">
+                    <Sidebar
+                      isOpen={isSidebarOpen}
+                      setIsOpen={setIsSidebarOpen}
+                    />
+                  </div>
+
                   <div className="flex flex-col flex-1 overflow-hidden">
                     <Navbar
                       isSidebarOpen={isSidebarOpen}
@@ -90,6 +94,11 @@ export default function RootLayout({
                       <Toaster position="top-right" />
                       {children}
                     </main>
+                  </div>
+
+                  {/* Mobile Bottom Bar */}
+                  <div className="md:hidden">
+                    <BottomBar />
                   </div>
                 </div>
               )}
