@@ -8,17 +8,6 @@ import DataQueryPage from "@/components/shared/Query/DataQueryPage";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 
 import { Clock, UserCheck, UserX, CalendarX } from "lucide-react";
-import {
-  LineChart,
-  Line,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  BarChart,
-  Bar,
-  Legend,
-} from "recharts";
 
 import { useGetOverviewQuery } from "@/app/redux/features/tasks/EmployeeTaskoverviewApi";
 import AttendanceCalendar from "@/components/shared/AttendanceCalendar/AttendanceCalendar";
@@ -44,25 +33,21 @@ export default function OverviewPage() {
   const employeeId = session?.user?.user.employeeId;
   const role = session?.user?.user.userType;
 
-  // ⛳ Control days or custom range
   const [days, setDays] = useState<number | null>(7);
   const [range, setRange] = useState<{ from?: string; to?: string } | null>(
     null
   );
 
-  // 🔥 Build query params for RTK Query
   const queryParams = days
     ? { employeeId, days }
     : { employeeId, from: range?.from, to: range?.to };
 
-  // Fetch overview data
   const { data, isLoading } = useGetOverviewQuery(queryParams, {
     skip: !employeeId,
   });
 
   const summary = data?.data?.summary || {};
 
-  // Attendance cards
   const attendanceStats = [
     {
       label: "Present",
@@ -84,14 +69,13 @@ export default function OverviewPage() {
     },
   ];
 
-  // Role based metrics
   const metrics = [
     {
       label: "Total Hours",
       value: `${summary.averageHours ?? 0} hrs`,
       icon: Clock,
       color: "text-blue-600 bg-blue-100",
-      description: "Total hours worked in selected period",
+      description: "Total hours worked",
     },
 
     ...(role === "web_developer"
@@ -143,12 +127,11 @@ export default function OverviewPage() {
       : []),
   ];
 
-  const activityData = summary.last7Days || [];
-
   if (isLoading) return <OverviewSkeleton />;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+    <div className="grid grid-cols-1 gap-6">
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-gray-800">
           Your Performance Summary
@@ -171,39 +154,37 @@ export default function OverviewPage() {
         {attendanceStats.map((stat) => (
           <Card
             key={stat.label}
-            className="flex flex-row items-center p-3 rounded-lg"
+            className="flex flex-row items-center p-4 rounded-lg"
           >
-            <div className={`rounded-full p-3 mb-2 ${stat.color}`}>
+            <div className={`rounded-full p-3 ${stat.color}`}>
               <stat.icon className="h-6 w-6" />
             </div>
-            <div>
-              <CardDescription className="text-sm font-medium text-gray-600">
-                {stat.label}
-              </CardDescription>
-              <CardTitle className="text-xl font-bold text-gray-900">
-                {stat.value}
-              </CardTitle>
+            <div className="ml-4">
+              <CardDescription>{stat.label}</CardDescription>
+              <CardTitle>{stat.value}</CardTitle>
             </div>
           </Card>
         ))}
       </div>
 
       {/* Metrics Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {metrics.map((metric) => (
-          <Card key={metric.label} className="flex p-5 rounded-lg">
+          <Card key={metric.label} className="flex flex-col p-5 rounded-lg">
             <div className="flex justify-between items-center w-full">
-              <CardDescription className="text-md font-medium text-black">
+              <CardDescription className="text-md font-medium">
                 {metric.label}
               </CardDescription>
-              <CardTitle className="text-lg font-bold text-gray-900">
+              <CardTitle className="text-lg font-bold">
                 {metric.value}
               </CardTitle>
             </div>
-            <p className="text-xs text-gray-500 text-center font-semibold">
+
+            <p className="text-xs text-gray-500 text-center font-semibold mt-2">
               {metric.description}
             </p>
-            <div className={`rounded-full w-full p-1 ${metric.color}`}>
+
+            <div className={`rounded-full w-full p-1 mt-3 ${metric.color}`}>
               <metric.icon className="h-6 w-6" />
             </div>
           </Card>
@@ -217,40 +198,6 @@ export default function OverviewPage() {
           range={data.data.range}
         />
       )}
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {/* Hours Chart */}
-        <div className="bg-white border rounded-lg shadow p-4">
-          <h2 className="text-lg font-semibold mb-2">Total Hour</h2>
-          <LineChart width={400} height={250} data={activityData}>
-            <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="hours"
-              stroke="#2563eb"
-              strokeWidth={3}
-              dot={{ r: 4 }}
-            />
-          </LineChart>
-        </div>
-
-        {/* Designs Chart */}
-        <div className="bg-white border rounded-lg shadow p-4">
-          <h2 className="text-lg font-semibold mb-2">Total Design</h2>
-          <BarChart width={400} height={250} data={activityData}>
-            <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="designs" fill="#10b981" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </div>
-      </div>
     </div>
   );
 }

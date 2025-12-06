@@ -7,7 +7,7 @@ export const leaveApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
   }),
 
-  tagTypes: ["Leave"],
+  tagTypes: ["Leave", "Attendance"],
 
   endpoints: (builder) => ({
     // CREATE Leave
@@ -17,7 +17,7 @@ export const leaveApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Leave"],
+      invalidatesTags: ["Leave", "Attendance"],
     }),
 
     // GET Leaves by Employee
@@ -33,7 +33,7 @@ export const leaveApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Leave"],
+      invalidatesTags: ["Leave", "Attendance"],
     }),
 
     // DELETE Leave
@@ -42,7 +42,7 @@ export const leaveApi = createApi({
         url: `/leave/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Leave"],
+      invalidatesTags: ["Leave", "Attendance"],
     }),
   }),
 });
