@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import OverviewSkeleton from "@/components/shared/Skeleton/OverviewSkeleton";
 
-
 import DataQueryPage from "@/components/shared/Query/DataQueryPage";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 
@@ -22,13 +21,16 @@ import {
 } from "recharts";
 
 import { useGetOverviewQuery } from "@/app/redux/features/tasks/EmployeeTaskoverviewApi";
-
-
+import AttendanceCalendar from "@/components/shared/AttendanceCalendar/AttendanceCalendar";
 
 interface CustomUser {
   user: {
     employeeId: string;
-    userType: "web_developer" | "graphic_designer" | "video_editor" | "marketer";
+    userType:
+      | "web_developer"
+      | "graphic_designer"
+      | "video_editor"
+      | "marketer";
   };
 }
 
@@ -94,57 +96,56 @@ export default function OverviewPage() {
 
     ...(role === "web_developer"
       ? [
-        {
-          label: "Total Websites",
-          value: summary.totalWebsites ?? 0,
-          icon: Clock,
-          color: "text-indigo-600 bg-indigo-100",
-          description: "Websites created",
-        },
-      ]
+          {
+            label: "Total Websites",
+            value: summary.totalWebsites ?? 0,
+            icon: Clock,
+            color: "text-indigo-600 bg-indigo-100",
+            description: "Websites created",
+          },
+        ]
       : []),
 
     ...(role === "graphic_designer"
       ? [
-        {
-          label: "Total Designs",
-          value: summary.totalDesigns ?? 0,
-          icon: Clock,
-          color: "text-purple-600 bg-purple-100",
-          description: "Designs created",
-        },
-      ]
+          {
+            label: "Total Designs",
+            value: summary.totalDesigns ?? 0,
+            icon: Clock,
+            color: "text-purple-600 bg-purple-100",
+            description: "Designs created",
+          },
+        ]
       : []),
 
     ...(role === "video_editor"
       ? [
-        {
-          label: "Total Videos",
-          value: summary.totalVideos ?? 0,
-          icon: Clock,
-          color: "text-orange-600 bg-orange-100",
-          description: "Videos edited",
-        },
-      ]
+          {
+            label: "Total Videos",
+            value: summary.totalVideos ?? 0,
+            icon: Clock,
+            color: "text-orange-600 bg-orange-100",
+            description: "Videos edited",
+          },
+        ]
       : []),
 
     ...(role === "marketer"
       ? [
-        {
-          label: "Total Ads",
-          value: summary.totalAds ?? 0,
-          icon: Clock,
-          color: "text-yellow-600 bg-yellow-100",
-          description: "Ads managed",
-        },
-      ]
+          {
+            label: "Total Ads",
+            value: summary.totalAds ?? 0,
+            icon: Clock,
+            color: "text-yellow-600 bg-yellow-100",
+            description: "Ads managed",
+          },
+        ]
       : []),
   ];
 
   const activityData = summary.last7Days || [];
 
   if (isLoading) return <OverviewSkeleton />;
-
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
@@ -208,6 +209,14 @@ export default function OverviewPage() {
           </Card>
         ))}
       </div>
+
+      {/* Attendance Calendar */}
+      {data?.data?.detailed && data?.data?.range && (
+        <AttendanceCalendar
+          detailed={data.data.detailed}
+          range={data.data.range}
+        />
+      )}
 
       {/* Charts */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
