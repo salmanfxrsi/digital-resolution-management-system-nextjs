@@ -23,8 +23,7 @@ import {
 
 import { useGetOverviewQuery } from "@/app/redux/features/tasks/EmployeeTaskoverviewApi";
 import { useGetEmployeeByIdQuery } from "@/app/redux/features/Employees/employeesApi";
-
-
+import AttendanceCalendar from "@/components/shared/AttendanceCalendar/AttendanceCalendar";
 
 export default function OverviewPage() {
   // Get employeeId from URL
@@ -52,6 +51,7 @@ export default function OverviewPage() {
   });
 
   const summary = data?.data?.summary || {};
+  console.log("DT", data);
 
   // Attendance Summary Cards
   const attendanceStats = [
@@ -87,50 +87,50 @@ export default function OverviewPage() {
 
     ...(role === "web_developer"
       ? [
-        {
-          label: "Total Websites",
-          value: summary.totalWebsites ?? 0,
-          icon: Clock,
-          color: "text-indigo-600 bg-indigo-100",
-          description: "Websites created",
-        },
-      ]
+          {
+            label: "Total Websites",
+            value: summary.totalWebsites ?? 0,
+            icon: Clock,
+            color: "text-indigo-600 bg-indigo-100",
+            description: "Websites created",
+          },
+        ]
       : []),
 
     ...(role === "graphic_designer"
       ? [
-        {
-          label: "Total Designs",
-          value: summary.totalDesigns ?? 0,
-          icon: Clock,
-          color: "text-purple-600 bg-purple-100",
-          description: "Designs created",
-        },
-      ]
+          {
+            label: "Total Designs",
+            value: summary.totalDesigns ?? 0,
+            icon: Clock,
+            color: "text-purple-600 bg-purple-100",
+            description: "Designs created",
+          },
+        ]
       : []),
 
     ...(role === "video_editor"
       ? [
-        {
-          label: "Total Videos",
-          value: summary.totalVideos ?? 0,
-          icon: Clock,
-          color: "text-orange-600 bg-orange-100",
-          description: "Videos edited",
-        },
-      ]
+          {
+            label: "Total Videos",
+            value: summary.totalVideos ?? 0,
+            icon: Clock,
+            color: "text-orange-600 bg-orange-100",
+            description: "Videos edited",
+          },
+        ]
       : []),
 
     ...(role === "marketer"
       ? [
-        {
-          label: "Total Ads",
-          value: summary.totalAds ?? 0,
-          icon: Clock,
-          color: "text-yellow-600 bg-yellow-100",
-          description: "Ads managed",
-        },
-      ]
+          {
+            label: "Total Ads",
+            value: summary.totalAds ?? 0,
+            icon: Clock,
+            color: "text-yellow-600 bg-yellow-100",
+            description: "Ads managed",
+          },
+        ]
       : []),
   ];
 
@@ -193,6 +193,13 @@ export default function OverviewPage() {
           </Card>
         ))}
       </div>
+      {/* Attendance Calendar */}
+      {data?.data?.detailed && data?.data?.range && (
+        <AttendanceCalendar
+          detailed={data.data.detailed}
+          range={data.data.range}
+        />
+      )}
 
       {/* Charts */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -220,10 +227,10 @@ export default function OverviewPage() {
             {role === "graphic_designer"
               ? "Total Design"
               : role === "video_editor"
-                ? "Total Videos"
-                : role === "web_developer"
-                  ? "Total Websites"
-                  : "Total Activity"}
+              ? "Total Videos"
+              : role === "web_developer"
+              ? "Total Websites"
+              : "Total Activity"}
           </h2>
 
           <BarChart width={400} height={250} data={activityData}>
@@ -237,10 +244,10 @@ export default function OverviewPage() {
                 role === "graphic_designer"
                   ? "designs"
                   : role === "video_editor"
-                    ? "videos"
-                    : role === "web_developer"
-                      ? "websites"
-                      : "hours"
+                  ? "videos"
+                  : role === "web_developer"
+                  ? "websites"
+                  : "hours"
               }
               fill="#10b981"
               radius={[4, 4, 0, 0]}

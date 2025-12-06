@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from "react";
@@ -10,7 +9,6 @@ import {
   PenTool,
   Megaphone,
 } from "lucide-react";
-import Image from "next/image";
 
 interface ClientOverviewProps {
   client: {
