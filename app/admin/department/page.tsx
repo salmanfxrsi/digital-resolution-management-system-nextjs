@@ -9,7 +9,6 @@ import {
   Video,
   Users,
   FolderKanban,
-  ClipboardList,
   Building2,
   ShieldCheck,
   Briefcase, // new icon for Admin Service
