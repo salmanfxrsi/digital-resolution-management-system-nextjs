@@ -1,13 +1,5 @@
 // src/routes/adminRoutes.ts
-import {
-  Home,
-  Building2,
-  Users,
-  DollarSign,
-  FileText,
-  Settings,
-  Briefcase,
-} from "lucide-react";
+import { Home, Building2, Users, Settings, Briefcase } from "lucide-react";
 import React from "react";
 
 export const adminRoutes = [

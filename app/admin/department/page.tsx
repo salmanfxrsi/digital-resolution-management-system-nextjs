@@ -9,12 +9,16 @@ import {
   Video,
   Users,
   FolderKanban,
-  ClipboardList,
   Building2,
-  ShieldCheck, // new icon for Admin Service
+  ShieldCheck,
+  Briefcase, // new icon for Admin Service
 } from "lucide-react";
+import { useGetEmployeesQuery } from "@/app/redux/features/Employees/employeesApi";
+import { useGetClientsQuery } from "@/app/redux/features/clients/clientsApi";
 
 export default function DepartmentPage() {
+  const { data: employeesData, isLoading } = useGetEmployeesQuery(undefined);
+  const { data: clientsData } = useGetClientsQuery(undefined);
   const departments = [
     {
       id: "marketer",
@@ -47,7 +51,14 @@ export default function DepartmentPage() {
       description: "Administration, HR & organizational support.",
     },
   ];
-
+  if (isLoading) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        {" "}
+        Loading departments...
+      </div>
+    );
+  }
   return (
     <div className="p-6 space-y-10 min-h-screen">
       <div className="bg-white p-5 rounded-lg shadow flex justify-between items-center border">
@@ -58,14 +69,14 @@ export default function DepartmentPage() {
           </p>
         </div>
 
-        <Building2 className="w-16 h-16 text-blue-500 opacity-80" />
+        <Building2 className="w-16 h-16 text-purple-500 opacity-80" />
       </div>
 
       {/* STATS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow border">
           <div className="flex items-center gap-4">
-            <Users className="w-10 h-10 text-blue-600" />
+            <Building2 className="w-10 h-10 text-purple-600" />
             <div>
               <p className="text-gray-500 text-sm">Total Departments</p>
               <p className="text-2xl font-bold">{departments.length}</p>
@@ -75,7 +86,7 @@ export default function DepartmentPage() {
 
         <div className="bg-white p-6 rounded-lg shadow border">
           <div className="flex items-center gap-4">
-            <FolderKanban className="w-10 h-10 text-green-600" />
+            <FolderKanban className="w-10 h-10 text-green-700" />
             <div>
               <p className="text-gray-500 text-sm">Active Projects</p>
               <p className="text-2xl font-bold">9</p>
@@ -85,20 +96,24 @@ export default function DepartmentPage() {
 
         <div className="bg-white p-6 rounded-lg shadow border">
           <div className="flex items-center gap-4">
-            <ClipboardList className="w-10 h-10 text-orange-500" />
+            <Users className="w-10 h-10 text-blue-500" />
             <div>
-              <p className="text-gray-500 text-sm">Pending Tasks</p>
-              <p className="text-2xl font-bold">14</p>
+              <p className="text-gray-500 text-sm">Total Clients</p>
+              <p className="text-2xl font-bold">
+                {clientsData?.data.length || 0}
+              </p>
             </div>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow border">
           <div className="flex items-center gap-4">
-            <Users className="w-10 h-10 text-purple-600" />
+            <Briefcase className="w-10 h-10 text-green-600" />
             <div>
               <p className="text-gray-500 text-sm">Total Employees</p>
-              <p className="text-2xl font-bold">28</p>
+              <p className="text-2xl font-bold">
+                {employeesData?.data.length || 0}
+              </p>
             </div>
           </div>
         </div>

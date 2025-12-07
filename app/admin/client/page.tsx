@@ -90,14 +90,16 @@ export default function ClientPage() {
       {/* SUMMARY SECTION */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {/* Total Companies */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+        <div className="bg-linear-to-r from-blue-600 to-blue-500 text-white p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <p className="text-lg font-medium">Total Companies Worked</p>
             <span className="bg-white/20 px-3 py-1 rounded-full text-xs">
               All Time
             </span>
           </div>
-          <p className="text-3xl sm:text-4xl font-extrabold mt-3">{totalCompanies}</p>
+          <p className="text-3xl sm:text-4xl font-extrabold mt-3">
+            {totalCompanies}
+          </p>
           <div className="flex items-center gap-2 mt-2 text-sm text-blue-100">
             <span className="w-2 h-2 bg-white rounded-full"></span>
             Updated automatically
@@ -105,14 +107,16 @@ export default function ClientPage() {
         </div>
 
         {/* Ongoing Companies */}
-        <div className="bg-gradient-to-r from-green-600 to-green-500 text-white p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+        <div className="bg-linear-to-r from-green-600 to-green-500 text-white p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <p className="text-lg font-medium">Ongoing Companies</p>
             <span className="bg-white/20 px-3 py-1 rounded-full text-xs">
               Active
             </span>
           </div>
-          <p className="text-3xl sm:text-4xl font-extrabold mt-3">{ongoingCompanies}</p>
+          <p className="text-3xl sm:text-4xl font-extrabold mt-3">
+            {ongoingCompanies}
+          </p>
           <div className="flex items-center gap-2 mt-2 text-sm text-green-100">
             <span className="w-2 h-2 bg-white rounded-full"></span>
             Currently in progress

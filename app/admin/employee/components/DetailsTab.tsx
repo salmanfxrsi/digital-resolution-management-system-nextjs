@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from "react";
@@ -182,7 +183,7 @@ function DetailCard({
       {icon}
       <div>
         <p className="text-gray-500 text-xs uppercase tracking-wide">{label}</p>
-        <p className="font-semibold text-gray-800 break-words">{value}</p>
+        <p className="font-semibold text-gray-800 wrap-break-word">{value}</p>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import AddEmployeeModal from "./components/AddEmployeeModal";
 import { Briefcase } from "lucide-react";
@@ -81,23 +82,43 @@ export default function EmployeePage() {
             Manage all employees of your organization
           </p>
         </div>
-        <Briefcase className="w-12 h-12 sm:w-16 sm:h-16 text-blue-500 opacity-80" />
+        <Briefcase className="w-12 h-12 sm:w-16 sm:h-16 text-green-500 opacity-80" />
       </div>
 
-      {/* Stats */}
+      {/* EMPLOYEE SUMMARY SECTION */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <div className="bg-blue-600 text-white p-4 sm:p-6 rounded-xl shadow-lg">
-          <p className="text-lg font-medium">Total Employees</p>
+        {/* Total Employees */}
+        <div className="bg-linear-to-r from-blue-600 to-blue-500 text-white p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <p className="text-lg font-medium">Total Employees</p>
+            <span className="bg-white/20 px-3 py-1 rounded-full text-xs">
+              All Time
+            </span>
+          </div>
           <p className="text-3xl sm:text-4xl font-extrabold mt-3">
             {employees.length}
           </p>
+          <div className="flex items-center gap-2 mt-2 text-sm text-blue-100">
+            <span className="w-2 h-2 bg-white rounded-full"></span>
+            Updated automatically
+          </div>
         </div>
 
-        <div className="bg-green-600 text-white p-4 sm:p-6 rounded-xl shadow-lg">
-          <p className="text-lg font-medium">Active Employees</p>
+        {/* Active Employees */}
+        <div className="bg-linear-to-r from-green-600 to-green-500 text-white p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <p className="text-lg font-medium">Active Employees</p>
+            <span className="bg-white/20 px-3 py-1 rounded-full text-xs">
+              Active
+            </span>
+          </div>
           <p className="text-3xl sm:text-4xl font-extrabold mt-3">
             {employees.filter((e) => e.department !== "resigned").length}
           </p>
+          <div className="flex items-center gap-2 mt-2 text-sm text-green-100">
+            <span className="w-2 h-2 bg-white rounded-full"></span>
+            Currently in progress
+          </div>
         </div>
       </div>
 
