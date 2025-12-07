@@ -18,22 +18,20 @@ import { useParams } from "next/navigation";
 export default function Page() {
   const { id: employeeId } = useParams();
 
-  //  Using RTK Query instead of manual fetch
   const { data, isLoading } = useGetEmployeeByIdQuery(employeeId, {
     skip: !employeeId,
   });
 
-  //  Your backend returns employee under employeeId object
   const employee = data?.data || data?.employeeId;
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto p-8">
+      <div className="max-w-3xl mx-auto p-6">
         <div className="animate-pulse space-y-6">
-          <div className="h-32 w-32 bg-gray-200 rounded-full mx-auto"></div>
+          <div className="h-28 w-28 bg-gray-200 rounded-full mx-auto"></div>
           <div className="h-6 w-1/2 bg-gray-200 rounded mx-auto"></div>
           <div className="h-4 w-1/3 bg-gray-200 rounded mx-auto"></div>
-          <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-20 bg-gray-200 rounded"></div>
             ))}
@@ -45,18 +43,19 @@ export default function Page() {
 
   if (!employee) {
     return (
-      <div className="p-8 text-center text-gray-500">
+      <div className="p-6 text-center text-gray-500">
         No employee data found.
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white border rounded-xl shadow-lg space-y-10">
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8 bg-white border rounded-xl shadow-lg space-y-10">
       {/* TOP SECTION */}
-      <div className="flex mx-auto justify-between gap-8 items-center bg-white border rounded-lg p-8">
-        <div className="flex justify-between gap-8 items-center">
-          <div className="w-32 h-32 border rounded-full flex items-center justify-center overflow-hidden">
+      <div className="flex flex-col lg:flex-row justify-between gap-8 items-center bg-white border rounded-lg p-6 sm:p-8">
+        {/* LEFT SIDE: PHOTO + DETAILS */}
+        <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+          <div className="w-28 h-28 sm:w-32 sm:h-32 border rounded-full flex items-center justify-center overflow-hidden">
             {employee.photo ? (
               <Image
                 src={employee.photo}
@@ -65,15 +64,15 @@ export default function Page() {
                 alt={employee.name}
                 quality={50}
                 sizes="100px"
-                className="object-cover w-full h-full object-center"
+                className="object-cover w-full h-full"
               />
             ) : (
-              <User className="h-20 w-20 text-gray-300" />
+              <User className="h-16 w-16 sm:h-20 sm:w-20 text-gray-300" />
             )}
           </div>
 
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-gray-900">
+          <div className="space-y-1 sm:space-y-2 text-center sm:text-left">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
               {employee.name}
             </h1>
             <p className="text-blue-600 font-semibold">
@@ -83,33 +82,24 @@ export default function Page() {
           </div>
         </div>
 
-        {/* USER ACCOUNT SECTION */}
-        <div className="bg-gray-50 border rounded-lg p-6 shadow-sm space-y-4">
+        {/* RIGHT SIDE: USER ACCOUNT */}
+        <div className="bg-gray-50 w-full lg:w-auto border rounded-lg p-5 sm:p-6 shadow-sm space-y-4">
           <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
             User Account Details
           </h3>
 
           <div className="space-y-3 text-sm">
-            <div className="flex items-center gap-3">
-              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
-                User ID
-              </span>
-              <p className="font-medium text-gray-900">{employee._id}</p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">
-                Login Email
-              </span>
-              <p className="font-medium text-gray-900">{employee.email}</p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">
-                Password
-              </span>
-              <p className="font-medium text-gray-900">{employee.companyID}</p>
-            </div>
+            <AccountRow label="User ID" color="blue" value={employee._id} />
+            <AccountRow
+              label="Login Email"
+              color="green"
+              value={employee.email}
+            />
+            <AccountRow
+              label="Password"
+              color="yellow"
+              value={employee.companyID}
+            />
           </div>
         </div>
       </div>
@@ -117,7 +107,7 @@ export default function Page() {
       {/* Divider */}
       <div className="border-t"></div>
 
-      {/* Details Grid Section */}
+      {/* DETAILS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
         <DetailCard
           icon={<Phone className="h-5 w-5 text-blue-600" />}
@@ -151,8 +141,8 @@ export default function Page() {
         />
       </div>
 
-      {/* Footer Card */}
-      <div className="p-5 bg-blue-50 rounded-xl border border-blue-200 flex items-center gap-4 shadow-sm">
+      {/* FOOTER */}
+      <div className="p-4 sm:p-5 bg-blue-50 rounded-xl border border-blue-200 flex items-start gap-4 shadow-sm">
         <User className="h-6 w-6 text-blue-600" />
         <p className="text-gray-700 text-sm">
           This employee profile contains personal and job-related information.
@@ -163,7 +153,21 @@ export default function Page() {
   );
 }
 
-/* Reusable Detail Card */
+/* Account row component */
+function AccountRow({ label, value, color }: any) {
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        className={`px-2 py-1 bg-${color}-100 text-${color}-700 rounded text-xs font-semibold`}
+      >
+        {label}
+      </span>
+      <p className="font-medium text-gray-900 break-all">{value}</p>
+    </div>
+  );
+}
+
+/* Detail card component */
 function DetailCard({
   icon,
   label,
@@ -178,7 +182,7 @@ function DetailCard({
       {icon}
       <div>
         <p className="text-gray-500 text-xs uppercase tracking-wide">{label}</p>
-        <p className="font-semibold text-gray-800">{value}</p>
+        <p className="font-semibold text-gray-800 break-words">{value}</p>
       </div>
     </div>
   );
