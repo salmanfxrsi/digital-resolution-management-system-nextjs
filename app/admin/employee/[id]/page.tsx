@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import OverviewTab from "../components/OverviewTab";
 import DetailsTab from "../components/DetailsTab";
@@ -18,7 +18,7 @@ export default function EmployeeDetails() {
   const employee = data?.data; // assuming API returns { success, data }
 
   const [activeTab, setActiveTab] = useState<
-    "overview" | "details" | "history" | "leave management" 
+    "overview" | "details" | "history" | "leave management"
   >("overview");
 
   return (
@@ -32,10 +32,11 @@ export default function EmployeeDetails() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`px-4 py-2 font-semibold capitalize ${activeTab === tab
+              className={`px-4 py-2 font-semibold capitalize ${
+                activeTab === tab
                   ? "border-b-2 border-red-600 text-red-600"
                   : "text-gray-600 hover:text-red-600"
-                }`}
+              }`}
             >
               {tab}
             </button>
