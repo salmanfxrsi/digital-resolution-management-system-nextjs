@@ -8,6 +8,7 @@ import { overviewApi } from "./features/tasks/EmployeeTaskoverviewApi";
 import { clientsApi } from "./features/clients/clientsApi";
 import { leaveApi } from "./features/leave/leaveApi";
 import { attendanceApi } from "./features/attendance/attendanceApi";
+import { departmentOverviewApi } from "./features/department/DepartmentOverviewApi";
 export const reducer = {
   user: userReducer,
   task: taskReducer,
@@ -17,6 +18,7 @@ export const reducer = {
   [taskApi.reducerPath]: taskApi.reducer,
   [employeesApi.reducerPath]: employeesApi.reducer,
   [overviewApi.reducerPath]: overviewApi.reducer,
+  [departmentOverviewApi.reducerPath]: departmentOverviewApi.reducer,
   [clientsApi.reducerPath]: clientsApi.reducer,
   [leaveApi.reducerPath]: leaveApi.reducer,
   [attendanceApi.reducerPath]: attendanceApi.reducer,
