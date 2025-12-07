@@ -42,11 +42,10 @@ export default function DepartmentDetails() {
 
   const { id } = useParams();
 
-  // Pagination state
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // 🔹 Fetch employees by department id
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -63,22 +62,15 @@ export default function DepartmentDetails() {
     if (id) fetchEmployees();
   }, [id]);
 
-  // Reset page when employees change
   useEffect(() => {
     setCurrentPage(1);
   }, [employees]);
 
-  // Pagination logic
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
   const currentEmployees = employees.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(employees.length / itemsPerPage);
 
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) setCurrentPage(page);
-  };
-
-  // Demo graph data
   const dailyData = [
     { day: "Mon", hours: 8 },
     { day: "Tue", hours: 7 },
@@ -108,25 +100,25 @@ export default function DepartmentDetails() {
   };
 
   return (
-    <div className="bg-white p-8 space-y-8">
+    <div className="bg-white p-4 sm:p-6 md:p-8 space-y-8 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
             {departmentName(id as any)?.name}
           </h1>
-          <p className="text-gray-600 text-sm">Department ID: {id}</p>
+          <p className="text-gray-600 text-sm break-all">Department ID: {id}</p>
         </div>
+
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <CalendarDays className="h-4 w-4" />
-          Established: 2018-03-01
+          <CalendarDays className="h-4 w-4" /> Established: 2018-03-01
         </div>
       </div>
 
       {/* Metrics + Graph */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <MetricCard label="Daily Work Hours" value="9 hrs/day" color="blue" />
           <MetricCard label="Weekly Hours" value="45 hrs" color="yellow" />
           <MetricCard label="Monthly Hours" value="180 hrs" color="purple" />
@@ -139,42 +131,46 @@ export default function DepartmentDetails() {
         </div>
 
         {/* Graph */}
-        <div className="bg-white border rounded-lg shadow p-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white border rounded-lg shadow p-4 w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
             <h2 className="text-lg font-semibold text-gray-700">
               Working Hours ({view})
             </h2>
             <select
               value={view}
               onChange={(e) => setView(e.target.value)}
-              className="border rounded-md text-sm px-2 py-1 focus:outline-none focus:ring focus:ring-blue-300"
+              className="border rounded-md text-sm px-2 py-1 w-full sm:w-auto"
             >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>
             </select>
           </div>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={chartData}>
-              <CartesianGrid vertical={false} stroke="#e5e7eb" />
-              <XAxis dataKey={dataKey} />
-              <Tooltip />
-              <Bar
-                dataKey="hours"
-                fill="#3b82f6"
-                radius={[6, 6, 0, 0]}
-                background={{ fill: "#dbeafe" }}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+
+          <div className="w-full h-[250px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <CartesianGrid vertical={false} stroke="#e5e7eb" />
+                <XAxis dataKey={dataKey} />
+                <Tooltip />
+                <Bar
+                  dataKey="hours"
+                  fill="#3b82f6"
+                  radius={[6, 6, 0, 0]}
+                  background={{ fill: "#dbeafe" }}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* Employee Table */}
       <div>
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 text-gray-800">
           Employee List:
         </h1>
+
         <div className="overflow-x-auto bg-white border rounded-lg shadow">
           {loading ? (
             <SkeletonTable />
@@ -192,42 +188,31 @@ export default function DepartmentDetails() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentEmployees?.map((emp) => (
+                  {currentEmployees.map((emp) => (
                     <tr key={emp._id} className="border-t hover:bg-gray-50">
                       <td className="p-3">
-                        <div className="w-12 h-12 relative">
-                          <Users className="h-8 w-8 text-gray-300" />
-                        </div>
+                        <Users className="h-8 w-8 text-gray-300" />
                       </td>
                       <td className="p-3">{emp.name}</td>
                       <td className="p-3">{emp.number}</td>
-                      <td className="p-3">{emp.email}</td>
+                      <td className="p-3 break-all">{emp.email}</td>
                       <td className="p-3">{emp.designation}</td>
                       <td className="p-3 text-center">
                         <Link
                           href={`/admin/employee/${emp._id}`}
-                          className="px-4 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+                          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-xs sm:text-sm"
                         >
                           Details
                         </Link>
                       </td>
                     </tr>
                   ))}
-                  {employees.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        className="p-4 text-center text-gray-500 italic"
-                      >
-                        No employees found for this department.
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
 
-              {/* Pagination Controls */}
-              <div className="flex items-center justify-between mt-4">
+              {/* Pagination */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4">
+                {/* Rows Per Page */}
                 <div className="flex items-center gap-2 text-sm">
                   <span>Rows per page:</span>
                   <select
@@ -245,20 +230,13 @@ export default function DepartmentDetails() {
                   </select>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    className="px-3 py-1 border rounded hover:bg-gray-100"
-                    disabled={currentPage === 1}
-                  >
-                    Prev
-                  </button>
-
-                  {[...Array(totalPages)].map((_, i) => (
+                {/* Page Numbers */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {Array.from({ length: totalPages }).map((_, i) => (
                     <button
                       key={i}
-                      onClick={() => handlePageChange(i + 1)}
-                      className={`px-3 py-1 rounded border ${
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`px-3 py-1 rounded border text-sm ${
                         currentPage === i + 1
                           ? "bg-blue-600 text-white"
                           : "hover:bg-gray-100"
@@ -267,14 +245,6 @@ export default function DepartmentDetails() {
                       {i + 1}
                     </button>
                   ))}
-
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    className="px-3 py-1 border rounded hover:bg-gray-100"
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
                 </div>
               </div>
             </>
