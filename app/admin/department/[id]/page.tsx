@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import React, { useState } from "react";
 import { Users, Clock, CalendarDays } from "lucide-react";
 import {
   BarChart,
@@ -13,8 +11,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import SkeletonTable from "@/components/shared/Skeleton/SkeletonTable";
+import {
+  useGetDepartmentEmployeesQuery,
+  useGetDepartmentOverviewQuery,
+} from "@/app/redux/features/department/DepartmentOverviewApi";
 
 const departments = [
   { id: "marketer", name: "Marketing Team" },
@@ -24,76 +27,73 @@ const departments = [
   { id: "admin_service", name: "Admin Service" },
 ];
 
-interface Employee {
-  _id: string;
-  photo?: string;
-  name: string;
-  number: string;
-  email: string;
-  designation: string;
-  joiningDate: string;
-  salary: string | number;
-}
-
 export default function DepartmentDetails() {
   const [view, setView] = useState("daily");
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const { id } = useParams();
+
+  const { data: overview } = useGetDepartmentOverviewQuery({
+    departmentId: id as string,
+  });
+  const { data: employeesData, isLoading: loading } =
+    useGetDepartmentEmployeesQuery({
+      departmentId: id as string,
+    });
+
+  const employees = employeesData?.data || [];
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-        const res = await fetch(`${baseUrl}/departments/employees/${id}`);
-        const data = await res.json();
-        if (res.ok && data.success) setEmployees(data.data);
-      } catch (err) {
-        console.error("Error fetching employees:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchEmployees();
-  }, [id]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [employees]);
 
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
   const currentEmployees = employees.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(employees.length / itemsPerPage);
 
-  const dailyData = [
-    { day: "Mon", hours: 8 },
-    { day: "Tue", hours: 7 },
-    { day: "Wed", hours: 9 },
-    { day: "Thu", hours: 6 },
-    { day: "Fri", hours: 8 },
-  ];
-  const weeklyData = [
-    { week: "Week 1", hours: 45 },
-    { week: "Week 2", hours: 42 },
-    { week: "Week 3", hours: 47 },
-    { week: "Week 4", hours: 44 },
-  ];
-  const monthlyData = [
-    { month: "Jan", hours: 180 },
-    { month: "Feb", hours: 175 },
-    { month: "Mar", hours: 182 },
-  ];
+  // Extract stats
+  const dailyStats = overview?.data?.dailyStats || [];
+  const weeklyStats = overview?.data?.weeklyStats || [];
+  const monthlyStats = overview?.data?.monthlyStats || [];
 
+  // Get today's date
+  const today = new Date().toISOString().split("T")[0];
+  const todayEntry = dailyStats.find((d: any) => d.day === today);
+  const todayHours = todayEntry ? todayEntry.hours : 0;
+
+  function getWeekNumber(date: Date) {
+    const oneJan = new Date(date.getFullYear(), 0, 1);
+    const numberOfDays = Math.floor(
+      (date.getTime() - oneJan.getTime()) / (24 * 60 * 60 * 1000)
+    );
+    return Math.ceil((numberOfDays + oneJan.getDay() + 1) / 7);
+  }
+
+  const currentWeekNumber = getWeekNumber(new Date(today));
+  const currentWeekEntry = weeklyStats.find(
+    (w: any) => w.week === `Week ${currentWeekNumber}`
+  );
+  const currentWeekHours = currentWeekEntry ? currentWeekEntry.hours : 0;
+
+  const monthlyTotal = monthlyStats.reduce(
+    (sum: number, m: any) => sum + (m.totalHours || 0),
+    0
+  );
+
+  // Chart Data Selector
   const chartData =
-    view === "daily" ? dailyData : view === "weekly" ? weeklyData : monthlyData;
+    view === "daily"
+      ? dailyStats
+      : view === "weekly"
+      ? weeklyStats
+      : monthlyStats;
+
+  // X-axis values
   const dataKey =
     view === "daily" ? "day" : view === "weekly" ? "week" : "month";
+
+  // Y-axis values selector (critical fix)
+  const hoursKey = view === "monthly" ? "totalHours" : "hours";
 
   const departmentName = (id: string) => {
     return departments.find((dept) => dept.id === id);
@@ -101,7 +101,6 @@ export default function DepartmentDetails() {
 
   return (
     <div className="bg-white p-4 sm:p-6 md:p-8 space-y-8 overflow-hidden">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
@@ -117,14 +116,25 @@ export default function DepartmentDetails() {
 
       {/* Metrics + Graph */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <MetricCard label="Daily Work Hours" value="9 hrs/day" color="blue" />
-          <MetricCard label="Weekly Hours" value="45 hrs" color="yellow" />
-          <MetricCard label="Monthly Hours" value="180 hrs" color="purple" />
+          <MetricCard
+            label="Daily Work Hours"
+            value={todayHours}
+            color="blue"
+          />
+          <MetricCard
+            label="Weekly Hours"
+            value={currentWeekHours}
+            color="yellow"
+          />
+          <MetricCard
+            label="Monthly Hours"
+            value={monthlyTotal}
+            color="purple"
+          />
           <MetricCard
             label="Total Employees"
-            value={employees.length}
+            value={overview?.data?.totalEmployees || "N/A"}
             color="green"
             icon={<Users className="h-6 w-6 text-green-600" />}
           />
@@ -153,8 +163,10 @@ export default function DepartmentDetails() {
                 <CartesianGrid vertical={false} stroke="#e5e7eb" />
                 <XAxis dataKey={dataKey} />
                 <Tooltip />
+
+                {/* FIXED BAR */}
                 <Bar
-                  dataKey="hours"
+                  dataKey={hoursKey}
                   fill="#3b82f6"
                   radius={[6, 6, 0, 0]}
                   background={{ fill: "#dbeafe" }}
@@ -188,7 +200,7 @@ export default function DepartmentDetails() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentEmployees.map((emp) => (
+                  {currentEmployees.map((emp: any) => (
                     <tr key={emp._id} className="border-t hover:bg-gray-50">
                       <td className="p-3">
                         <Users className="h-8 w-8 text-gray-300" />
@@ -212,7 +224,6 @@ export default function DepartmentDetails() {
 
               {/* Pagination */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4">
-                {/* Rows Per Page */}
                 <div className="flex items-center gap-2 text-sm">
                   <span>Rows per page:</span>
                   <select
@@ -230,7 +241,6 @@ export default function DepartmentDetails() {
                   </select>
                 </div>
 
-                {/* Page Numbers */}
                 <div className="flex items-center gap-2 flex-wrap">
                   {Array.from({ length: totalPages }).map((_, i) => (
                     <button
@@ -271,7 +281,6 @@ function MetricCard({
     yellow: "text-yellow-600 bg-yellow-50",
     purple: "text-purple-600 bg-purple-50",
     green: "text-green-600 bg-green-50",
-    indigo: "text-indigo-600 bg-indigo-50",
   };
 
   return (

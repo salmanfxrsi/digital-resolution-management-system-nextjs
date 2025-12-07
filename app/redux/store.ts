@@ -7,6 +7,7 @@ import { overviewApi } from "./features/tasks/EmployeeTaskoverviewApi";
 import { clientsApi } from "./features/clients/clientsApi";
 import { leaveApi } from "./features/leave/leaveApi";
 import { attendanceApi } from "./features/attendance/attendanceApi";
+import { departmentOverviewApi } from "./features/department/DepartmentOverviewApi";
 
 export const store = configureStore({
   reducer,
@@ -17,6 +18,7 @@ export const store = configureStore({
       employeesApi.middleware,
       clientsApi.middleware,
       overviewApi.middleware,
+      departmentOverviewApi.middleware,
       leaveApi.middleware,
       attendanceApi.middleware
     ),
