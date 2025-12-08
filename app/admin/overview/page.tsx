@@ -1,42 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import OverViewCard from "@/components/module/Cards/OverViewCard";
 import OverViewGraph from "@/components/module/Graphs/OverViewGraph";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Briefcase, Building2 } from "lucide-react";
 import AdminOverView from "@/components/shared/Skeleton/AdminOverView";
+import { useGetAdminOverviewQuery } from "@/app/redux/features/admin/adminOverviewApi";
+import { useGetEmployeeByIdQuery } from "@/app/redux/features/Employees/employeesApi";
+
+// 🔹 Department name mapping
+const departmentNames: Record<string, string> = {
+  marketer: "Marketing Team",
+  web_developer: "Web Developers",
+  graphic_designer: "Graphic Designers",
+  video_editor: "Video Editors",
+  admin_service: "Admin Service",
+};
 
 export default function OverviewPage() {
   const [deptView, setDeptView] = useState("daily");
   const [empView, setEmpView] = useState("daily");
 
-  const [overview, setOverview] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useGetAdminOverviewQuery(undefined);
 
-  const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch(`${baseURL}/admin/overview`);
-        const data = await res.json();
-        setOverview(data.data);
-      } catch (error) {
-        console.error("Overview Fetch Error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [baseURL]);
-
-  if (loading || !overview) {
+  if (isLoading || !data?.data) {
     return <AdminOverView />;
   }
 
-  console.log(overview);
+  const overview = data.data;
+
   // Extract fields
   const metrics = overview.metrics;
   const workingHours = overview.workingHours;
@@ -50,7 +44,7 @@ export default function OverviewPage() {
       <OverViewCard data={metrics} />
 
       {/* Bar Chart & Details */}
-      <div className="">
+      <div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Graph */}
           <OverViewGraph data={workingHours} />
@@ -80,19 +74,24 @@ export default function OverviewPage() {
               </div>
 
               <div className="space-y-2">
-                {departments.map((dept: any, i: number) => (
-                  <div
-                    key={i}
-                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 text-sm"
-                  >
-                    <div>
-                      <p className="font-medium">{dept._id.department}</p>
-                      <p className="text-gray-500">
-                        Total Hours: {dept.totalHours}
+                {departments.map((dept: any, i: number) => {
+                  const deptName =
+                    departmentNames[dept._id.department] || dept._id.department;
+                  return (
+                    <div
+                      key={i}
+                      className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 text-sm"
+                    >
+                      <div>
+                        <p className="font-medium">{deptName}</p>
+                        <p className="text-gray-500">Team Lead:A</p>
+                      </div>
+                      <p className="text-gray-700 font-bold">
+                        {dept.totalHours} Hr
                       </p>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </Card>
 
