@@ -41,18 +41,6 @@ export default function BottomBar() {
           />
         ))}
       </div>
-
-      {/* Logout Button */}
-      <div className="p-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-red-600 hover:text-red-800"
-          onClick={handleLogout}
-        >
-          <LogOut />
-        </Button>
-      </div>
     </nav>
   );
 }
