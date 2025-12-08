@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const employeesApi = createApi({
   reducerPath: "employeesApi",
 
-  tagTypes: ["Employees"],
+  tagTypes: ["Employees", "Users"],
 
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
@@ -50,6 +50,15 @@ export const employeesApi = createApi({
       }),
       invalidatesTags: ["Employees"],
     }),
+
+    // 🔹 DELETE user (api/v1/users/:id)
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `/users/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
+    }),
   }),
 });
 
@@ -59,4 +68,5 @@ export const {
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,
+  useDeleteUserMutation,
 } = employeesApi;

@@ -13,6 +13,7 @@ import { setSearch } from "@/app/redux/features/Employees/employeesSlice";
 import {
   useGetEmployeesQuery,
   useDeleteEmployeeMutation,
+  useDeleteUserMutation,
 } from "@/app/redux/features/Employees/employeesApi";
 
 import toast from "react-hot-toast";
@@ -43,6 +44,7 @@ export default function EmployeePage() {
   const { data, isLoading } = useGetEmployeesQuery(undefined);
   const [deleteEmployee, { isLoading: isDeleting }] =
     useDeleteEmployeeMutation();
+  const [deleteUser] = useDeleteUserMutation();
 
   const employees: Employee[] = data?.data
     ? [...data.data].sort((a, b) => b._id.localeCompare(a._id))
@@ -63,7 +65,9 @@ export default function EmployeePage() {
     if (!deleteId) return;
 
     try {
+      await deleteUser(deleteId).unwrap();
       await deleteEmployee(deleteId).unwrap();
+
       toast.success("Employee deleted successfully!");
       setDeleteId(null);
       setCurrentPage(1);
