@@ -1,39 +1,61 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useEffect, useState } from "react";
 import OverViewCard from "@/components/module/Cards/OverViewCard";
 import OverViewGraph from "@/components/module/Graphs/OverViewGraph";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Briefcase, Building2 } from "lucide-react";
-import { useState } from "react";
-
-const departments = [
-  { name: "HR", hours: "9 hrs/day", lead: "Alice Johnson" },
-  { name: "IT", hours: "8 hrs/day", lead: "Bob Smith" },
-  { name: "Finance", hours: "7 hrs/day", lead: "Carol Lee" },
-];
-
-const employees = [
-  { name: "John Doe", designation: "HR Manager", hours: "8 hrs/day" },
-  { name: "Jane Smith", designation: "Software Engineer", hours: "7 hrs/day" },
-  { name: "Mark Taylor", designation: "Accountant", hours: "6 hrs/day" },
-];
+import AdminOverView from "@/components/shared/Skeleton/AdminOverView";
 
 export default function OverviewPage() {
   const [deptView, setDeptView] = useState("daily");
   const [empView, setEmpView] = useState("daily");
 
+  const [overview, setOverview] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${baseURL}/admin/overview`);
+        const data = await res.json();
+        setOverview(data.data);
+      } catch (error) {
+        console.error("Overview Fetch Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [baseURL]);
+
+  if (loading || !overview) {
+    return <AdminOverView />;
+  }
+
+  console.log(overview);
+  // Extract fields
+  const metrics = overview.metrics;
+  const workingHours = overview.workingHours;
+
+  const departments = overview.topDepartments[deptView];
+  const employees = overview.topEmployees[empView];
+
   return (
     <div className="space-y-6">
       {/* Metric Cards */}
-      <OverViewCard />
+      <OverViewCard data={metrics} />
 
       {/* Bar Chart & Details */}
       <div className="">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Graph */}
-          <OverViewGraph />
+          <OverViewGraph data={workingHours} />
 
-          {/* Departments & Employees */}
+          {/* Departments + Employees */}
           <div className="flex flex-col gap-6">
             {/* Departments Card */}
             <Card className="p-4 sm:p-6 shadow rounded-lg">
@@ -56,19 +78,19 @@ export default function OverviewPage() {
                   <option value="monthly">Monthly</option>
                 </select>
               </div>
+
               <div className="space-y-2">
-                {departments.map((dept, i) => (
+                {departments.map((dept: any, i: number) => (
                   <div
                     key={i}
                     className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 text-sm"
                   >
                     <div>
-                      <p className="font-medium">{dept.name}</p>
-                      <p className="text-gray-500">Lead: {dept.lead}</p>
+                      <p className="font-medium">{dept._id.department}</p>
+                      <p className="text-gray-500">
+                        Total Hours: {dept.totalHours}
+                      </p>
                     </div>
-                    <span className="text-black font-semibold mt-1 sm:mt-0">
-                      {dept.hours}
-                    </span>
                   </div>
                 ))}
               </div>
@@ -95,19 +117,19 @@ export default function OverviewPage() {
                   <option value="monthly">Monthly</option>
                 </select>
               </div>
+
               <div className="space-y-2">
-                {employees.map((emp, i) => (
+                {employees.map((emp: any, i: number) => (
                   <div
                     key={i}
                     className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-2 text-sm"
                   >
                     <div>
-                      <p className="font-medium">{emp.name}</p>
-                      <p className="text-gray-500">{emp.designation}</p>
+                      <p className="font-medium">{emp._id.employee}</p>
+                      <p className="text-gray-500">
+                        Total Hours: {emp.totalHours}
+                      </p>
                     </div>
-                    <span className="text-black font-semibold mt-1 sm:mt-0">
-                      {emp.hours}
-                    </span>
                   </div>
                 ))}
               </div>

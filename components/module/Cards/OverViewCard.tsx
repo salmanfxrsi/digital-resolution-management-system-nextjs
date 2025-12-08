@@ -1,36 +1,37 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Users, Briefcase, Building2, Clock } from "lucide-react";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 
-const metrics = [
-  {
-    label: "Total Clients",
-    value: 128,
-    icon: Users,
-    color: "text-blue-600 bg-blue-100",
-  },
-  {
-    label: "Employees",
-    value: 42,
-    icon: Briefcase,
-    color: "text-green-600 bg-green-100",
-  },
-  {
-    label: "Departments",
-    value: 5,
-    icon: Building2,
-    color: "text-purple-600 bg-purple-100",
-  },
-  {
-    label: "Weekly Hours",
-    value: "38.5 hrs",
-    icon: Clock,
-    color: "text-yellow-600 bg-yellow-100",
-  },
-];
+const OverViewCard = ({ data }: any) => {
+  const metrics = [
+    {
+      label: "Total Clients",
+      value: data.totalClients,
+      icon: Users,
+      color: "text-blue-600 bg-blue-100",
+    },
+    {
+      label: "Employees",
+      value: data.employees,
+      icon: Briefcase,
+      color: "text-green-600 bg-green-100",
+    },
+    {
+      label: "Departments",
+      value: data.departments,
+      icon: Building2,
+      color: "text-purple-600 bg-purple-100",
+    },
+    {
+      label: "Weekly Hours",
+      value: data.weeklyHours,
+      icon: Clock,
+      color: "text-yellow-600 bg-yellow-100",
+    },
+  ];
 
-const OverViewCard = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {metrics.map((metric) => (
