@@ -22,8 +22,8 @@ export default function Page() {
   const { data, isLoading } = useGetEmployeeByIdQuery(employeeId, {
     skip: !employeeId,
   });
-
   const employee = data?.data || data?.employeeId;
+  console.log(employee);
 
   if (isLoading) {
     return (
