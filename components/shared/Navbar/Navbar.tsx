@@ -19,7 +19,6 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 
-// 🔥 Import RTK Query API
 import { useGetEmployeeByIdQuery } from "@/app/redux/features/Employees/employeesApi";
 
 const notifications = [
@@ -62,18 +61,14 @@ const Navbar = ({
   const { data: session } = useSession();
   const router = useRouter();
 
-  // Get employeeId from session
   const employeeId = (session as any)?.user?.user?.employeeId;
   const userType = (session as any)?.user?.user?.userType;
 
-  // 🔥 Fetch employee data from Redux API
   const { data: empData, isLoading } = useGetEmployeeByIdQuery(employeeId, {
     skip: !employeeId,
   });
 
   const employee = empData?.data;
-
-  console.log(employee);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -83,20 +78,32 @@ const Navbar = ({
   return (
     <nav className="inset-x-0 top-0 h-16 bg-background z-30 shadow-[0px_0_4px_rgba(0,0,0,0.1)]">
       <div className="flex h-full items-center justify-between px-6 md:px-8">
-        {/* Sidebar Toggle */}
-        <button
-          type="button"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="text-muted-foreground rounded-full p-1 hover:text-foreground transition"
-        >
-          {isSidebarOpen ? (
-            <PanelRightClose className="h-5 w-5" />
-          ) : (
-            <PanelRightOpen className="h-5 w-5" />
-          )}
-        </button>
+        {/* LEFT SIDE: Mobile Logo + Desktop Sidebar Toggle */}
+        <div className="flex items-center">
+          {/* Mobile Logo */}
+          <Link href="/" className="md:hidden flex items-center gap-2">
+            <img
+              src="/Digital-Resolution-Logo.png.webp"
+              alt="Logo"
+              className="h-8 w-auto"
+            />
+          </Link>
 
-        {/* LEFT: Search + Admin Stats */}
+          {/* Desktop Sidebar Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="hidden md:flex text-muted-foreground rounded-full p-1 hover:text-foreground transition"
+          >
+            {isSidebarOpen ? (
+              <PanelRightClose className="h-5 w-5" />
+            ) : (
+              <PanelRightOpen className="h-5 w-5" />
+            )}
+          </button>
+        </div>
+
+        {/* LEFT: Search + Admin Stats (Desktop Only) */}
         <div className="hidden md:flex items-center gap-6">
           {/* Admin Box */}
           {userType === "admin" && (
@@ -149,7 +156,6 @@ const Navbar = ({
               </span>
             </button>
 
-            {/* Notification Dropdown */}
             <Transition
               show={showNotifications}
               enter="transition ease-out duration-200"
@@ -191,7 +197,7 @@ const Navbar = ({
             </Transition>
           </div>
 
-          {/* Profile Dropdown */}
+          {/* Profile */}
           <Menu as="div" className="relative">
             <MenuButton className="flex items-center gap-2 rounded-full">
               {isLoading ? (
