@@ -12,23 +12,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const workingHourData = [
-  { day: "Monday", hours: 2 },
-  { day: "Tuesday", hours: 8 },
-  { day: "Wednesday", hours: 4 },
-  { day: "Thursday", hours: 8 },
-  { day: "Friday", hours: 7.5 },
-  { day: "Saturday", hours: 4 },
-  { day: "Sunday", hours: 0 },
-];
+interface WorkingHour {
+  day: string;
+  hours: number;
+}
 
-const OverViewGraph = () => {
+interface OverViewGraphProps {
+  data: {
+    averageWeeklyHours: number;
+    data: WorkingHour[];
+  };
+}
+
+const OverViewGraph = ({ data }: OverViewGraphProps) => {
   return (
     <div className="">
       {/* Working Hours Chart */}
@@ -41,7 +42,7 @@ const OverViewGraph = () => {
           <ChartContainer
             config={{ hours: { label: "Hours", color: "#eee36e" } }}
           >
-            <BarChart accessibilityLayer data={workingHourData}>
+            <BarChart accessibilityLayer data={data.data}>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="day"
@@ -59,7 +60,7 @@ const OverViewGraph = () => {
         </CardContent>
         <CardFooter className="flex gap-2 text-sm font-medium">
           <Clock className="h-4 w-4" />
-          Average weekly hours: 43
+          Average weekly hours: {data.averageWeeklyHours}
         </CardFooter>
       </Card>
     </div>

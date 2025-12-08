@@ -39,6 +39,7 @@ export default function DepartmentDetails() {
     useGetDepartmentEmployeesQuery({
       departmentId: id as string,
     });
+  console.log(overview);
 
   const employees = employeesData?.data || [];
 
@@ -70,6 +71,7 @@ export default function DepartmentDetails() {
   }
 
   const currentWeekNumber = getWeekNumber(new Date(today));
+
   const currentWeekEntry = weeklyStats.find(
     (w: any) => w.week === `Week ${currentWeekNumber}`
   );
