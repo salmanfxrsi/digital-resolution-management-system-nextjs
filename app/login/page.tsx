@@ -11,7 +11,6 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
-
 export default function Loginpage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,10 +18,11 @@ export default function Loginpage() {
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
-
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); // start loading
 
     const result = await signIn("credentials", {
       email,
@@ -30,10 +30,11 @@ export default function Loginpage() {
       redirect: false,
     });
 
-    console.log(result)
+    console.log(result);
 
     if (!result?.ok) {
       console.error("Login failed");
+      setLoading(false); // stop loading if failed
     }
   };
 
@@ -45,6 +46,7 @@ export default function Loginpage() {
       );
     }
   }, [session, router]);
+  console.log(session);
 
   return (
     <div className="flex items-center justify-center max-w-xl">
@@ -107,11 +109,11 @@ export default function Loginpage() {
             </div>
 
             <Button
-              disabled={!email || !password}
+              disabled={!email || !password || loading}
               type="submit"
-              className="w-full cursor-pointer mt-4 bg-red-500 uppercase hover:bg-red-600 transition"
+              className="w-full cursor-pointer mt-4 bg-red-500 uppercase hover:bg-red-600 transition disabled:opacity-50"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </form>
         </CardContent>
