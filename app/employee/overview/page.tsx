@@ -47,6 +47,7 @@ export default function OverviewPage() {
   });
 
   const summary = data?.data?.summary || {};
+  console.log(summary);
 
   const attendanceStats = [
     {
@@ -72,7 +73,7 @@ export default function OverviewPage() {
   const metrics = [
     {
       label: "Total Hours",
-      value: `${summary.averageHours ?? 0} hrs`,
+      value: `${summary.totalHours ?? 0} hrs`,
       icon: Clock,
       color: "text-blue-600 bg-blue-100",
       description: "Total hours worked",
