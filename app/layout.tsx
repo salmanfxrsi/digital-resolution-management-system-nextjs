@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
@@ -35,12 +37,35 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     if (status === "unauthenticated" && !isAuthPage) {
       router.push("/login");
     }
-  }, [status, isAuthPage, router]);
+
+    if (status === "authenticated" && session?.user) {
+      const userType =
+        (session as any)?.user?.user?.userType ??
+        (session as any)?.user?.userType ??
+        (session as any)?.user?.role ??
+        (session as any)?.userType;
+
+      // Admin cannot access employee routes
+      if (userType === "admin" && pathname.startsWith("/employee")) {
+        router.push("/"); // redirect to admin dashboard/home
+      }
+
+      //  Employee cannot access admin routes
+      if (userType !== "admin" && pathname.startsWith("/admin")) {
+        router.push("/"); // redirect to employee overview/home
+      }
+    }
+  }, [status, isAuthPage, router, pathname, session]);
 
   if (status === "loading") {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-gray-500">Checking authentication...</p>
+      <main className="flex min-h-screen flex-col gap-3 items-center justify-center">
+        <img
+          src="/Digital-Resolution-Logo.png.webp"
+          alt="Logo"
+          className="h-10 w-auto"
+        />
+        <p className="text-gray-500 text-xl">Checking Authentication...</p>
       </main>
     );
   }
