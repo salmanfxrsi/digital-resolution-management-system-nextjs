@@ -100,7 +100,23 @@ export default function DepartmentDetails() {
   const departmentName = (id: string) => {
     return departments.find((dept) => dept.id === id);
   };
+  function getJoinedSince(joiningDate: string | Date): string {
+    const joinDate = new Date(joiningDate);
+    const now = new Date();
 
+    const diffTime = Math.abs(now.getTime() - joinDate.getTime());
+    const diffYears = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365));
+    const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffYears >= 1) {
+      return `${diffYears} year${diffYears > 1 ? "s" : ""}`;
+    } else if (diffMonths >= 1) {
+      return `${diffMonths} month${diffMonths > 1 ? "s" : ""}`;
+    } else {
+      return `${diffDays} day${diffDays > 1 ? "s" : ""}`;
+    }
+  }
   return (
     <div className="bg-white p-4 sm:p-6 md:p-8 space-y-8 overflow-hidden">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -190,77 +206,102 @@ export default function DepartmentDetails() {
             <SkeletonTable />
           ) : (
             <>
-              <table className="min-w-full text-sm">
+              <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow text-sm sm:text-base">
                 <thead>
-                  <tr className="bg-gray-50 text-gray-700">
-                    <th className="p-3 text-left">Photo</th>
-                    <th className="p-3 text-left">Name</th>
-                    <th className="p-3 text-left">Phone</th>
-                    <th className="p-3 text-left">Email</th>
-                    <th className="p-3 text-left">Designation</th>
-                    <th className="p-3 text-center">Action</th>
+                  <tr className="bg-gray-100 text-left font-semibold text-gray-700">
+                    <th className="p-3 sm:p-4 border">Name</th>
+                    <th className="p-3 sm:p-4 border">Number</th>
+                    <th className="p-3 sm:p-4 border">Joined Since</th>
+                    <th className="p-3 sm:p-4 border">Designation</th>
+                    <th className="p-3 sm:p-4 border text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentEmployees.map((emp: any) => (
-                    <tr key={emp._id} className="border-t hover:bg-gray-50">
-                      <td className="p-3">
-                        <Users className="h-8 w-8 text-gray-300" />
-                      </td>
-                      <td className="p-3">{emp.name}</td>
-                      <td className="p-3">{emp.number}</td>
-                      <td className="p-3 break-all">{emp.email}</td>
-                      <td className="p-3">{emp.designation}</td>
-                      <td className="p-3 text-center">
-                        <Link
-                          href={`/admin/employee/${emp._id}`}
-                          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-xs sm:text-sm"
-                        >
-                          Details
-                        </Link>
+                  {currentEmployees.map((emp: any) => {
+                    // Calculate years/months since joining
+
+                    return (
+                      <tr
+                        key={emp._id}
+                        className="border-t hover:bg-blue-50 transition-colors duration-200"
+                      >
+                        <td className="p-3 sm:p-4 border font-medium text-gray-900">
+                          {emp.name}
+                        </td>
+                        <td className="p-3 sm:p-4 border text-gray-700">
+                          {emp.number}
+                        </td>
+                        <td className="p-3 sm:p-4 border text-gray-700">
+                          {getJoinedSince(emp.joiningDate)}
+                        </td>
+                        <td className="p-3 sm:p-4 border text-gray-700">
+                          {emp.designation}
+                        </td>
+                        <td className="p-3 sm:p-4 border text-center">
+                          <div className="flex flex-col sm:flex-row justify-center gap-2">
+                            {/* Details Button */}
+                            <Link
+                              href={`/admin/employee/${emp._id}`}
+                              className="px-3 py-1.5 text-sm font-medium rounded-md bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                            >
+                              Details
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+
+                  {/* Empty State */}
+                  {currentEmployees.length === 0 && (
+                    <tr>
+                      <td
+                        className="p-6 text-center text-gray-500 italic"
+                        colSpan={5}
+                      >
+                        No employees found.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
-
-              {/* Pagination */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4">
-                <div className="flex items-center gap-2 text-sm">
-                  <span>Rows per page:</span>
-                  <select
-                    value={itemsPerPage}
-                    onChange={(e) => {
-                      setItemsPerPage(Number(e.target.value));
-                      setCurrentPage(1);
-                    }}
-                    className="border p-1 rounded"
-                  >
-                    <option value={5}>5</option>
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={50}>50</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-2 flex-wrap">
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-1 rounded border text-sm ${
-                        currentPage === i + 1
-                          ? "bg-blue-600 text-white"
-                          : "hover:bg-gray-100"
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </>
           )}
+        </div>
+        {/* Pagination */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4">
+          <div className="flex items-center gap-2 text-sm">
+            <span>Rows per page:</span>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="border p-1 rounded"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-3 py-1 rounded border text-sm ${
+                  currentPage === i + 1
+                    ? "bg-blue-600 text-white"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
