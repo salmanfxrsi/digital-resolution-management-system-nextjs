@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import AddEmployeeModal from "./components/AddEmployeeModal";
-import { Briefcase } from "lucide-react";
+import { Briefcase, SendHorizontal, Trash2 } from "lucide-react";
 import SkeletonTable from "@/components/shared/Skeleton/SkeletonTable";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -132,7 +132,7 @@ export default function EmployeePage() {
           <input
             type="text"
             placeholder="Search by name or department..."
-            className="w-full sm:w-[300px] p-2 border rounded shadow focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full sm:w-[600px] p-2 border rounded shadow focus:outline-none focus:ring focus:ring-blue-300"
             value={search}
             onChange={(e) => {
               dispatch(setSearch(e.target.value));
@@ -143,9 +143,10 @@ export default function EmployeePage() {
 
         <button
           onClick={() => setOpenModal(true)}
-          className="px-5 w-full sm:w-[200px] py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 mt-2 sm:mt-0"
+          className="px-5 cursor-pointer flex justify-between items-center w-full sm:w-[250px]  py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 mt-2 sm:mt-0"
         >
           Add Employee
+          <SendHorizontal className="inline-block w-5 h-5 ml-2" />
         </button>
       </div>
 
@@ -176,18 +177,19 @@ export default function EmployeePage() {
                     {emp.department}
                   </td>
                   <td className="p-2 sm:p-3 border">{emp.designation}</td>
-                  <td className="p-2 sm:p-3 border text-center flex flex-col sm:flex-row justify-center gap-2">
+                  <td className="p-2 sm:p-3  text-center flex flex-col sm:flex-row justify-center gap-2">
                     <Link
                       href={`/admin/employee/${emp._id}`}
-                      className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-center"
+                      className="px-3   py-1 bg-blue-100 hover:text-white text-blue-600 rounded hover:bg-blue-700 text-center"
                     >
                       Details
                     </Link>
+
                     <button
                       onClick={() => setDeleteId(emp._id)}
-                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                      className="p-1 flex justify-center items-center bg-red-100 text-red-600 rounded hover:bg-red-700 hover:text-white"
                     >
-                      Delete
+                      <Trash2 className="inline-block  h-4 w-4" />
                     </button>
                   </td>
                 </tr>
